@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aptitude Labs - IPMAT Assessment</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Material Icons for UI buttons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Firebase SDKs (Required for your backend) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+</head>
+<body oncontextmenu="return false;"> <!-- Disables Right Click to prevent copying -->
+
+    <!-- 1. Header Section (TCS Blue Theme) -->
+    <header class="tcs-header">
+        <div class="logo-area">
+            <h1>IPMAT 2026 - Aptitude Labs</h1>
+        </div>
+        <div class="profile-area">
+            <img src="https://via.placeholder.com/40" alt="Student" id="student-photo">
+            <span id="student-name">Candidate Name</span>
+        </div>
+    </header>
+
+    <!-- 2. Main Exam Area -->
+    <div class="main-container">
+        
+        <!-- LEFT SIDE: The Question Engine -->
+        <div class="question-engine" id="engine-container">
+            
+            <!-- Question Header: Tabs & Marks Info -->
+            <div class="q-header">
+                <div class="sections-tab">
+                    <button class="active-sec">Quantitative Ability (SA)</button>
+                    <button>Quantitative Ability (MCQ)</button>
+                    <button>Verbal Ability</button>
+                </div>
+                <div class="marks-info">
+                    <span>Type: <strong id="q-type-label">MCQ</strong></span>
+                    <span class="marks-badge" id="marks-badge">+4 / -1</span>
+                </div>
+            </div>
+
+            <!-- The Split Screen Wrapper (Crucial for RC/DI) -->
+            <div class="split-wrapper">
+                
+                <!-- Left Pane: Passage or Chart (Hidden by default, shows for RC/DI) -->
+                <div id="left-pane" class="pane hidden">
+                    <div class="pane-header">Passage / Data</div>
+                    <div class="pane-content" id="passage-container">
+                        <!-- Content injected by JS -->
+                        <h3>Read the passage below:</h3>
+                        <p>Loading passage...</p>
+                    </div>
+                </div>
+
+                <!-- Right Pane: The Question -->
+                <div id="right-pane" class="pane full-width">
+                    <div class="question-scroll-area">
+                        <div class="question-top-bar">
+                            <span class="q-num">Question No. <span id="q-number-display">1</span></span>
+                            <span class="view-in">View in: English</span>
+                        </div>
+                        <div class="question-text" id="question-text">
+                            <!-- Question injected by JS -->
+                        </div>
+                        <div class="options-grid" id="options-container">
+                            <!-- Options injected by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Buttons (TCS Layout) -->
+            <div class="q-footer">
+                <div class="footer-left">
+                    <button class="btn-secondary" onclick="markForReview()">Mark for Review & Next</button>
+                    <button class="btn-clear" onclick="clearResponse()">Clear Response</button>
+                </div>
+                <div class="footer-right">
+                    <button class="btn-primary" onclick="saveAndNext()">Save & Next</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE: Sidebar (Palette & Timer) -->
+        <div class="sidebar">
+            
+            <!-- Timer Section -->
+            <div class="timer-box">
+                <div class="user-thumb">
+                    <img src="https://via.placeholder.com/60" alt="User">
+                </div>
+                <div class="time-display">
+                    <span>Time Left:</span>
+                    <h2 id="timer">00:40:00</h2>
+                </div>
+            </div>
+
+            <!-- Palette Legend (The status colors) -->
+            <div class="palette-area">
+                <div class="legend-grid">
+                    <div class="leg-item"><span class="circle not-visited">0</span> Not Visited</div>
+                    <div class="leg-item"><span class="circle not-answered">0</span> Not Answered</div>
+                    <div class="leg-item"><span class="circle answered">0</span> Answered</div>
+                    <div class="leg-item"><span class="circle marked">0</span> Marked for Review</div>
+                    <div class="leg-item"><span class="circle ans-marked">0</span> Ans & Marked</div>
+                </div>
+
+                <div class="palette-header">Question Palette:</div>
+                <div class="grid-container" id="question-palette">
+                    <!-- Buttons generated by JS -->
+                </div>
+            </div>
+
+            <!-- Final Submit -->
+            <div class="sidebar-footer">
+                <button class="btn-submit" onclick="submitExam()">SUBMIT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Your Logic File -->
+    <script src="script.js"></script>
+</body>
+</html>

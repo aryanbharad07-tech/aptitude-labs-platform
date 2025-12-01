@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Analysis | Aptitude Labs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --primary: #2563EB;
+            --bg-body: #F3F4F6;
+            --success: #10B981;
+            --danger: #EF4444;
+            --text-main: #1F2937;
+        }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; padding-bottom: 40px; }
+
+        /* HEADER */
+        .header { background: white; padding: 20px 40px; border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .btn-dash { padding: 8px 16px; border: 1px solid #D1D5DB; background: white; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .btn-dash:hover { background: #F9FAFB; }
+
+        /* SCORE CARD */
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        
+        .score-summary {
+            background: white; border-radius: 12px; padding: 30px;
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .stat-box h3 { font-size: 2.5rem; margin: 0; font-weight: 800; color: var(--primary); }
+        .stat-box p { color: #6B7280; margin: 5px 0 0; font-size: 0.9rem; font-weight: 600; text-transform: uppercase; }
+        
+        /* QUESTION LIST */
+        .q-card {
+            background: white; border-radius: 12px; padding: 25px;
+            margin-bottom: 20px; border: 1px solid #E5E7EB;
+            position: relative; overflow: hidden;
+        }
+
+        .q-status-bar {
+            position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
+        }
+        .status-correct { background: var(--success); }
+        .status-wrong { background: var(--danger); }
+        .status-skipped { background: #9CA3AF; }
+
+        .q-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .q-num { font-weight: 700; color: #6B7280; }
+        .q-marks { background: #E5E7EB; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
+
+        .q-type-badge { font-size: 0.75rem; background: #DBEAFE; color: #1E40AF; padding: 2px 6px; border-radius: 4px; margin-left: 10px; }
+
+        .q-text { font-size: 1.1rem; margin-bottom: 20px; line-height: 1.5; font-weight: 500; }
+
+        /* ANSWERS AREA */
+        .ans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: #F9FAFB; padding: 15px; border-radius: 8px; }
+        
+        .ans-box span { display: block; font-size: 0.8rem; color: #6B7280; margin-bottom: 4px; font-weight: 700; text-transform: uppercase; }
+        .ans-box div { font-weight: 600; font-size: 1rem; }
+
+        .correct-text { color: var(--success); }
+        .wrong-text { color: var(--danger); }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo" onclick="location.href='dashboard.html'">
+            <i class="material-icons">arrow_back</i> Back to Dashboard
+        </div>
+        <div>Test Analysis ID: <span id="exam-id" style="font-family:monospace; color:#666;">Loading...</span></div>
+    </div>
+
+    <div class="container">
+        
+        <!-- Summary Section -->
+        <div class="score-summary">
+            <div class="stat-box">
+                <h3 id="score-display">--</h3>
+                <p>Total Score</p>
+            </div>
+            <div class="stat-box">
+                <h3 id="accuracy-display">--%</h3>
+                <p>Accuracy</p>
+            </div>
+            <div class="stat-box">
+                <h3 id="correct-count" style="color:var(--success)">--</h3>
+                <p>Correct</p>
+            </div>
+            <div class="stat-box">
+                <h3 id="wrong-count" style="color:var(--danger)">--</h3>
+                <p>Wrong</p>
+            </div>
+        </div>
+
+        <!-- Questions Section -->
+        <div id="solutions-container">
+            <p style="text-align:center;">Loading Analysis...</p>
+        </div>
+
+    </div>
+
+    <script>
+        // 1. FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyBTbfSlz0xvfBzAWmJzXDGbIC6Up0-6eU4",
+            authDomain: "aptitudelabs-in.firebaseapp.com",
+            projectId: "aptitudelabs-in",
+            storageBucket: "aptitudelabs-in.firebasestorage.app",
+            messagingSenderId: "175469863880",
+            appId: "1:175469863880:web:b7b25ed27120665af716fd"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // 2. UPDATED QUESTION DATA (Standardized Marking)
+        // TYPE: 'MCQ' = +4/-1
+        // TYPE: 'SA'  = +4/0 (TITA)
+        const questionsDB = [
+            { id: "q1", type: "MCQ", text: "What is the value of 15% of 200?", options: ["20", "30", "40", "25"], correct: "30" },
+            
+            // TITA Question (Short Answer)
+            { id: "q2", type: "SA", text: "Find the missing number: 2, 4, 8, 16, _? (Type answer)", correct: "32" },
+            
+            { id: "q3", type: "MCQ", text: "According to the passage, what does Macroeconomics analyze?", options: ["Individual choices", "The economy as a whole system", "Only currency inflation", "Production of goods only"], correct: "The economy as a whole system" },
+            
+            { id: "q4", type: "MCQ", text: "Economics is primarily concerned with:", options: ["Warfare", "Allocating resources", "Painting", "Rocket Science"], correct: "Allocating resources" },
+            
+            { id: "q5", type: "MCQ", text: "Which IIM conducts IPMAT Indore?", options: ["IIM Rohtak", "IIM Indore", "IIM Ranchi", "IIM Jammu"], correct: "IIM Indore" }
+        ];
+
+        // 3. LOAD DATA
+        window.onload = async function() {
+            const lastExamId = localStorage.getItem("lastExamId");
+            if(!lastExamId) {
+                alert("No recent exam found.");
+                window.location.href = "dashboard.html";
+                return;
+            }
+
+            document.getElementById('exam-id').innerText = lastExamId.slice(0,8);
+
+            try {
+                const doc = await db.collection("testResults").doc(lastExamId).get();
+                if(doc.exists) {
+                    renderAnalysis(doc.data());
+                } else {
+                    alert("Result not found!");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Error loading results.");
+            }
+        };
+
+        function renderAnalysis(data) {
+            // A. Populate Top Stats
+            document.getElementById('score-display').innerText = data.score;
+            document.getElementById('correct-count').innerText = data.correct;
+            document.getElementById('wrong-count').innerText = data.wrong;
+            
+            const totalAttempted = data.correct + data.wrong;
+            const accuracy = totalAttempted > 0 ? Math.round((data.correct / totalAttempted) * 100) : 0;
+            document.getElementById('accuracy-display').innerText = accuracy + "%";
+
+            // B. Populate Question Cards
+            const container = document.getElementById('solutions-container');
+            container.innerHTML = '';
+
+            questionsDB.forEach((q, index) => {
+                // Get user's answer for this question index
+                const userRecord = data.answers[index]; 
+                const userAnswer = userRecord ? userRecord.answer : null;
+                const status = userRecord ? userRecord.status : 'not-visited';
+                
+                let cardClass = 'status-skipped';
+                let userAnsText = 'Not Answered';
+                let userAnsColor = '#9CA3AF'; // Grey
+                let marksDisplay = '0';
+                
+                // Logic: MCQ = +4/-1. SA (TITA) = +4/0.
+                const correctMarks = 4;
+                const wrongMarks = (q.type === 'SA') ? 0 : -1;
+
+                // Determine Status & Marks
+                if (userAnswer) {
+                    if (userAnswer === q.correct) {
+                        cardClass = 'status-correct';
+                        userAnsText = userAnswer;
+                        userAnsColor = 'var(--success)';
+                        marksDisplay = '+' + correctMarks;
+                    } else {
+                        cardClass = 'status-wrong';
+                        userAnsText = userAnswer;
+                        userAnsColor = 'var(--danger)';
+                        marksDisplay = wrongMarks; // Displays -1 or 0
+                    }
+                }
+
+                // TITA Badge
+                const typeBadge = q.type === 'SA' ? '<span class="q-type-badge">TITA (No Neg. Marking)</span>' : '';
+
+                // Create Card HTML
+                const card = `
+                    <div class="q-card">
+                        <div class="q-status-bar ${cardClass}"></div>
+                        <div class="q-header">
+                            <div>
+                                <span class="q-num">Question ${index + 1}</span>
+                                ${typeBadge}
+                            </div>
+                            <span class="q-marks">${marksDisplay} Marks</span>
+                        </div>
+                        <div class="q-text">${q.text}</div>
+                        
+                        <div class="ans-grid">
+                            <div class="ans-box">
+                                <span>YOUR ANSWER</span>
+                                <div style="color:${userAnsColor}">${userAnsText}</div>
+                            </div>
+                            <div class="ans-box">
+                                <span>CORRECT ANSWER</span>
+                                <div class="correct-text">${q.correct}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += card;
+            });
+        }
+    </script>
+</body>
+</html>

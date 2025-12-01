@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Aptitude Labs</title>
+    
+    <!-- Professional Font: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Firebase SDKs (Compat Version) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        /* --- PROFESSIONAL THEME VARIABLES --- */
+        :root {
+            --primary: #2563EB; /* Royal Blue */
+            --primary-hover: #1D4ED8;
+            --bg-body: #F3F4F6;
+            --bg-card: #FFFFFF;
+            --text-main: #111827;
+            --text-muted: #6B7280;
+            --border: #E5E7EB;
+            --success: #10B981;
+            --locked: #EF4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* --- NAVIGATION --- */
+        .navbar {
+            background: white;
+            height: 64px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .beta-tag {
+            background: #DBEAFE;
+            color: var(--primary);
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        #user-greeting { font-weight: 500; font-size: 0.95rem; }
+
+        .btn-logout {
+            background: none;
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .btn-logout:hover { background: #F9FAFB; border-color: #9CA3AF; color: var(--text-main); }
+
+        /* --- LAYOUT GRID --- */
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            display: grid;
+            grid-template-columns: 2.5fr 1fr; /* Main Content vs Sidebar */
+            gap: 30px;
+            padding: 0 20px;
+        }
+
+        /* --- MAIN CONTENT (Mocks) --- */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 { font-size: 1.5rem; letter-spacing: -0.5px; }
+
+        .filter-tabs {
+            display: flex;
+            background: white;
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .tab {
+            background: none;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            transition: 0.2s;
+        }
+        .tab.active { background: var(--bg-body); color: var(--text-main); }
+        .tab:hover:not(.active) { color: var(--primary); }
+
+        /* Mock Card Styling */
+        .mock-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+        }
+
+        .mock-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-color: var(--primary);
+        }
+
+        .mock-info h4 { 
+            font-size: 1.1rem; 
+            margin-bottom: 8px; 
+            font-weight: 600;
+        }
+
+        .mock-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            display: inline-block;
+            margin-bottom: 6px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge.free { background: #D1FAE5; color: #065F46; }
+        .badge.premium { background: #FEF3C7; color: #92400E; }
+
+        .btn-start {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-start:hover { background: var(--primary-hover); }
+
+        .btn-lock {
+            background: white;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-lock i { font-size: 16px; color: var(--text-muted); }
+
+        /* --- SIDEBAR --- */
+        .sidebar { display: flex; flex-direction: column; gap: 20px; }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .card h3 { 
+            font-size: 0.85rem; 
+            margin-bottom: 15px; 
+            color: var(--text-muted); 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+            font-weight: 700;
+        }
+
+        /* Stats Grid */
+        .stats-grid { display: flex; justify-content: space-between; }
+        .stat-item { display: flex; flex-direction: column; }
+        .stat-val { font-size: 1.5rem; font-weight: 700; color: var(--text-main); }
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* Leaderboard */
+        .leaderboard-list { list-style: none; }
+        .leaderboard-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        .leaderboard-row:last-child { border-bottom: none; }
+        
+        .rank { 
+            font-weight: 700; 
+            width: 24px; 
+            height: 24px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 0.8rem;
+        }
+        .rank-1 { background: #FEF3C7; color: #92400E; }
+        .rank-2 { background: #E5E7EB; color: #374151; }
+        .rank-3 { background: #FFEDD5; color: #9A3412; }
+
+        .name { flex: 1; margin-left: 10px; font-weight: 500; }
+        .score { font-weight: 700; color: var(--primary); }
+
+        /* Premium Banner */
+        .premium-banner {
+            background: linear-gradient(135deg, #1E40AF, #3B82F6);
+            color: white;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+        }
+        .premium-banner h4 { margin-bottom: 8px; font-size: 1.1rem; }
+        .premium-banner p { font-size: 0.85rem; opacity: 0.9; margin-bottom: 15px; line-height: 1.4; }
+        .premium-banner button {
+            background: white;
+            color: #1E40AF;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.1s;
+        }
+        .premium-banner button:active { transform: scale(0.98); }
+
+        /* SKELETON LOADER ANIMATION */
+        .loading-skeleton {
+            height: 80px;
+            background: #E5E7EB;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 0.3; }
+            100% { opacity: 0.6; }
+        }
+
+        @media (max-width: 768px) {
+            .container { grid-template-columns: 1fr; }
+            .navbar { padding: 0 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP NAVIGATION -->
+    <nav class="navbar">
+        <div class="logo">
+            <i class="material-icons" style="color:var(--primary);">school</i>
+            Aptitude Labs <span class="beta-tag">BETA</span>
+        </div>
+        <div class="nav-right">
+            <span id="user-greeting">Welcome, Aspirant</span>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <!-- DASHBOARD LAYOUT -->
+    <div class="container">
+        
+        <!-- MAIN SECTION: Mock Tests -->
+        <main class="main-content">
+            <div class="section-header">
+                <h2>My Test Series</h2>
+                <div class="filter-tabs">
+                    <button class="tab active" onclick="filterMocks('all')">All</button>
+                    <button class="tab" onclick="filterMocks('full')">Full Mocks</button>
+                    <button class="tab" onclick="filterMocks('sectional')">Sectional</button>
+                </div>
+            </div>
+
+            <!-- MOCK LIST CONTAINER -->
+            <div class="mock-list" id="mock-list">
+                <!-- Data will be injected here by JS -->
+                <div class="loading-skeleton"></div>
+                <div class="loading-skeleton"></div>
+                <div class="loading-skeleton"></div>
+            </div>
+        </main>
+
+        <!-- SIDEBAR: Stats & Leaderboard -->
+        <aside class="sidebar">
+            
+            <!-- User Stats Card -->
+            <div class="card stats-card">
+                <h3>Your Progress</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-val" id="tests-taken">0</span>
+                        <span class="stat-label">Tests Taken</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-val" id="avg-score">--</span>
+                        <span class="stat-label">Avg. Score</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leaderboard Card -->
+            <div class="card leaderboard-card">
+                <h3>🏆 Toppers (All India)</h3>
+                <ul class="leaderboard-list" id="leaderboard-list">
+                    <li style="padding:10px; color:#999; text-align:center;">Loading...</li>
+                </ul>
+            </div>
+
+            <!-- Premium Banner -->
+            <div class="premium-banner">
+                <h4>Unlock IPMAT Indore Series</h4>
+                <p>Get 15 Full Length Mocks + Detailed Analysis + Video Solutions.</p>
+                <button onclick="unlockPremium()">Upgrade for ₹99</button>
+            </div>
+
+        </aside>
+
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // 1. FIREBASE CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyBTbfSlz0xvfBzAWmJzXDGbIC6Up0-6eU4",
+            authDomain: "aptitudelabs-in.firebaseapp.com",
+            projectId: "aptitudelabs-in",
+            storageBucket: "aptitudelabs-in.firebasestorage.app",
+            messagingSenderId: "175469863880",
+            appId: "1:175469863880:web:b7b25ed27120665af716fd"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // 2. MOCK DATA STORE (Simulated Database)
+        const mocks = [
+            { id: 101, title: "IPMAT Indore 2024 (Official Replica)", type: "Free", qCount: 90, time: "120 min", category: "full" },
+            { id: 102, title: "JIPMAT Full Length Mock 01", type: "Premium", qCount: 100, time: "150 min", category: "full" },
+            { id: 103, title: "IPMAT Rohtak Speed Test 01", type: "Premium", qCount: 120, time: "120 min", category: "full" },
+            { id: 104, title: "Quantitative Ability (SA) - Algebra", type: "Free", qCount: 20, time: "40 min", category: "sectional" },
+            { id: 105, title: "Verbal Ability - Reading Comp.", type: "Premium", qCount: 30, time: "40 min", category: "sectional" }
+        ];
+
+        // 3. INITIALIZATION
+        window.onload = function() {
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    console.log("User Logged In:", user.email);
+                    const username = user.email.split('@')[0];
+                    document.getElementById('user-greeting').innerHTML = `Hello, <span style="color:var(--primary); font-weight:bold;">${username}</span>`;
+                    
+                    // Load Data
+                    loadDashboardData();
+                } else {
+                    console.log("No User - Redirecting");
+                    window.location.href = "login.html";
+                }
+            });
+        };
+
+        function loadDashboardData() {
+            renderMockList(mocks); // Render all initially
+            fetchLeaderboard();
+            fetchUserStats();
+        }
+
+        // 4. RENDER MOCKS
+        function renderMockList(data) {
+            const container = document.getElementById('mock-list');
+            container.innerHTML = ''; // Clear skeleton
+
+            data.forEach(mock => {
+                const isFree = mock.type === "Free";
+                // If Premium, check local storage if unlocked
+                const isUnlocked = localStorage.getItem("premium_unlocked") === "true";
+                
+                let btnHTML = '';
+                let badgeClass = '';
+
+                if (isFree || isUnlocked) {
+                    btnHTML = `<button class="btn-start" onclick="startTest(${mock.id})">Attempt Now</button>`;
+                    badgeClass = 'free'; // Green badge for accessible
+                } else {
+                    btnHTML = `<button class="btn-lock" onclick="unlockPremium()"><i class="material-icons">lock</i> Unlock</button>`;
+                    badgeClass = 'premium'; // Yellow badge for locked
+                }
+
+                // Display badge text
+                const badgeText = (isFree || isUnlocked) ? "Available" : "Premium";
+
+                const card = `
+                    <div class="mock-card">
+                        <div class="mock-info">
+                            <span class="badge ${badgeClass}">${badgeText}</span>
+                            <h4>${mock.title}</h4>
+                            <div class="mock-meta">
+                                <span><i class="material-icons" style="vertical-align:middle; font-size:14px; margin-right:4px;">format_list_numbered</i> ${mock.qCount} Qs</span>
+                                <span><i class="material-icons" style="vertical-align:middle; font-size:14px; margin-right:4px;">timer</i> ${mock.time}</span>
+                            </div>
+                        </div>
+                        <div class="mock-action">
+                            ${btnHTML}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += card;
+            });
+        }
+
+        // 5. FILTER TABS LOGIC
+        window.filterMocks = function(category) {
+            // Update active tab style
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Filter data
+            if(category === 'all') {
+                renderMockList(mocks);
+            } else {
+                const filtered = mocks.filter(m => m.category === category);
+                renderMockList(filtered);
+            }
+        }
+
+        // 6. FETCH LEADERBOARD (Real Firestore)
+        function fetchLeaderboard() {
+            const list = document.getElementById('leaderboard-list');
+            
+            db.collection('testResults')
+              .orderBy('score', 'desc')
+              .limit(5)
+              .get()
+              .then((querySnapshot) => {
+                  list.innerHTML = ''; // Clear loading
+                  
+                  if(querySnapshot.empty) {
+                      list.innerHTML = '<li style="padding:10px; text-align:center; color:#888;">No results yet. Be the first!</li>';
+                      return;
+                  }
+
+                  let rank = 1;
+                  querySnapshot.forEach((doc) => {
+                      const data = doc.data();
+                      let name = data.studentName || data.email || "Anonymous";
+                      if(name.includes('@')) name = name.split('@')[0];
+
+                      // Add rank styling classes
+                      let rankClass = '';
+                      if(rank === 1) rankClass = 'rank-1';
+                      if(rank === 2) rankClass = 'rank-2';
+                      if(rank === 3) rankClass = 'rank-3';
+
+                      const row = `
+                        <li class="leaderboard-row">
+                            <span class="rank ${rankClass}">${rank}</span>
+                            <span class="name">${name}</span>
+                            <span class="score">${data.score}</span>
+                        </li>
+                      `;
+                      list.innerHTML += row;
+                      rank++;
+                  });
+              })
+              .catch((error) => {
+                  console.error("Error fetching leaderboard:", error);
+                  // Often happens if index is missing. Fail silently or show error.
+                  list.innerHTML = '<li style="color:#aaa; font-size:0.8rem; text-align:center;">Leaderboard updating...</li>';
+              });
+        }
+
+        // 7. USER STATS (Basic Count)
+        function fetchUserStats() {
+            // In a real app, query 'testResults' where student == currentEmail
+            // For now, we simulate or just count local storage attempts
+            // This assumes you want to build a complex query later.
+            document.getElementById('tests-taken').innerText = "0"; // Placeholder
+        }
+
+        // 8. ACTIONS
+        window.startTest = function(testId) {
+            localStorage.setItem("currentTestId", testId);
+            window.location.href = "index.html";
+        }
+
+        window.unlockPremium = function() {
+            if(confirm("Unlock Full Access for ₹99?\n(This is a secure simulation)")) {
+                localStorage.setItem("premium_unlocked", "true");
+                alert("Payment Successful! All tests unlocked.");
+                location.reload();
+            }
+        }
+
+        window.logout = function() {
+            auth.signOut().then(() => {
+                window.location.href = "login.html";
+            });
+        }
+    </script>
+</body>
+</html>
