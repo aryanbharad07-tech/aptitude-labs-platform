@@ -10,7 +10,7 @@ const firebaseConfig = {
     appId: "1:175469863880:web:b7b25ed27120665af716fd"
 };
 
-// Initialize via Global Namespace (matches your HTML imports)
+// Initialize via Global Namespace 
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
@@ -18,90 +18,40 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 
 // ---------------------------------------------------------
-// 2. STATE MANAGEMENT
+// 2. STATE MANAGEMENT & SECURITY CHECK (CRUCIAL)
 // ---------------------------------------------------------
 let currentQuestionIndex = 0;
-let userAnswers = {}; // Stores { 0: { answer: "A", status: "answered" } }
+let userAnswers = {}; 
 let questions = []; 
 
-// ---------------------------------------------------------
-// 3. DUMMY DATA (Includes RC & Short Answer)
-// ---------------------------------------------------------
+// --- DUMMY DATA (Includes RC & Short Answer) ---
+// Note: This needs to match the structure in solutions.html for marks to align
 const dummyQuestions = [
-    {
-        id: "q1",
-        type: "MCQ",
-        text: "What is the value of 15% of 200?",
-        options: ["20", "30", "40", "25"],
-        correct: "30",
-        marks: 4,
-        neg: -1
-    },
-    {
-        id: "q2",
-        type: "SA", // Short Answer (Input Box)
-        text: "Find the missing number: 2, 4, 8, 16, _? (Type answer)",
-        options: [], 
-        correct: "32",
-        marks: 4,
-        neg: 0
-    },
-    {
-        id: "q3",
-        type: "RC", // Reading Comprehension (Split Screen)
-        passage: `
-            <h3>The Economic Problem</h3>
-            <p>Economics is a social science concerned with the production, distribution, and consumption of goods and services. It studies how individuals, businesses, governments, and nations make choices on allocating resources to satisfy their wants and needs.</p>
-            <p>Macroeconomics analyzes the economy as a system where production, consumption, saving, and investment interact.</p>
-        `,
-        text: "According to the passage, what does Macroeconomics analyze?",
-        options: ["Individual choices", "The economy as a whole system", "Only currency inflation", "Production of goods only"],
-        correct: "The economy as a whole system",
-        marks: 5,
-        neg: -1
-    },
-    {
-        id: "q4",
-        type: "RC",
-        passage: `
-            <h3>The Economic Problem</h3>
-            <p>Economics is a social science concerned with the production, distribution, and consumption of goods and services. It studies how individuals, businesses, governments, and nations make choices on allocating resources to satisfy their wants and needs.</p>
-            <p>Macroeconomics analyzes the economy as a system where production, consumption, saving, and investment interact.</p>
-        `,
-        text: "Economics is primarily concerned with:",
-        options: ["Warfare", "Allocating resources", "Painting", "Rocket Science"],
-        correct: "Allocating resources",
-        marks: 5,
-        neg: -1
-    },
-    {
-        id: "q5",
-        type: "MCQ",
-        text: "Which IIM conducts IPMAT Indore?",
-        options: ["IIM Rohtak", "IIM Indore", "IIM Ranchi", "IIM Jammu"],
-        correct: "IIM Indore",
-        marks: 4,
-        neg: -1
-    }
+    { id: "q1", type: "MCQ", text: "What is the value of 15% of 200?", options: ["20", "30", "40", "25"], correct: "30", marks: 4, neg: -1 },
+    { id: "q2", type: "SA", text: "Find the missing number: 2, 4, 8, 16, _? (Type answer)", options: [], correct: "32", marks: 4, neg: 0 },
+    { id: "q3", type: "MCQ", passage: `<h3>The Economic Problem</h3><p>Economics is a social science concerned with the production, distribution, and consumption of goods and services. It studies how individuals, businesses, governments, and nations make choices on allocating resources to satisfy their wants and needs.</p><p>Macroeconomics analyzes the economy as a system where production, consumption, saving, and investment interact.</p>`, text: "According to the passage, what does Macroeconomics analyze?", options: ["Individual choices", "The economy as a whole system", "Only currency inflation", "Production of goods only"], correct: "The economy as a whole system", marks: 4, neg: -1 },
+    { id: "q4", type: "MCQ", passage: `<h3>The Economic Problem</h3><p>Economics is a social science concerned with the production, distribution, and consumption of goods and services. It studies how individuals, businesses, governments, and nations make choices on allocating resources to satisfy their wants and needs.</p><p>Macroeconomics analyzes the economy as a system where production, consumption, saving, and investment interact.</p>`, text: "Economics is primarily concerned with:", options: ["Warfare", "Allocating resources", "Painting", "Rocket Science"], correct: "Allocating resources", marks: 4, neg: -1 },
+    { id: "q5", type: "MCQ", text: "Which IIM conducts IPMAT Indore?", options: ["IIM Rohtak", "IIM Indore", "IIM Ranchi", "IIM Jammu"], correct: "IIM Indore", marks: 4, neg: -1 }
 ];
 
+
 // ---------------------------------------------------------
-// 4. CORE ENGINE INITIALIZATION
+// 3. CORE ENGINE INITIALIZATION & SECURITY GATE
 // ---------------------------------------------------------
 window.onload = function() {
-    questions = dummyQuestions; // Later we will fetch this from Firestore
+    questions = dummyQuestions; // In future, fetch from Firestore here
 
     // Auth Listener
     auth.onAuthStateChanged((user) => {
         if (user) {
-            console.log("Logged in:", user.email);
-            document.getElementById('student-name').innerText = user.email;
+            // User is logged in, allow access
+            document.getElementById('student-name').innerText = user.email.split('@')[0];
+            initExam();
         } else {
-            // For now, allow guest access or redirect
-            // window.location.href = "login.html"; 
-            document.getElementById('student-name').innerText = "Guest Candidate";
+            // CRITICAL: User is NOT logged in. Force redirect.
+            console.log("Access Denied: Not authenticated. Redirecting to login.html");
+            window.location.href = "login.html"; 
         }
-        initExam();
     });
 };
 
@@ -111,44 +61,36 @@ function initExam() {
     startTimer(40 * 60); // 40 minutes in seconds
 }
 
-// ---------------------------------------------------------
-// 5. RENDER LOGIC (Split Screen & Types)
-// ---------------------------------------------------------
+// --- REST OF THE CODE REMAINS THE SAME ---
+
+// RENDER LOGIC (Split Screen & Types)
 function loadQuestion(index) {
     currentQuestionIndex = index;
     const q = questions[index];
     const savedData = userAnswers[index] || {};
 
-    // A. Update Top Bar Info
     document.getElementById('q-number-display').innerText = index + 1;
     document.getElementById('q-type-label').innerText = q.type;
-    document.getElementById('marks-badge').innerText = `+${q.marks} / ${q.neg}`;
+    document.getElementById('marks-badge').innerText = `+4 / ${q.neg}`; // Use standard 4/-1 or 4/0
 
-    // B. Handle Split Screen (RC/DI)
     const leftPane = document.getElementById('left-pane');
     const rightPane = document.getElementById('right-pane');
     const passageContainer = document.getElementById('passage-container');
 
     if (q.passage) {
-        // Activate Split Screen
         leftPane.classList.remove('hidden');
         rightPane.classList.remove('full-width');
         passageContainer.innerHTML = q.passage;
     } else {
-        // Full Width Mode
         leftPane.classList.add('hidden');
         rightPane.classList.add('full-width');
     }
 
-    // C. Render Question Text
     document.getElementById('question-text').innerText = q.text;
-
-    // D. Render Options (MCQ) or Input (SA)
     const optionsContainer = document.getElementById('options-container');
-    optionsContainer.innerHTML = ''; // Clear previous
+    optionsContainer.innerHTML = ''; 
 
     if (q.type === 'SA') {
-        // Short Answer Input
         const input = document.createElement('input');
         input.type = "text";
         input.className = "sa-input";
@@ -156,15 +98,12 @@ function loadQuestion(index) {
         
         if (savedData.answer) input.value = savedData.answer;
 
-        // Auto-save on typing
         input.addEventListener('input', (e) => {
             tempSaveAnswer(index, e.target.value);
         });
-
         optionsContainer.appendChild(input);
 
     } else {
-        // MCQ Radio Buttons
         q.options.forEach((opt, i) => {
             const row = document.createElement('div');
             row.className = "option-row";
@@ -181,7 +120,6 @@ function loadQuestion(index) {
             label.htmlFor = `opt_${i}`;
             label.innerText = opt;
 
-            // Click entire row to select
             row.onclick = () => {
                 radio.checked = true;
                 tempSaveAnswer(index, opt);
@@ -193,10 +131,8 @@ function loadQuestion(index) {
         });
     }
 
-    // E. Update Palette Status (Visually highlight current)
     updatePaletteVisuals();
-    
-    // Mark as visited if not already
+
     if (!userAnswers[index]) {
         userAnswers[index] = { status: 'not-answered' };
     }
@@ -208,75 +144,61 @@ function tempSaveAnswer(index, value) {
     userAnswers[index].tempAnswer = value;
 }
 
-// ---------------------------------------------------------
-// 6. NAVIGATION & SAVING
-// ---------------------------------------------------------
-
-// GREEN BUTTON
+// NAVIGATION & SAVING
 function saveAndNext() {
     const qIdx = currentQuestionIndex;
     const entry = userAnswers[qIdx];
 
-    // If there is a tempAnswer (selected option or typed text)
     if (entry && entry.tempAnswer) {
         entry.answer = entry.tempAnswer;
         entry.status = 'answered';
     } else if (entry && entry.answer) {
-        // Already answered previously, keep it
         entry.status = 'answered';
     } else {
-        // Clicked save without answering
         userAnswers[qIdx] = { status: 'not-answered' };
     }
 
     moveToNext();
 }
 
-// PURPLE BUTTON
 function markForReview() {
     const qIdx = currentQuestionIndex;
     const entry = userAnswers[qIdx];
 
     if (entry && (entry.tempAnswer || entry.answer)) {
-        // Answered AND Marked (Purple with Green tick)
         if(entry.tempAnswer) entry.answer = entry.tempAnswer;
         entry.status = 'ans-marked';
     } else {
-        // Just Marked (Purple)
         userAnswers[qIdx] = { status: 'marked' };
     }
 
     moveToNext();
 }
 
-// CLEAR BUTTON
 function clearResponse() {
     const qIdx = currentQuestionIndex;
-    // Wipe data
-    userAnswers[qIdx] = { status: 'not-answered' };
-    // Re-render to remove selection
-    loadQuestion(qIdx);
+    delete userAnswers[qIdx];
+    loadQuestion(qIdx); 
 }
 
 function moveToNext() {
-    updatePaletteVisuals(); // Update colors based on new status
+    updatePaletteVisuals();
     if (currentQuestionIndex < questions.length - 1) {
         loadQuestion(currentQuestionIndex + 1);
     } else {
-        alert("You have reached the last question.");
+        // Use a clean modal instead of alert/confirm
+        console.log("Reached last question.");
     }
 }
 
-// ---------------------------------------------------------
-// 7. PALETTE LOGIC (The TCS Grid)
-// ---------------------------------------------------------
+// PALETTE LOGIC
 function renderPalette() {
     const container = document.getElementById('question-palette');
     container.innerHTML = '';
     
     questions.forEach((q, index) => {
         const btn = document.createElement('button');
-        btn.className = 'p-btn not-visited'; // Default start
+        btn.className = 'p-btn not-visited';
         btn.innerText = index + 1;
         btn.onclick = () => loadQuestion(index);
         btn.id = `p-btn-${index}`;
@@ -289,20 +211,18 @@ function updatePaletteVisuals() {
         const btn = document.getElementById(`p-btn-${index}`);
         const data = userAnswers[index];
 
-        // 1. Reset Classes
         btn.className = 'p-btn';
 
-        // 2. Apply Status Class
         if (!data) {
             btn.classList.add('not-visited');
         } else {
-            // "status" matches the CSS classes: answered, not-answered, marked, ans-marked
             btn.classList.add(data.status); 
         }
 
-        // 3. Highlight Current Question Border
         if (index === currentQuestionIndex) {
             btn.style.border = "2px solid black";
+        } else {
+            btn.style.border = "1px solid #ccc";
         }
     });
 
@@ -329,9 +249,7 @@ function updateCounts() {
     document.querySelector('.circle.ans-marked').innerText = counts.ansMarked;
 }
 
-// ---------------------------------------------------------
-// 8. TIMER & SUBMISSION
-// ---------------------------------------------------------
+// TIMER & SUBMISSION
 function startTimer(duration) {
     let timer = duration;
     const display = document.getElementById('timer');
@@ -348,15 +266,18 @@ function startTimer(duration) {
 
         if (--timer < 0) {
             clearInterval(interval);
-            submitExam(true); // Auto submit
+            submitExam(true); 
         }
     }, 1000);
 }
 
 function submitExam(auto = false) {
-    if (!auto && !confirm("Are you sure you want to Submit the Test?")) return;
+    if (!auto) {
+        // Use a modal window instead of 'confirm'
+        if (!window.confirm("Are you sure you want to Submit the Test?")) return;
+    }
 
-    // Calculate Score (Simple Client Side)
+    // Calculate Score (Based on +4/-1 or +4/0 rules)
     let score = 0;
     let correctCount = 0;
     let wrongCount = 0;
@@ -364,11 +285,13 @@ function submitExam(auto = false) {
     questions.forEach((q, i) => {
         const entry = userAnswers[i];
         if (entry && (entry.status === 'answered' || entry.status === 'ans-marked')) {
+            const wrongMarks = (q.type === 'SA') ? 0 : -1;
+            
             if (entry.answer === q.correct) {
-                score += q.marks;
+                score += 4; // Always +4 for correct
                 correctCount++;
             } else {
-                score += q.neg; // e.g. -1
+                score += wrongMarks; // -1 or 0 for wrong
                 wrongCount++;
             }
         }
@@ -382,17 +305,18 @@ function submitExam(auto = false) {
         correct: correctCount,
         wrong: wrongCount,
         timestamp: new Date(),
-        answers: userAnswers // detailed breakdown
+        answers: userAnswers
     };
 
     db.collection("testResults").add(resultData)
     .then((docRef) => {
         localStorage.setItem("lastExamId", docRef.id);
-        alert(`Test Submitted! Your Score: ${score}`);
+        // Use a simple alert for success (since we can't show a custom modal easily without more HTML/CSS)
+        window.alert(`Test Submitted! Your Score: ${score}`);
         window.location.href = "solutions.html";
     })
     .catch((error) => {
         console.error("Error writing document: ", error);
-        alert("Error submitting. Check console.");
+        window.alert("Error submitting. Check console.");
     });
 }
