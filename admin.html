@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | Aptitude Labs CMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --primary: #2563EB;
+            --bg-body: #F3F4F6;
+            --text-main: #1F2937;
+            --border: #E5E7EB;
+            --danger: #EF4444;
+        }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-body); color: var(--text-main); margin: 0; padding-bottom: 40px; }
+
+        /* Admin Header */
+        .admin-header {
+            background: #111827;
+            color: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-header h1 { font-size: 1.5rem; }
+        .admin-header span { font-size: 0.85rem; color: #9CA3AF; }
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Loading Overlay (For Auth Check) */
+        #loading-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.95); z-index: 1000;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.2rem;
+        }
+
+        /* Main Form Layout */
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .form-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+        /* Form Elements */
+        label { display: block; font-weight: 600; margin-top: 15px; margin-bottom: 5px; font-size: 0.95rem; }
+        input[type="text"], input[type="number"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+        textarea { resize: vertical; min-height: 100px; }
+
+        /* Options Input Grid */
+        .options-group {
+            border: 1px solid #D1D5DB; padding: 15px; border-radius: 8px; margin-top: 10px;
+        }
+        .options-group input { margin-bottom: 0; }
+        .option-row { display: flex; align-items: center; margin-bottom: 10px; }
+        .option-row input[type="radio"] { margin-right: 10px; }
+        .option-row label { margin-top: 0; margin-left: 5px; font-weight: 400; }
+        .option-input { flex-grow: 1; margin-left: 10px; }
+
+        /* Save Button */
+        .btn-save {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.2s;
+        }
+        .btn-save:hover { background: #1D4ED8; }
+        .btn-save:disabled { background: #9CA3AF; cursor: not-allowed; }
+
+        /* Notification Box */
+        #notification {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+            font-weight: 600;
+        }
+        .success { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
+        .error { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+    </style>
+</head>
+<body>
+
+    <!-- Loading/Security Check -->
+    <div id="loading-overlay">Checking Admin Permissions...</div>
+
+    <!-- Admin Header -->
+    <header class="admin-header">
+        <h1>Aptitude Labs CMS</h1>
+        <div>
+            <span>Admin: <strong id="admin-email">Loading...</strong></span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <!-- Question Input Form -->
+    <div class="container">
+        <div class="form-card">
+            <h2><i class="material-icons" style="vertical-align: middle; margin-right: 5px;">add_circle</i> Add New Question</h2>
+            
+            <form id="question-form">
+                <!-- 1. Question Type -->
+                <label for="q-type">Question Type:</label>
+                <select id="q-type" required onchange="toggleFields()">
+                    <option value="MCQ">MCQ (Multiple Choice Question)</option>
+                    <option value="SA">SA (Short Answer / TITA)</option>
+                    <option value="RC">RC (Reading Comprehension/DI Passage)</option>
+                </select>
+
+                <!-- 2. Question Text -->
+                <label for="q-text">Question Text:</label>
+                <textarea id="q-text" required placeholder="Enter the full question text here..."></textarea>
+
+                <!-- 3. Passage Text (Visible for RC only) -->
+                <div id="passage-field" style="display:none;">
+                    <label for="passage-text">Passage / Data Set Text (HTML Allowed):</label>
+                    <textarea id="passage-text" placeholder="Paste the reading comprehension passage or description for the DI set."></textarea>
+                </div>
+
+                <!-- 4. Options Group (Visible for MCQ/RC only) -->
+                <div id="options-fields">
+                    <label>Options (A, B, C, D):</label>
+                    <div class="options-group">
+                        <div class="option-row">
+                            <input type="radio" name="correct-answer" value="Option A" id="correct-a">
+                            <label for="correct-a">A.</label>
+                            <input type="text" id="opt-a" class="option-input" placeholder="Option A Content" required>
+                        </div>
+                        <div class="option-row">
+                            <input type="radio" name="correct-answer" value="Option B" id="correct-b">
+                            <label for="correct-b">B.</label>
+                            <input type="text" id="opt-b" class="option-input" placeholder="Option B Content" required>
+                        </div>
+                        <div class="option-row">
+                            <input type="radio" name="correct-answer" value="Option C" id="correct-c">
+                            <label for="correct-c">C.</label>
+                            <input type="text" id="opt-c" class="option-input" placeholder="Option C Content" required>
+                        </div>
+                        <div class="option-row">
+                            <input type="radio" name="correct-answer" value="Option D" id="correct-d">
+                            <label for="correct-d">D.</label>
+                            <input type="text" id="opt-d" class="option-input" placeholder="Option D Content" required>
+                        </div>
+                    </div>
+                    <p style="font-size:0.8rem; color:var(--text-muted); margin-top:5px;">Select the radio button next to the option that is the correct answer.</p>
+                </div>
+
+                <!-- 5. Short Answer Field (Visible for SA only) -->
+                <div id="sa-field" style="display:none;">
+                    <label for="sa-answer">Correct Numerical Answer (TITA):</label>
+                    <input type="text" id="sa-answer" placeholder="E.g., 32 or 4.5. Must match student input exactly.">
+                </div>
+
+                <!-- 6. Marks and Section -->
+                <label for="section">Section/Topic:</label>
+                <input type="text" id="section" required placeholder="E.g., QA-Arithmetic or VA-RC">
+                
+                <div id="notification" style="display: none;"></div>
+
+                <button type="submit" class="btn-save" id="save-btn">Upload Question to Database</button>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+        // --- CONFIGURATION ---
+        const ADMIN_EMAIL = "aptitudelabshost@gmail.com"; // CHANGE THIS TO YOUR ADMIN EMAIL!
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyBTbfSlz0xvfBzAWmJzXDGbIC6Up0-6eU4",
+            authDomain: "aptitudelabs-in.firebaseapp.com",
+            projectId: "aptitudelabs-in",
+            storageBucket: "aptitudelabs-in.firebasestorage.app",
+            messagingSenderId: "175469863880",
+            appId: "1:175469863880:web:b7b25ed27120665af716fd"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(FIREBASE_CONFIG);
+        }
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // --- ELEMENTS ---
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const adminEmailDisplay = document.getElementById('admin-email');
+        const questionForm = document.getElementById('question-form');
+        const notification = document.getElementById('notification');
+        const saveBtn = document.getElementById('save-btn');
+
+        // --- AUTH & SECURITY GATE ---
+        window.onload = function() {
+            auth.onAuthStateChanged((user) => {
+                loadingOverlay.style.display = 'none';
+
+                if (user && user.email === ADMIN_EMAIL) {
+                    adminEmailDisplay.innerText = user.email;
+                    // Proceed to allow access
+                } else {
+                    // Unauthorized access - Redirect to login or show error
+                    window.alert("ACCESS DENIED. You must be logged in as the Admin.");
+                    window.location.href = "login.html"; 
+                }
+            });
+            // Initial toggle for form fields
+            toggleFields();
+        };
+
+        function logout() {
+            auth.signOut().then(() => {
+                window.location.href = "login.html";
+            });
+        }
+
+        // --- FORM FIELD TOGGLING ---
+        function toggleFields() {
+            const qType = document.getElementById('q-type').value;
+            const optionsFields = document.getElementById('options-fields');
+            const passageField = document.getElementById('passage-field');
+            const saField = document.getElementById('sa-field');
+
+            // Reset visibility
+            optionsFields.style.display = 'block';
+            passageField.style.display = 'none';
+            saField.style.display = 'none';
+
+            if (qType === 'SA') {
+                optionsFields.style.display = 'none';
+                saField.style.display = 'block';
+            } else if (qType === 'RC') {
+                passageField.style.display = 'block';
+            }
+        }
+        window.toggleFields = toggleFields; // Make accessible globally
+
+        // --- FIREBASE SAVE LOGIC ---
+        questionForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            saveBtn.disabled = true;
+            notification.style.display = 'none';
+
+            try {
+                const qType = document.getElementById('q-type').value;
+                const questionText = document.getElementById('q-text').value;
+                const section = document.getElementById('section').value;
+                let data = {
+                    type: qType,
+                    text: questionText,
+                    section: section,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                // Handle Question Type Specific Fields
+                if (qType === 'SA') {
+                    // SA/TITA Logic: Correct answer is from the SA text input
+                    const saAnswer = document.getElementById('sa-answer').value.trim();
+                    if (!saAnswer) throw new Error("TITA questions require a numerical answer.");
+                    data.options = [];
+                    data.correct = saAnswer;
+                
+                } else { // MCQ or RC
+                    // MCQ/RC Logic: Correct answer is selected via radio button
+                    const options = [
+                        document.getElementById('opt-a').value,
+                        document.getElementById('opt-b').value,
+                        document.getElementById('opt-c').value,
+                        document.getElementById('opt-d').value
+                    ];
+                    
+                    const selectedOptionInput = document.querySelector('input[name="correct-answer"]:checked');
+                    if (!selectedOptionInput) throw new Error("Please select the correct option (A, B, C, or D).");
+
+                    // Get the actual content of the correct option
+                    const correctOptionIndex = Array.from(selectedOptionInput.parentNode.parentNode.children).indexOf(selectedOptionInput.parentNode);
+                    const correctContent = options[correctOptionIndex];
+
+                    data.options = options;
+                    data.correct = correctContent;
+
+                    if (qType === 'RC') {
+                        data.passage = document.getElementById('passage-text').value;
+                        if (!data.passage.trim()) throw new Error("RC questions require Passage Text.");
+                    }
+                }
+
+                // Final Save to Firestore
+                await db.collection('questions').add(data);
+                showNotification("Question uploaded successfully! Ready for another.", 'success');
+                questionForm.reset();
+                toggleFields(); // Reset form view
+            } catch (error) {
+                console.error("Upload Error:", error);
+                showNotification(`Upload Failed: ${error.message || error}`, 'error');
+            } finally {
+                saveBtn.disabled = false;
+            }
+        });
+
+        function showNotification(message, type) {
+            notification.innerText = message;
+            notification.className = `notification ${type}`;
+            notification.style.display = 'block';
+        }
+
+    </script>
+</body>
+</html>
