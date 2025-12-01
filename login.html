@@ -3,163 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Login - Aptitude Labs</title>
-    <!-- Professional Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Login | Aptitude Labs</title>
+    <!-- Professional Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
-    <!-- Firebase SDKs (Compat Version - Matches your other files) -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #F3F4F6; margin: 0; }
-        
-        .login-card { 
-            background: white; 
-            padding: 40px; 
-            border-radius: 12px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
-            width: 100%; 
-            max-width: 400px; 
-            text-align: center; 
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1E40AF;
+            --text-dark: #111827;
+            --text-light: #6B7280;
         }
 
-        h2 { margin-bottom: 20px; color: #111827; font-weight: 800; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; 
+        }
+
+        /* --- FULL BACKGROUND IMAGE WITH OVERLAY --- */
+        .background-container {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            /* Replace 'campus-vector.jpg' with your actual image file name */
+            background-image: url('campus-vector.jpg'); 
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+        }
+        
+        .background-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            /* Dark blue overlay for readability and professional look */
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.85), rgba(37, 99, 235, 0.75));
+        }
+
+        /* --- CONTENT LAYOUT --- */
+        .content-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            z-index: 1;
+            padding: 20px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        /* --- TAGLINE SECTION --- */
+        .tagline-section {
+            text-align: center;
+            color: white;
+            max-width: 600px;
+        }
+        .brand-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            opacity: 0.9;
+        }
+        .hero-tagline {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1.2;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        /* --- LOGIN CARD --- */
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            backdrop-filter: blur(10px); /* Adds a modern frosted glass effect */
+        }
+
+        h2 { margin-bottom: 20px; color: var(--text-dark); font-weight: 800; }
         
         .input-group { margin-bottom: 15px; text-align: left; }
-        label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: #374151; font-weight: 600; }
-        input { 
-            width: 100%; padding: 12px; border: 1px solid #D1D5DB; 
-            border-radius: 6px; box-sizing: border-box; font-size: 1rem; 
+        label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: var(--text-dark); font-weight: 600; }
+        input {
+            width: 100%; padding: 12px 16px; border: 1px solid #D1D5DB; 
+            border-radius: 8px; font-size: 1rem; transition: all 0.2s;
+            background: #F9FAFB;
         }
-        
-        .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
-        
-        button { 
-            width: 100%; padding: 12px; border: none; border-radius: 6px; 
-            cursor: pointer; font-weight: 700; font-size: 1rem; transition: opacity 0.2s; 
+        input:focus {
+            outline: none; border-color: var(--primary); background: white;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
-        
-        .btn-login { background-color: #2563EB; color: white; }
-        .btn-login:hover { opacity: 0.9; }
 
-        .btn-signup { background-color: white; color: #2563EB; border: 1px solid #2563EB; }
-        .btn-signup:hover { background-color: #EFF6FF; }
-
-        /* Status Messages */
-        .message-box { 
-            margin-top: 20px; padding: 12px; border-radius: 6px; 
-            font-size: 0.9rem; display: none; line-height: 1.5;
+        .btn-primary {
+            width: 100%; padding: 14px; background-color: var(--primary);
+            color: white; border: none; border-radius: 8px; font-size: 1rem;
+            font-weight: 600; cursor: pointer; transition: background 0.2s;
+            margin-bottom: 15px;
         }
-        .error { background-color: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
-        .success { background-color: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
+        .btn-primary:hover { background-color: var(--primary-dark); }
+
+        .btn-secondary {
+            width: 100%; padding: 14px; background-color: white;
+            color: var(--text-dark); border: 1px solid #E5E7EB;
+            border-radius: 8px; font-size: 1rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-secondary:hover { background-color: #F3F4F6; border-color: #D1D5DB; }
+
+        .resend-link {
+            display: block; text-align: center; margin-top: 15px;
+            color: var(--primary); font-size: 0.9rem; text-decoration: none;
+            cursor: pointer; display: none;
+        }
+        .resend-link:hover { text-decoration: underline; }
+
+        .notification {
+            padding: 12px; border-radius: 8px; font-size: 0.9rem; margin-top: 20px;
+            display: none; line-height: 1.4; text-align: left;
+        }
+        .notif-error { background: #FEF2F2; color: #991B1B; border: 1px solid #FEE2E2; }
+        .notif-success { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
+
+        @media (max-width: 768px) {
+            .hero-tagline { font-size: 2.2rem; }
+            .content-wrapper { gap: 30px; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="login-card">
-        <h2>Aptitude Labs</h2>
+    <!-- 1. FULL BACKGROUND CONTAINER -->
+    <div class="background-container"></div>
+
+    <!-- 2. MAIN CONTENT WRAPPER -->
+    <div class="content-wrapper">
         
-        <div class="input-group">
-            <label>Email Address</label>
-            <input type="email" id="email" placeholder="student@example.com">
+        <!-- 3. BRAND TAGLINE SECTION -->
+        <div class="tagline-section">
+            <div class="brand-name"><i class="material-icons">school</i> Aptitude Labs</div>
+            <h1 class="hero-tagline">Your Gateway to the IIMs.</h1>
         </div>
-        
-        <div class="input-group">
-            <label>Password</label>
-            <input type="password" id="password" placeholder="••••••••">
+
+        <!-- 4. LOGIN FORM CARD -->
+        <div class="login-card">
+            <h2>Welcome back</h2>
+            
+            <div class="input-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="name@example.com">
+            </div>
+            
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="••••••••">
+            </div>
+            
+            <button class="btn-primary" id="loginBtn">Log In</button>
+            <button class="btn-secondary" id="signupBtn">Create Account</button>
+
+            <a id="resendBtn" class="resend-link">Didn't receive email? Resend Verification</a>
+
+            <div id="status-msg" class="notification"></div>
         </div>
-        
-        <div class="btn-group">
-            <button class="btn-login" id="loginBtn">Log In</button>
-            <button class="btn-signup" id="signupBtn">Sign Up (Send Verification)</button>
-        </div>
-        
-        <div id="status-msg" class="message-box"></div>
     </div>
 
+    <!-- FIREBASE LOGIC (UNCHANGED) -->
     <script>
-        // 1. FIREBASE CONFIG
-        const firebaseConfig = {
-            apiKey: "AIzaSyBTbfSlz0xvfBzAWmJzXDGbIC6Up0-6eU4",
-            authDomain: "aptitudelabs-in.firebaseapp.com",
-            projectId: "aptitudelabs-in",
-            storageBucket: "aptitudelabs-in.firebasestorage.app",
-            messagingSenderId: "175469863880",
-            appId: "1:175469863880:web:b7b25ed27120665af716fd"
-        };
-
-        // Initialize (Compat version to match script.js)
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        const firebaseConfig = { apiKey: "AIzaSyBTbfSlz0xvfBzAWmJzXDGbIC6Up0-6eU4", authDomain: "aptitudelabs-in.firebaseapp.com", projectId: "aptitudelabs-in", storageBucket: "aptitudelabs-in.firebasestorage.app", messagingSenderId: "175469863880", appId: "1:175469863880:web:b7b25ed27120665af716fd" };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        // 2. DOM ELEMENTS
         const emailInput = document.getElementById("email");
         const passInput = document.getElementById("password");
         const statusMsg = document.getElementById("status-msg");
-        const loginBtn = document.getElementById("loginBtn");
-        const signupBtn = document.getElementById("signupBtn");
+        const resendBtn = document.getElementById("resendBtn");
 
         function showMessage(msg, type) {
             statusMsg.style.display = 'block';
             statusMsg.innerText = msg;
-            statusMsg.className = `message-box ${type}`;
+            statusMsg.className = `notification ${type === 'error' ? 'notif-error' : 'notif-success'}`;
         }
 
-        // 3. LOGIN LOGIC (WITH VERIFICATION CHECK)
-        loginBtn.addEventListener("click", () => {
+        // LOGIN
+        document.getElementById("loginBtn").addEventListener("click", () => {
             const email = emailInput.value;
             const pass = passInput.value;
-            
-            statusMsg.style.display = 'none'; // Clear old messages
+            statusMsg.style.display = 'none'; 
 
             auth.signInWithEmailAndPassword(email, pass)
                 .then((userCredential) => {
                     const user = userCredential.user;
-
                     if (user.emailVerified) {
-                        // VERIFIED: Allow Access
                         window.location.href = "dashboard.html";
                     } else {
-                        // NOT VERIFIED: Kick them out
                         auth.signOut();
-                        showMessage("Access Denied: Please check your email inbox and click the verification link before logging in.", "error");
+                        showMessage("Access Denied: Email not verified. Check your inbox.", "error");
+                        resendBtn.style.display = "block";
                     }
                 })
-                .catch((error) => {
-                    showMessage(error.message, "error");
-                });
+                .catch((error) => showMessage(error.message, "error"));
         });
 
-        // 4. SIGNUP LOGIC (SEND EMAIL)
-        signupBtn.addEventListener("click", () => {
+        // SIGNUP
+        document.getElementById("signupBtn").addEventListener("click", () => {
             const email = emailInput.value;
             const pass = passInput.value;
-
             statusMsg.style.display = 'none';
 
             auth.createUserWithEmailAndPassword(email, pass)
                 .then((userCredential) => {
-                    const user = userCredential.user;
-                    
-                    // Send Verification Email
-                    user.sendEmailVerification()
-                        .then(() => {
-                            // Success Message
-                            showMessage("Success! A verification email has been sent to " + email + ". Please verify to log in.", "success");
-                            // Clear inputs
-                            emailInput.value = "";
-                            passInput.value = "";
-                        });
+                    sendVerification(userCredential.user);
                 })
-                .catch((error) => {
-                    showMessage(error.message, "error");
-                });
+                .catch((error) => showMessage(error.message, "error"));
         });
-    </script>
 
+        // RESEND
+        resendBtn.addEventListener("click", () => {
+            const email = emailInput.value;
+            const pass = passInput.value;
+            
+            auth.signInWithEmailAndPassword(email, pass)
+                .then((userCredential) => {
+                    sendVerification(userCredential.user);
+                })
+                .catch((error) => showMessage("To resend, enter correct Email & Password first.", "error"));
+        });
+
+        function sendVerification(user) {
+            user.sendEmailVerification().then(() => {
+                showMessage(`Verification sent to ${user.email}. Please check Spam/Junk folder!`, "success");
+                auth.signOut();
+            });
+        }
+    </script>
 </body>
 </html>
