@@ -3,36 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Aptitude Labs</title>
+    <title>Secure Login - Aptitude Labs</title>
+    <!-- Professional Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDKs (Compat Version - Matches your other files) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
     <style>
-        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f2f5; margin: 0; }
-        .login-card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 350px; text-align: center; }
-        h2 { margin-bottom: 20px; color: #333; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        .btn-login { background-color: #007bff; color: white; }
-        .btn-signup { background-color: #28a745; color: white; }
-        .error { color: red; font-size: 14px; margin-top: 10px; display: none; }
+        body { font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #F3F4F6; margin: 0; }
+        
+        .login-card { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+            width: 100%; 
+            max-width: 400px; 
+            text-align: center; 
+        }
+
+        h2 { margin-bottom: 20px; color: #111827; font-weight: 800; }
+        
+        .input-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: #374151; font-weight: 600; }
+        input { 
+            width: 100%; padding: 12px; border: 1px solid #D1D5DB; 
+            border-radius: 6px; box-sizing: border-box; font-size: 1rem; 
+        }
+        
+        .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        
+        button { 
+            width: 100%; padding: 12px; border: none; border-radius: 6px; 
+            cursor: pointer; font-weight: 700; font-size: 1rem; transition: opacity 0.2s; 
+        }
+        
+        .btn-login { background-color: #2563EB; color: white; }
+        .btn-login:hover { opacity: 0.9; }
+
+        .btn-signup { background-color: white; color: #2563EB; border: 1px solid #2563EB; }
+        .btn-signup:hover { background-color: #EFF6FF; }
+
+        /* Status Messages */
+        .message-box { 
+            margin-top: 20px; padding: 12px; border-radius: 6px; 
+            font-size: 0.9rem; display: none; line-height: 1.5;
+        }
+        .error { background-color: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+        .success { background-color: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
     </style>
 </head>
 <body>
 
     <div class="login-card">
         <h2>Aptitude Labs</h2>
-        <input type="email" id="email" placeholder="Email Address">
-        <input type="password" id="password" placeholder="Password">
         
-        <button class="btn-login" id="loginBtn">Log In</button>
-        <button class="btn-signup" id="signupBtn">Create Account</button>
+        <div class="input-group">
+            <label>Email Address</label>
+            <input type="email" id="email" placeholder="student@example.com">
+        </div>
         
-        <p class="error" id="error-msg">Error message here</p>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="••••••••">
+        </div>
+        
+        <div class="btn-group">
+            <button class="btn-login" id="loginBtn">Log In</button>
+            <button class="btn-signup" id="signupBtn">Sign Up (Send Verification)</button>
+        </div>
+        
+        <div id="status-msg" class="message-box"></div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-        // PASTE YOUR CONFIG HERE (The exact same one from script.js)
+    <script>
+        // 1. FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyBTbfSlz0xvfBzAWmJzXDGbIC6Up0-6eU4",
             authDomain: "aptitudelabs-in.firebaseapp.com",
@@ -42,43 +90,73 @@
             appId: "1:175469863880:web:b7b25ed27120665af716fd"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+        // Initialize (Compat version to match script.js)
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
 
+        // 2. DOM ELEMENTS
         const emailInput = document.getElementById("email");
         const passInput = document.getElementById("password");
-        const errorMsg = document.getElementById("error-msg");
+        const statusMsg = document.getElementById("status-msg");
+        const loginBtn = document.getElementById("loginBtn");
+        const signupBtn = document.getElementById("signupBtn");
 
-        // LOGIN FUNCTION
-        document.getElementById("loginBtn").addEventListener("click", () => {
+        function showMessage(msg, type) {
+            statusMsg.style.display = 'block';
+            statusMsg.innerText = msg;
+            statusMsg.className = `message-box ${type}`;
+        }
+
+        // 3. LOGIN LOGIC (WITH VERIFICATION CHECK)
+        loginBtn.addEventListener("click", () => {
             const email = emailInput.value;
             const pass = passInput.value;
             
-            signInWithEmailAndPassword(auth, email, pass)
+            statusMsg.style.display = 'none'; // Clear old messages
+
+            auth.signInWithEmailAndPassword(email, pass)
                 .then((userCredential) => {
-                    // Success! Redirect to Exam
-                    alert("Login Successful!");
-                    window.location.href = "dashboard.html";
+                    const user = userCredential.user;
+
+                    if (user.emailVerified) {
+                        // VERIFIED: Allow Access
+                        window.location.href = "dashboard.html";
+                    } else {
+                        // NOT VERIFIED: Kick them out
+                        auth.signOut();
+                        showMessage("Access Denied: Please check your email inbox and click the verification link before logging in.", "error");
+                    }
                 })
                 .catch((error) => {
-                    errorMsg.style.display = "block";
-                    errorMsg.innerText = error.message;
+                    showMessage(error.message, "error");
                 });
         });
 
-        // SIGNUP FUNCTION
-        document.getElementById("signupBtn").addEventListener("click", () => {
+        // 4. SIGNUP LOGIC (SEND EMAIL)
+        signupBtn.addEventListener("click", () => {
             const email = emailInput.value;
             const pass = passInput.value;
 
-            createUserWithEmailAndPassword(auth, email, pass)
+            statusMsg.style.display = 'none';
+
+            auth.createUserWithEmailAndPassword(email, pass)
                 .then((userCredential) => {
-                    alert("Account Created! You are logged in.");
-                   window.location.href = "dashboard.html";
+                    const user = userCredential.user;
+                    
+                    // Send Verification Email
+                    user.sendEmailVerification()
+                        .then(() => {
+                            // Success Message
+                            showMessage("Success! A verification email has been sent to " + email + ". Please verify to log in.", "success");
+                            // Clear inputs
+                            emailInput.value = "";
+                            passInput.value = "";
+                        });
                 })
                 .catch((error) => {
-                    errorMsg.style.display = "block";
-                    errorMsg.innerText = error.message;
+                    showMessage(error.message, "error");
                 });
         });
     </script>
