@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Plans | Aptitude Labs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <style>
+        /* --- DARK THEME SYSTEM --- */
+        :root {
+            --bg-deep: #0B0F19;
+            --bg-panel: #151B2B;
+            --primary: #3B82F6;
+            --accent: #8B5CF6;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border: rgba(255, 255, 255, 0.08);
+            --glass: rgba(21, 27, 43, 0.7);
+            --glow: 0 0 20px rgba(59, 130, 246, 0.15);
+        }
+
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            margin: 0; 
+            background-color: var(--bg-deep); 
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* HEADER */
+        header { 
+            background: rgba(11, 15, 25, 0.8); 
+            backdrop-filter: blur(10px);
+            padding: 20px 40px; 
+            border-bottom: 1px solid var(--border); 
+            text-align: center; 
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo { 
+            font-weight: 800; 
+            font-size: 1.5rem; 
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* HERO */
+        .hero { text-align: center; padding: 80px 20px 40px; }
+        h1 { font-size: 3rem; margin-bottom: 15px; font-weight: 700; letter-spacing: -0.02em; }
+        p { color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+
+        /* PRICING GRID */
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; flex: 1; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+
+        .card { 
+            background: var(--bg-panel); 
+            padding: 40px; 
+            border-radius: 24px; 
+            border: 1px solid var(--border); 
+            text-align: center; 
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            position: relative;
+            overflow: hidden;
+        }
+        .card:hover { 
+            transform: translateY(-8px); 
+            border-color: var(--primary); 
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); 
+        }
+        
+        /* Popular Card Highlight */
+        .popular { 
+            border: 1px solid var(--primary); 
+            background: linear-gradient(145deg, rgba(59, 130, 246, 0.1) 0%, var(--bg-panel) 100%);
+            box-shadow: var(--glow);
+        }
+        .badge { 
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%); 
+            background: var(--primary); color: white; padding: 6px 16px; 
+            border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;
+            font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        .plan-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .price { font-size: 3.5rem; font-weight: 800; color: var(--text-main); line-height: 1; margin: 20px 0; }
+        .currency { font-size: 1.5rem; vertical-align: top; color: var(--text-muted); margin-right: 4px; }
+        
+        ul { list-style: none; padding: 0; margin: 30px 0; text-align: left; }
+        li { padding: 12px 0; border-bottom: 1px solid var(--border); color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+        li:last-child { border-bottom: none; }
+        li i { color: var(--primary); font-size: 1.1rem; }
+
+        .btn { 
+            display: block; width: 100%; padding: 16px; border-radius: 12px; 
+            font-weight: 700; text-decoration: none; transition: 0.2s; font-size: 1rem;
+        }
+        .btn-outline { border: 1px solid var(--border); color: var(--text-main); background: transparent; }
+        .btn-outline:hover { border-color: var(--text-main); background: rgba(255,255,255,0.05); }
+        
+        .btn-primary { background: var(--primary); color: white; border: none; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
+        .btn-primary:hover { background: #2563EB; transform: scale(1.02); }
+
+        /* FOOTER */
+        footer { margin-top: 80px; padding: 40px; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.9rem; background: var(--bg-panel); }
+        .links { margin-top: 15px; }
+        .links a { color: var(--text-muted); margin: 0 10px; text-decoration: none; transition: 0.2s; }
+        .links a:hover { color: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <i class="material-icons-round">token</i> Aptitude Labs
+        </div>
+    </header>
+
+    <div class="hero">
+        <h1>Transparent Pricing</h1>
+        <p>Invest in your future with plans designed for serious aspirants.</p>
+    </div>
+
+    <div class="container">
+        <div class="grid">
+            
+            <!-- PLAN 1: FREE -->
+            <div class="card">
+                <div class="plan-name">Starter</div>
+                <div class="price"><span class="currency">₹</span>0</div>
+                <ul>
+                    <li><i class="material-icons-round">check_circle</i> 1 Full-Length Mock Test</li>
+                    <li><i class="material-icons-round">check_circle</i> 2 Sectional Tests</li>
+                    <li><i class="material-icons-round">check_circle</i> Basic Performance Report</li>
+                    <li><i class="material-icons-round">check_circle</i> Access to Leaderboard</li>
+                </ul>
+                <a href="#" class="btn btn-outline">Get Started Free</a>
+            </div>
+
+            <!-- PLAN 2: SECTIONAL (POPULAR) -->
+            <div class="card popular">
+                <div class="badge">Most Popular</div>
+                <div class="plan-name">Sectional Booster</div>
+                <div class="price"><span class="currency">₹</span>499</div>
+                <ul>
+                    <li><i class="material-icons-round">check_circle</i> 10 Quant Sectional Tests</li>
+                    <li><i class="material-icons-round">check_circle</i> 10 Verbal Sectional Tests</li>
+                    <li><i class="material-icons-round">check_circle</i> Detailed Solutions</li>
+                    <li><i class="material-icons-round">check_circle</i> Priority Support</li>
+                </ul>
+                <a href="#" class="btn btn-primary">Buy Now</a>
+            </div>
+
+            <!-- PLAN 3: ULTIMATE -->
+            <div class="card">
+                <div class="plan-name">IPMAT Pro</div>
+                <div class="price"><span class="currency">₹</span>2499</div>
+                <ul>
+                    <li><i class="material-icons-round">check_circle</i> 20 Full-Length Mocks</li>
+                    <li><i class="material-icons-round">auto_awesome</i> AI Performance Analysis</li>
+                    <li><i class="material-icons-round">check_circle</i> Video Solutions (Soon)</li>
+                    <li><i class="material-icons-round">check_circle</i> All Previous Papers</li>
+                </ul>
+                <a href="#" class="btn btn-outline">Go Premium</a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- RAZORPAY COMPLIANCE FOOTER -->
+    <footer>
+        <p>&copy; 2025 Aptitude Labs. All rights reserved.</p>
+        <div class="links">
+            <a href="privacy.html">Privacy Policy</a> | 
+            <a href="terms.html">Terms & Conditions</a> | 
+            <a href="refund.html">Refund Policy</a> | 
+            <a href="contact.html">Contact Us</a>
+        </div>
+        <p style="margin-top:20px; font-size:0.8rem; opacity: 0.6;">
+            Aptitude Labs is a registered entity. Pricing is subject to change without notice.
+        </p>
+    </footer>
+
+</body>
+</html>
