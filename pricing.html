@@ -4,212 +4,290 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pricing Plans | Aptitude Labs</title>
+    
+    <!-- Professional Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     
     <style>
+        /* --- PREMIUM DARK THEME VARIABLES --- */
         :root {
-            --bg: #030712; /* Obsidian */
-            --card-bg: rgba(17, 24, 39, 0.7);
+            --bg-deep: #020617; /* Deepest Indigo/Black */
+            --glass-surface: rgba(30, 41, 59, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.08);
             --primary: #6366F1; /* Indigo */
+            --primary-glow: rgba(99, 102, 241, 0.4);
             --accent: #EC4899; /* Pink */
-            --text-main: #F9FAFB;
-            --text-muted: #9CA3AF;
-            --border: rgba(255, 255, 255, 0.08);
-            --glow: 0 0 40px rgba(99, 102, 241, 0.15);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --success: #10B981;
         }
 
+        /* RESET & BASE */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body { 
             font-family: 'Outfit', sans-serif; 
-            margin: 0; 
-            background-color: var(--bg); 
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08), transparent 25%), 
-                radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.08), transparent 25%);
+            background-color: var(--bg-deep); 
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
+            /* Subtle Mesh Gradient Background */
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.15) 0%, transparent 50%);
+        }
+
+        /* --- HEADER --- */
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 24px 48px;
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(2, 6, 23, 0.8);
+        }
+
+        .logo { 
+            font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em;
+            display: flex; align-items: center; gap: 8px;
+            background: linear-gradient(135deg, #fff 0%, #94A3B8 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
         
-        /* HEADER */
-        header { 
-            padding: 25px 50px; 
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid var(--border);
-            backdrop-filter: blur(10px);
-            position: sticky; top: 0; z-index: 100;
+        .nav-link { 
+            color: var(--text-muted); text-decoration: none; font-weight: 600; 
+            transition: 0.2s; font-size: 0.95rem;
         }
-        .logo { font-weight: 800; font-size: 1.4rem; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
-        .logo i { color: var(--primary); }
+        .nav-link:hover { color: white; }
 
-        /* HERO */
-        .hero { text-align: center; padding: 80px 20px 60px; position: relative; }
+        /* --- HERO SECTION --- */
+        .hero { 
+            text-align: center; padding: 80px 20px 60px; 
+            max-width: 800px; margin: 0 auto;
+        }
         .hero h1 { 
-            font-size: 3.5rem; font-weight: 800; margin-bottom: 15px; 
-            background: linear-gradient(to right, #fff, #94a3b8); 
+            font-size: 3.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 16px;
+            background: linear-gradient(to right, #fff, #cbd5e1);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            letter-spacing: -0.03em;
         }
-        .hero p { color: var(--text-muted); font-size: 1.2rem; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+        .hero p { font-size: 1.2rem; color: var(--text-muted); line-height: 1.6; }
 
-        /* PRICING GRID (SIDE BY SIDE) */
-        .container { 
-            max-width: 1200px; margin: 0 auto; padding: 0 20px 60px; 
-            display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; 
+        /* --- PRICING GRID (THE CORE) --- */
+        .pricing-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 40px 80px;
+            width: 100%;
+            display: grid;
+            /* STRICT 3-COLUMN LAYOUT */
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            align-items: center; /* Center cards vertically if heights differ */
         }
 
-        .card { 
-            flex: 1; min-width: 300px; max-width: 380px;
-            background: var(--card-bg); 
-            border: 1px solid var(--border); 
-            border-radius: 24px; 
-            padding: 40px; 
+        /* CARD STYLES */
+        .plan-card {
+            background: var(--glass-surface);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px 32px;
             display: flex; flex-direction: column;
-            position: relative; 
+            position: relative;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             backdrop-filter: blur(12px);
+            height: 100%;
         }
 
-        /* Hover Effect */
-        .card:hover { 
-            transform: translateY(-10px); 
-            border-color: rgba(99, 102, 241, 0.5);
-            box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.4);
+        /* Hover Lift */
+        .plan-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
         }
 
-        /* POPULAR CARD (Middle) */
-        .popular { 
-            border: 1px solid var(--primary); 
-            background: linear-gradient(180deg, rgba(99, 102, 241, 0.05) 0%, rgba(17, 24, 39, 0.9) 100%);
-            box-shadow: var(--glow);
-            transform: scale(1.05); /* Make it slightly larger */
+        /* POPULAR CARD (MIDDLE) */
+        .popular {
+            background: linear-gradient(180deg, rgba(99, 102, 241, 0.1) 0%, rgba(30, 41, 59, 0.6) 100%);
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 40px var(--primary-glow);
+            transform: scale(1.05); /* Make it bigger */
             z-index: 10;
         }
-        .popular:hover { transform: scale(1.05) translateY(-10px); }
-        
-        .badge { 
-            position: absolute; top: -1px; left: 50%; transform: translateX(-50%); 
-            background: var(--primary); color: white; padding: 6px 16px; 
+        .popular:hover { transform: scale(1.05) translateY(-8px); }
+
+        .badge {
+            position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+            background: var(--primary); color: white; padding: 6px 16px;
             border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;
             font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 4px 15px var(--primary-glow);
         }
 
-        /* CARD CONTENT */
-        .plan-name { font-size: 1.1rem; font-weight: 600; color: var(--text-muted); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+        /* Typography inside Card */
+        .plan-name { font-size: 1.25rem; font-weight: 700; color: white; margin-bottom: 8px; }
+        .plan-desc { font-size: 0.9rem; color: var(--text-muted); min-height: 40px; }
         
-        .price { font-size: 3.5rem; font-weight: 800; color: #fff; line-height: 1; margin-bottom: 10px; }
-        .currency { font-size: 1.5rem; vertical-align: top; color: var(--text-muted); margin-right: 4px; }
-        .period { font-size: 0.9rem; color: var(--text-muted); font-weight: 400; }
+        .pricing { margin: 24px 0; display: flex; align-items: baseline; gap: 4px; }
+        .currency { font-size: 1.5rem; color: var(--text-muted); font-weight: 500; }
+        .amount { font-size: 3.5rem; font-weight: 800; color: white; line-height: 1; }
+        .period { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
 
-        .features { list-style: none; padding: 0; margin: 30px 0; flex-grow: 1; }
-        .features li { 
-            padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.03); 
-            color: var(--text-main); display: flex; align-items: center; gap: 12px; font-size: 0.95rem;
+        /* Feature List */
+        .features { list-style: none; margin-bottom: 32px; flex-grow: 1; }
+        .feature-item { 
+            display: flex; align-items: center; gap: 12px; 
+            padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+            color: var(--text-main); font-size: 0.95rem;
         }
-        .features li:last-child { border-bottom: none; }
-        .features i { color: var(--primary); font-size: 1.2rem; }
-        .features .disabled { opacity: 0.3; text-decoration: line-through; }
-        .features .disabled i { color: var(--text-muted); }
-
-        /* BUTTONS */
-        .btn { 
-            display: block; width: 100%; padding: 16px; border-radius: 14px; 
-            font-weight: 700; text-decoration: none; text-align: center; transition: 0.2s; font-size: 1rem; margin-top: auto;
-        }
-        .btn-outline { 
-            border: 1px solid var(--border); color: #fff; background: transparent; 
-        }
-        .btn-outline:hover { background: rgba(255,255,255,0.05); border-color: #fff; }
+        .feature-item:last-child { border-bottom: none; }
         
-        .btn-primary { 
-            background: var(--primary); color: white; border: none; 
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4); 
-        }
-        .btn-primary:hover { background: #4F46E5; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5); }
+        .feature-item i { font-size: 1.25rem; color: var(--primary); }
+        .feature-item.disabled { opacity: 0.4; text-decoration: line-through; }
+        .feature-item.disabled i { color: var(--text-muted); }
 
-        /* FOOTER */
-        footer { margin-top: auto; padding: 60px 20px; border-top: 1px solid var(--border); text-align: center; font-size: 0.9rem; color: var(--text-muted); }
-        .footer-links { margin-bottom: 20px; display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; }
-        .footer-links a { color: var(--text-muted); text-decoration: none; transition: 0.2s; }
+        /* Buttons */
+        .btn {
+            width: 100%; padding: 16px; border-radius: 12px;
+            font-weight: 700; font-size: 1rem; cursor: pointer;
+            text-align: center; text-decoration: none; transition: 0.2s;
+            display: inline-block; border: none;
+        }
+        .btn-outline {
+            background: transparent; border: 1px solid var(--glass-border); color: white;
+        }
+        .btn-outline:hover { background: rgba(255,255,255,0.05); border-color: white; }
+
+        .btn-primary {
+            background: var(--primary); color: white;
+            box-shadow: 0 4px 20px var(--primary-glow);
+        }
+        .btn-primary:hover { background: #4F46E5; transform: scale(1.02); }
+
+        /* --- FOOTER (RAZORPAY COMPLIANCE) --- */
+        footer {
+            margin-top: auto; padding: 60px 40px;
+            border-top: 1px solid var(--glass-border);
+            text-align: center; background: rgba(2, 6, 23, 0.5);
+        }
+        .footer-links { margin-bottom: 24px; display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; }
+        .footer-links a { color: var(--text-muted); text-decoration: none; transition: 0.2s; font-size: 0.9rem; }
         .footer-links a:hover { color: var(--primary); }
+        .copyright { color: rgba(148, 163, 184, 0.5); font-size: 0.8rem; }
 
-        /* MOBILE FIX */
-        @media (max-width: 900px) {
-            .container { flex-direction: column; align-items: center; }
-            .card { width: 100%; max-width: 100%; transform: none !important; }
-            .popular { order: -1; transform: none !important; } /* Show popular first on mobile */
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media (max-width: 1024px) {
+            .pricing-container { 
+                grid-template-columns: 1fr; /* Stack vertically on tablet/mobile */
+                max-width: 500px;
+            }
+            .popular { transform: none; }
+            .popular:hover { transform: translateY(-8px); }
+            .hero h1 { font-size: 2.5rem; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo"><i class="material-icons-round">token</i> Aptitude Labs</div>
-        <a href="login.html" style="color:var(--text-muted); text-decoration:none; font-weight:600;">Login</a>
-    </header>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="logo">
+            <i class="material-icons-round" style="color:var(--primary);">token</i> Aptitude Labs
+        </div>
+        <a href="login.html" class="nav-link">Login to Dashboard →</a>
+    </nav>
 
-    <div class="hero">
+    <!-- HERO HEADER -->
+    <section class="hero">
         <h1>Invest in Your Future</h1>
-        <p>Simple, transparent pricing. No hidden fees.</p>
-    </div>
+        <p>Transparent pricing for serious aspirants. No hidden fees, just results.</p>
+    </section>
 
-    <div class="container">
+    <!-- PRICING CARDS -->
+    <div class="pricing-container">
         
-        <!-- PLAN 1: STARTER -->
-        <div class="card">
+        <!-- 1. FREE PLAN -->
+        <div class="plan-card">
             <div class="plan-name">Starter</div>
-            <div class="price"><span class="currency">₹</span>0<span class="period">/forever</span></div>
+            <div class="plan-desc">Perfect for testing the waters.</div>
+            
+            <div class="pricing">
+                <span class="currency">₹</span>
+                <span class="amount">0</span>
+                <span class="period">/ forever</span>
+            </div>
+
             <ul class="features">
-                <li><i class="material-icons-round">check_circle</i> 1 Full-Length Mock</li>
-                <li><i class="material-icons-round">check_circle</i> 2 Sectional Tests</li>
-                <li><i class="material-icons-round">check_circle</i> Basic Analytics</li>
-                <li class="disabled"><i class="material-icons-round">cancel</i> AI Performance Report</li>
-                <li class="disabled"><i class="material-icons-round">cancel</i> Video Solutions</li>
+                <li class="feature-item"><i class="material-icons-round">check_circle</i> 1 Full-Length Mock</li>
+                <li class="feature-item"><i class="material-icons-round">check_circle</i> 2 Sectional Tests</li>
+                <li class="feature-item"><i class="material-icons-round">check_circle</i> Basic Analytics</li>
+                <li class="feature-item disabled"><i class="material-icons-round">lock</i> AI Performance Report</li>
+                <li class="feature-item disabled"><i class="material-icons-round">lock</i> Video Solutions</li>
             </ul>
+
             <a href="login.html" class="btn btn-outline">Start Free</a>
         </div>
 
-        <!-- PLAN 2: SECTIONAL (POPULAR) -->
-        <div class="card popular">
-            <div class="badge">Most Popular</div>
+        <!-- 2. SECTIONAL PLAN (POPULAR) -->
+        <div class="plan-card popular">
+            <div class="badge">Best Value</div>
             <div class="plan-name">Sectional Booster</div>
-            <div class="price"><span class="currency">₹</span>499<span class="period">/one-time</span></div>
+            <div class="plan-desc">Master specific topics quickly.</div>
+            
+            <div class="pricing">
+                <span class="currency">₹</span>
+                <span class="amount">499</span>
+                <span class="period">/ one-time</span>
+            </div>
+
             <ul class="features">
-                <li><i class="material-icons-round">verified</i> 20 Sectional Tests</li>
-                <li><i class="material-icons-round">verified</i> Detailed Solutions</li>
-                <li><i class="material-icons-round">verified</i> Topic-wise Breakdown</li>
-                <li><i class="material-icons-round">verified</i> Priority Support</li>
-                <li class="disabled"><i class="material-icons-round">cancel</i> Full Mocks</li>
+                <li class="feature-item"><i class="material-icons-round">verified</i> 20 Sectional Tests</li>
+                <li class="feature-item"><i class="material-icons-round">verified</i> Detailed Solutions</li>
+                <li class="feature-item"><i class="material-icons-round">verified</i> Topic-wise Breakdown</li>
+                <li class="feature-item"><i class="material-icons-round">verified</i> Priority Support</li>
+                <li class="feature-item disabled"><i class="material-icons-round">lock</i> Full Mocks</li>
             </ul>
+
             <a href="login.html" class="btn btn-primary">Get Access</a>
         </div>
 
-        <!-- PLAN 3: PRO -->
-        <div class="card">
+        <!-- 3. PRO PLAN -->
+        <div class="plan-card">
             <div class="plan-name">IPMAT Pro</div>
-            <div class="price"><span class="currency">₹</span>2499<span class="period">/one-time</span></div>
+            <div class="plan-desc">The complete ecosystem.</div>
+            
+            <div class="pricing">
+                <span class="currency">₹</span>
+                <span class="amount">2499</span>
+                <span class="period">/ one-time</span>
+            </div>
+
             <ul class="features">
-                <li><i class="material-icons-round">auto_awesome</i> 20 Full-Length Mocks</li>
-                <li><i class="material-icons-round">auto_awesome</i> AI Tutor Access</li>
-                <li><i class="material-icons-round">auto_awesome</i> Video Solutions</li>
-                <li><i class="material-icons-round">auto_awesome</i> All Previous Papers</li>
-                <li><i class="material-icons-round">auto_awesome</i> Personal Mentor</li>
+                <li class="feature-item"><i class="material-icons-round">auto_awesome</i> 20 Full-Length Mocks</li>
+                <li class="feature-item"><i class="material-icons-round">auto_awesome</i> AI Tutor Access</li>
+                <li class="feature-item"><i class="material-icons-round">auto_awesome</i> Video Solutions</li>
+                <li class="feature-item"><i class="material-icons-round">auto_awesome</i> All Previous Papers</li>
+                <li class="feature-item"><i class="material-icons-round">auto_awesome</i> Personal Mentor</li>
             </ul>
+
             <a href="login.html" class="btn btn-outline">Go Premium</a>
         </div>
 
     </div>
 
+    <!-- FOOTER -->
     <footer>
         <div class="footer-links">
             <a href="privacy.html">Privacy Policy</a>
             <a href="terms.html">Terms of Service</a>
             <a href="refund.html">Refund Policy</a>
-            <a href="contact.html">Contact Support</a>
+            <a href="contact.html">Contact Us</a>
         </div>
-        <p>&copy; 2025 Aptitude Labs. All rights reserved.</p>
+        <div class="copyright">
+            &copy; 2025 Aptitude Labs. All rights reserved. Registered Entity.
+        </div>
     </footer>
 
 </body>
