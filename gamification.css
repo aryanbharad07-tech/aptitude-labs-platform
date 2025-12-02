@@ -1,0 +1,136 @@
+/* gamification.css */
+
+/* --- TILE CONTAINER IN BENTO GRID --- */
+.league-tile {
+    grid-row: span 2; /* Make it tall */
+    padding: 0 !important; /* Remove standard bento padding for full card fit */
+    background: transparent !important;
+    border: none !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1000px; /* For 3D effect */
+}
+
+/* --- THE CARD BASE --- */
+.league-card {
+    width: 100%;
+    height: 100%;
+    border-radius: 24px;
+    position: relative;
+    font-family: 'Outfit', sans-serif;
+    overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+}
+
+.league-card:hover {
+    transform: translateY(-5px) scale(1.02);
+}
+
+/* --- THEME: ROOKIE (Wood & Paper) --- */
+.theme-rookie {
+    background: linear-gradient(180deg, #F2E8D5 0%, #D9C2A3 100%);
+    border: 4px solid #5C4033;
+    color: #3e2b22;
+}
+
+/* Notebook Texture Overlay */
+.theme-rookie::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(92, 64, 51, 0.1) 20px);
+    pointer-events: none;
+}
+
+/* --- INTERNAL ELEMENTS --- */
+.lc-header {
+    background: #5C4033;
+    color: #fff;
+    padding: 12px;
+    text-align: center;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-top: 20px;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%);
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.lc-emblem-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.shield-icon {
+    font-size: 80px;
+    color: #5C4033; /* Fallback */
+    filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3));
+    z-index: 2;
+}
+
+.watermark {
+    position: absolute;
+    font-size: 150px;
+    opacity: 0.05;
+    color: #000;
+    z-index: 1;
+}
+
+.lc-stats-strip {
+    background: #C0A080;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #3e2b22;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 2;
+}
+
+.lc-perks-box {
+    background: rgba(255, 255, 255, 0.5);
+    margin: 15px;
+    padding: 15px;
+    border-radius: 12px;
+    border: 2px dashed #A67B5B;
+    z-index: 2;
+}
+
+.lc-perks-title {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #5C4033;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.lc-perk-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.lc-footer {
+    text-align: center;
+    font-size: 0.7rem;
+    padding-bottom: 10px;
+    opacity: 0.8;
+    font-weight: 600;
+}
