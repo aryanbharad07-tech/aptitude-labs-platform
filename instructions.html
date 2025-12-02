@@ -6,35 +6,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; margin: 0; background: #F9FAFB; display: flex; flex-direction: column; height: 100vh; }
-        
-        /* Header */
         .header { background: #2c3e50; color: white; padding: 15px 30px; display: flex; align-items: center; justify-content: space-between; }
         .header h1 { font-size: 1.2rem; margin: 0; }
         .user-pic { width: 40px; height: 40px; background: #fff; border-radius: 50%; }
-
-        /* Main Content */
         .container { flex: 1; display: flex; overflow: hidden; }
-        
-        /* Instructions Box */
         .content-area { flex: 1; padding: 40px; overflow-y: auto; background: white; }
         .title-strip { background: #3D85C6; color: white; padding: 10px 15px; font-weight: bold; margin-bottom: 20px; }
-        
         h3 { border-bottom: 1px solid #ccc; padding-bottom: 10px; }
         ul { line-height: 1.8; color: #333; font-size: 0.95rem; }
         .table-view { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.9rem; }
         .table-view th, .table-view td { border: 1px solid #ccc; padding: 8px; text-align: center; }
         .table-view th { background: #f0f0f0; }
-
-        /* Sidebar profile */
         .sidebar { width: 250px; background: #EAF0F6; border-left: 1px solid #ccc; display: flex; flex-direction: column; align-items: center; padding-top: 30px; }
         .sidebar img { width: 100px; height: 100px; border: 1px solid #ccc; background: white; }
         .sidebar p { font-weight: bold; margin-top: 10px; color: #333; }
-
-        /* Footer */
         .footer { background: #fff; padding: 15px 40px; border-top: 1px solid #ccc; display: flex; justify-content: space-between; align-items: center; }
         .btn-proceed { background: #3D85C6; color: white; border: none; padding: 12px 30px; font-weight: bold; cursor: pointer; opacity: 0.5; pointer-events: none; }
         .btn-proceed.active { opacity: 1; pointer-events: auto; background: #28A745; }
-        
         .confirmation { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
         input[type="checkbox"] { transform: scale(1.3); cursor: pointer; }
     </style>
@@ -97,6 +85,16 @@
     <script>
         // --- 1. EXAM PATTERN CONFIGURATION ---
         const PATTERNS = {
+            "SAMPLE": {
+                name: "SAMPLE TEST",
+                sections: [
+                    { name: "QA (Short Answer)", q: 2, time: 2 },
+                    { name: "QA (MCQ)", q: 2, time: 2 },
+                    { name: "Verbal Ability", q: 2, time: 2 }
+                ],
+                switching: false, 
+                totalTime: 6
+            },
             "INDORE": {
                 name: "IPMAT Indore",
                 sections: [
@@ -104,7 +102,7 @@
                     { name: "QA (MCQ)", q: 30, time: 40 },
                     { name: "Verbal Ability", q: 45, time: 40 }
                 ],
-                switching: false, // Strict Sectional Timing
+                switching: false,
                 totalTime: 120
             },
             "ROHTAK": {
@@ -114,7 +112,7 @@
                     { name: "Logical Reasoning", q: 40, time: "Flexible" },
                     { name: "Verbal Ability", q: 40, time: "Flexible" }
                 ],
-                switching: true, // Free switching
+                switching: true, 
                 totalTime: 120
             },
             "JIPMAT": {
@@ -133,7 +131,8 @@
         const mockId = localStorage.getItem("activeMockId") || "INDORE";
         let currentPattern = PATTERNS["INDORE"]; // Default
 
-        if (mockId.includes("ROHTAK")) currentPattern = PATTERNS["ROHTAK"];
+        if (mockId.includes("SAMPLE")) currentPattern = PATTERNS["SAMPLE"];
+        else if (mockId.includes("ROHTAK")) currentPattern = PATTERNS["ROHTAK"];
         else if (mockId.includes("JIPMAT")) currentPattern = PATTERNS["JIPMAT"];
         else if (mockId.includes("INDORE")) currentPattern = PATTERNS["INDORE"];
 
