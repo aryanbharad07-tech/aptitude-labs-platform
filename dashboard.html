@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mission Control | Aptitude Labs</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Fixed: Escaped '&' to '&amp;' to prevent syntax errors -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -36,7 +37,7 @@
             overflow: hidden; 
         }
 
-        /* --- SIDEBAR NAV --- */
+        /* SIDEBAR */
         .sidebar {
             width: 80px;
             background: var(--bg-panel);
@@ -65,495 +66,12 @@
         .nav-item:hover, .nav-item.active { background: rgba(59, 130, 246, 0.1); color: var(--primary); }
         .nav-item i { font-size: 1.5rem; flex-shrink: 0; }
 
-        /* --- MAIN AREA --- */
+        /* MAIN CONTENT */
         .main-content {
             flex: 1; padding: 30px 40px; overflow-y: auto;
             background: radial-gradient(circle at top right, #1E293B 0%, var(--bg-deep) 40%);
         }
 
-        /* HEADER */
-        .header-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; }
-        .welcome-text h1 { font-size: 2rem; font-weight: 700; margin-bottom: 5px; }
-        .welcome-text p { color: var(--text-muted); }
-        
-        .settings-btn {
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-            padding: 8px 16px; border-radius: 30px; font-size: 0.9rem; font-weight: 500;
-            display: flex; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s;
-            color: var(--text-muted);
-        }
-        .settings-btn:hover { background: rgba(255,255,255,0.1); color: white; }
-
-        /* --- BENTO GRID LAYOUT --- */
-        .bento-grid {
-            display: grid;
-            grid-template-columns: 1.5fr 1fr 1fr;
-            grid-template-rows: auto auto;
-            gap: 24px;
-            margin-bottom: 40px;
-        }
-
-        .bento-card {
-            background: rgba(21, 27, 43, 0.6);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 24px;
-            position: relative; overflow: hidden;
-            transition: transform 0.2s, border-color 0.2s;
-        }
-        .bento-card:hover { border-color: var(--primary); transform: translateY(-2px); }
-
-        /* FEATURE: VOCAB WIDGET */
-        .vocab-card { grid-column: span 1; background: linear-gradient(145deg, #1e1b4b 0%, #312e81 100%); border-color: #4338ca; }
-        .vocab-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .vocab-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #a5b4fc; }
-        .vocab-refresh { cursor: pointer; color: white; background: rgba(255,255,255,0.1); border-radius: 50%; padding: 5px; transition: 0.2s; }
-        .vocab-refresh:hover { background: rgba(255,255,255,0.2); transform: rotate(180deg); }
-        
-        .vocab-word { font-size: 1.8rem; font-weight: 800; color: white; margin-bottom: 5px; }
-        .vocab-type { font-style: italic; color: #818cf8; font-size: 0.9rem; }
-        .vocab-def { margin-top: 10px; font-size: 0.95rem; line-height: 1.5; color: #e0e7ff; opacity: 0.9; }
-
-        /* FEATURE: AI TUTOR (RENAMED) */
-        .ai-card { 
-            grid-column: span 2; 
-            background: linear-gradient(145deg, #1A1F30 0%, #252B42 100%);
-            display: flex; flex-direction: column;
-        }
-        .ai-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-        .ai-title { font-size: 1.1rem; font-weight: 700; color: #E2E8F0; }
-        .sparkles { color: #F472B6; }
-        
-        .ai-input-group { display: flex; gap: 10px; margin-top: auto; }
-        .ai-input {
-            flex: 1; background: rgba(0,0,0,0.3); border: 1px solid var(--border);
-            color: white; padding: 10px 15px; border-radius: 12px; font-family: inherit;
-        }
-        .ai-input:focus { outline: none; border-color: var(--primary); }
-        
-        .ai-btn {
-            background: var(--primary); color: white; border: none; padding: 0 20px;
-            border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px;
-        }
-        .ai-btn:hover { background: #2563EB; }
-        .ai-btn:disabled { opacity: 0.6; cursor: wait; }
-
-        .ai-response {
-            font-size: 0.9rem; color: #94A3B8; line-height: 1.5; margin-bottom: 15px;
-            max-height: 80px; overflow-y: auto;
-        }
-
-        /* FEATURE: MOCK LIBRARY */
-        .library-section { grid-column: 1 / -1; }
-        
-        .lib-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .tabs { background: var(--bg-panel); padding: 4px; border-radius: 12px; display: inline-flex; border: 1px solid var(--border); }
-        .tab-btn {
-            background: transparent; border: none; color: var(--text-muted);
-            padding: 8px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s;
-        }
-        .tab-btn.active { background: var(--primary); color: white; box-shadow: var(--glow); }
-
-        .mock-scroller {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;
-        }
-
-        .mock-item {
-            background: var(--bg-panel); border: 1px solid var(--border);
-            border-radius: 16px; padding: 20px; position: relative;
-            display: flex; flex-direction: column; height: 200px;
-            transition: 0.2s;
-        }
-        .mock-item:hover { background: #1A2236; border-color: var(--primary); }
-        
-        .m-badge { 
-            position: absolute; top: 15px; right: 15px; 
-            font-size: 0.7rem; font-weight: 700; padding: 4px 8px; border-radius: 4px;
-            text-transform: uppercase;
-        }
-        .live { background: rgba(16, 185, 129, 0.2); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); }
-        .locked { background: rgba(239, 68, 68, 0.1); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.2); }
-
-        .m-title { font-size: 1.1rem; font-weight: 600; margin-top: 15px; line-height: 1.3; }
-        .m-meta { font-size: 0.85rem; color: var(--text-muted); margin-top: 5px; }
-        
-        .play-btn {
-            margin-top: auto; width: 100%; padding: 10px; border-radius: 8px; border: none;
-            font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .btn-go { background: white; color: var(--bg-deep); }
-        .btn-go:hover { background: var(--primary); color: white; }
-        .btn-wait { background: rgba(255,255,255,0.05); color: #555; cursor: not-allowed; }
-
-        /* SETTINGS MODAL */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 2000; display: none;
-            justify-content: center; align-items: center; backdrop-filter: blur(5px);
-        }
-        .modal {
-            background: var(--bg-panel); padding: 30px; border-radius: 20px;
-            border: 1px solid var(--border); width: 90%; max-width: 500px;
-        }
-        .modal h2 { margin-top: 0; }
-        .modal input { width: 100%; padding: 12px; margin: 15px 0; background: var(--bg-deep); border: 1px solid var(--border); color: white; border-radius: 8px; }
-        .modal-btns { display: flex; justify-content: flex-end; gap: 10px; }
-
-        @media (max-width: 1024px) {
-            .bento-grid { grid-template-columns: 1fr; }
-            .sidebar { width: 0; padding: 0; overflow: hidden; } 
-            .main-content { padding: 20px; }
-            .ai-card { grid-column: span 1; }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- SETTINGS MODAL -->
-    <div class="modal-overlay" id="settings-modal">
-        <div class="modal">
-            <h2>⚙️ Configure AI</h2>
-            <p style="color:var(--text-muted); font-size:0.9rem;">To enable the AI Tutor and Word Generator, you need a free Gemini API Key.</p>
-            <input type="text" id="api-key-input" placeholder="Paste your Gemini API Key here...">
-            <div class="modal-btns">
-                <button class="ai-btn" style="background:#333;" onclick="closeSettings()">Cancel</button>
-                <button class="ai-btn" onclick="saveApiKey()">Save Key</button>
-            </div>
-            <p style="font-size:0.8rem; margin-top:15px; color:#666;">
-                <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--primary);">Get a Key from Google AI Studio -></a>
-            </p>
-        </div>
-    </div>
-
-    <!-- SIDEBAR -->
-    <nav class="sidebar">
-        <div class="brand-row">
-            <div class="brand-icon">AL</div>
-            <span class="brand-text">Aptitude Labs</span>
-        </div>
-        
-        <div class="nav-item active">
-            <i class="material-icons-round">dashboard</i> <span>Dashboard</span>
-        </div>
-        <div class="nav-item">
-            <i class="material-icons-round">analytics</i> <span>Performance</span>
-        </div>
-        <div class="nav-item" style="margin-top: auto;" onclick="logout()">
-            <i class="material-icons-round">logout</i> <span>Logout</span>
-        </div>
-    </nav>
-
-    <!-- MAIN -->
-    <div class="main-content">
-        
-        <div class="header-row">
-            <div class="welcome-text">
-                <h1 id="greeting">Hello, Aspirant.</h1>
-                <p>Let's make today count.</p>
-            </div>
-            <div class="settings-btn" onclick="openSettings()">
-                <i class="material-icons-round">settings</i> Settings
-            </div>
-        </div>
-
-        <div class="bento-grid">
-            
-            <!-- 1. AI TUTOR WIDGET -->
-            <div class="bento-card ai-card">
-                <div class="ai-header">
-                    <i class="material-icons-round sparkles">auto_awesome</i>
-                    <span class="ai-title">Aptitude Labs AI Tutor</span>
-                </div>
-                <div class="ai-response" id="ai-output">
-                    I am powered by Gemini. Please configure your API key in Settings to activate me!
-                </div>
-                <div class="ai-input-group">
-                    <input type="text" id="ai-input" class="ai-input" placeholder="Explain Time Speed Distance...">
-                    <button class="ai-btn" onclick="askGemini()">
-                        <i class="material-icons-round">send</i> Ask
-                    </button>
-                </div>
-            </div>
-
-            <!-- 2. DYNAMIC VOCAB WIDGET -->
-            <div class="bento-card vocab-card">
-                <div class="vocab-header">
-                    <span class="vocab-label">Word of the Day</span>
-                    <i class="material-icons-round vocab-refresh" onclick="generateNewWord()" title="Generate New Word using Gemini">refresh</i>
-                </div>
-                <div id="vocab-content">
-                    <div class="vocab-word">Loading...</div>
-                </div>
-            </div>
-
-            <!-- 4. MOCK LIBRARY -->
-            <div class="library-section">
-                <div class="lib-header">
-                    <h2 style="font-size:1.3rem;">Mock Terminal</h2>
-                    <div class="tabs">
-                        <button class="tab-btn" onclick="switchTab('SAMPLE', this)" style="color:#10B981;">🧪 Test Zone</button>
-                        <button class="tab-btn active" onclick="switchTab('INDORE', this)">Indore</button>
-                        <button class="tab-btn" onclick="switchTab('ROHTAK', this)">Rohtak</button>
-                        <button class="tab-btn" onclick="switchTab('JIPMAT', this)">JIPMAT</button>
-                    </div>
-                </div>
-
-                <div class="mock-scroller" id="mock-list">
-                    <p style="color:var(--text-muted);">Initializing Uplink...</p>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- LOGIC -->
-    <script>
-        const firebaseConfig = { apiKey: "AIzaSyBTbfSlz0xvfBzAWmJzXDGbIC6Up0-6eU4", authDomain: "aptitudelabs-in.firebaseapp.com", projectId: "aptitudelabs-in", storageBucket: "aptitudelabs-in.firebasestorage.app", messagingSenderId: "175469863880", appId: "1:175469863880:web:b7b25ed27120665af716fd" };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-
-        let liveMocks = {};
-
-        // --- INIT ---
-        window.onload = function() {
-            // Check for API Key
-            const key = localStorage.getItem("gemini_key");
-            if(key) {
-                document.getElementById('ai-output').innerText = "AI System Online. Ask me anything!";
-            }
-
-            // Set Initial Word (Fallback)
-            updateVocabUI("Ephemeral", "adj.", "Lasting for a very short time.");
-
-            auth.onAuthStateChanged(user => {
-                if(user) {
-                    const name = user.email.split('@')[0];
-                    document.getElementById('greeting').innerText = `Hello, ${name}.`;
-                    fetchStatusAndRender('INDORE');
-                } else {
-                    window.location.href = "login.html";
-                }
-            });
-        };
-
-        // --- SETTINGS LOGIC ---
-        function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
-        function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
-        
-        function saveApiKey() {
-            const key = document.getElementById('api-key-input').value.trim();
-            if(key) {
-                localStorage.setItem("gemini_key", key);
-                document.getElementById('ai-output').innerText = "API Key Saved! AI System Online.";
-                closeSettings();
-            } else {
-                alert("Please enter a valid key.");
-            }
-        }
-
-        // --- GEMINI AI FUNCTIONS ---
-        async function askGemini() {
-            const apiKey = localStorage.getItem("gemini_key");
-            if(!apiKey) { openSettings(); return; }
-
-            const input = document.getElementById('ai-input');
-            const output = document.getElementById('ai-output');
-            const query = input.value.trim();
-            
-            if (!query) return;
-            
-            output.innerText = "Thinking...";
-            input.disabled = true;
-
-            try {
-                const response = await fetchWithRetry(query, apiKey);
-                output.innerText = response;
-            } catch (error) {
-                console.error(error);
-                output.innerText = "Error: " + error.message;
-            } finally {
-                input.disabled = false;
-                input.value = "";
-                input.focus();
-            }
-        }
-
-        async function generateNewWord() {
-            const apiKey = localStorage.getItem("gemini_key");
-            if(!apiKey) { openSettings(); return; }
-
-            const output = document.getElementById('vocab-content');
-            output.style.opacity = "0.5";
-            
-            try {
-                const prompt = "Generate a sophisticated vocabulary word useful for MBA entrance exams like CAT/IPMAT. Format exactly like this: Word | Type (adj/v/n) | Definition. Example: Ephemeral | adj. | Lasting for a very short time.";
-                const text = await fetchWithRetry(prompt, apiKey);
-                
-                const parts = text.split('|');
-                if (parts.length >= 3) {
-                    updateVocabUI(parts[0].trim(), parts[1].trim(), parts[2].trim());
-                } else {
-                    updateVocabUI("Serendipity", "n.", text); 
-                }
-            } catch (error) {
-                console.error(error);
-            } finally {
-                output.style.opacity = "1";
-            }
-        }
-
-        function updateVocabUI(word, type, def) {
-            document.getElementById('vocab-content').innerHTML = `
-                <div class="vocab-word">${word}</div>
-                <div class="vocab-type">${type}</div>
-                <div class="vocab-def">${def}</div>
-            `;
-        }
-
-        async function fetchWithRetry(userPrompt, key) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${key}`;
-            const payload = { contents: [{ parts: [{ text: userPrompt }] }] };
-
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error.message || response.statusText);
-            return data.candidates[0].content.parts[0].text;
-        }
-
-        // --- MOCK RENDER LOGIC ---
-        async function fetchStatusAndRender(category) {
-            try {
-                const snapshot = await db.collection('exam_status').get();
-                liveMocks = {};
-                snapshot.forEach(doc => { liveMocks[doc.id] = doc.data().active; });
-                renderMocks(category);
-            } catch (e) { console.error(e); renderMocks(category); }
-        }
-
-        function renderMocks(category) {
-            const container = document.getElementById('mock-list');
-            container.innerHTML = '';
-
-            let count = 20;
-            if(category === 'SAMPLE') count = 1;
-
-            for (let i = 1; i <= count; i++) {
-                const mockId = `${category}-MOCK-${String(i).padStart(2, '0')}`;
-                const isLive = liveMocks[mockId] === true;
-                
-                const badgeClass = isLive ? 'live' : 'locked';
-                const badgeText = isLive ? 'LIVE' : 'LOCKED';
-                const btnHtml = isLive 
-                    ? `<button class="play-btn btn-go" onclick="startTest('${mockId}')"><i class="material-icons-round">play_arrow</i> Start</button>`
-                    : `<button class="play-btn btn-wait"><i class="material-icons-round">lock</i> Locked</button>`;
-
-                container.innerHTML += `
-                    <div class="mock-item">
-                        <span class="m-badge ${badgeClass}">${badgeText}</span>
-                        <div style="font-size:3rem; color:rgba(255,255,255,0.05); position:absolute; top:40px; right:20px; font-weight:800;">${i}</div>
-                        <div class="m-title">Mock ${i}</div>
-                        <div class="m-meta">${category} Series</div>
-                        ${btnHtml}
-                    </div>
-                `;
-            }
-        }
-
-        window.switchTab = function(cat, btn) {
-            document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
-            btn.classList.add('active');
-            fetchStatusAndRender(cat);
-        }
-
-        window.startTest = function(id) {
-            localStorage.setItem("activeMockId", id);
-            window.location.href = "instructions.html";
-        }
-
-        window.logout = function() { auth.signOut().then(() => { window.location.href = "login.html"; }); }
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission Control | Aptitude Labs</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-    
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
-    <style>
-        :root {
-            --bg-deep: #0B0F19;
-            --bg-panel: #151B2B;
-            --primary: #3B82F6;
-            --accent: #8B5CF6;
-            --success: #10B981;
-            --text-main: #F8FAFC;
-            --text-muted: #94A3B8;
-            --border: rgba(255, 255, 255, 0.08);
-            --glass: rgba(21, 27, 43, 0.7);
-            --glow: 0 0 20px rgba(59, 130, 246, 0.3);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-        
-        body { 
-            background-color: var(--bg-deep); 
-            color: var(--text-main); 
-            min-height: 100vh; 
-            display: flex;
-            overflow: hidden; 
-        }
-
-        /* --- SIDEBAR NAV --- */
-        .sidebar {
-            width: 80px;
-            background: var(--bg-panel);
-            border-right: 1px solid var(--border);
-            display: flex; flex-direction: column; align-items: center;
-            padding: 30px 0; z-index: 50; transition: width 0.3s;
-        }
-        .sidebar:hover { width: 240px; align-items: flex-start; padding-left: 20px; }
-        
-        .brand-icon { 
-            width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--accent));
-            border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; font-weight: 800; margin-bottom: 40px; box-shadow: var(--glow);
-            flex-shrink: 0;
-        }
-        .brand-text { display: none; font-size: 1.2rem; font-weight: 700; margin-left: 15px; white-space: nowrap; }
-        .sidebar:hover .brand-text { display: block; }
-        .sidebar:hover .brand-row { display: flex; align-items: center; width: 100%; }
-
-        .nav-item {
-            margin-bottom: 20px; color: var(--text-muted); cursor: pointer;
-            display: flex; align-items: center; gap: 15px; padding: 10px;
-            border-radius: 10px; transition: 0.2s; width: 40px; overflow: hidden; white-space: nowrap;
-        }
-        .sidebar:hover .nav-item { width: 200px; }
-        .nav-item:hover, .nav-item.active { background: rgba(59, 130, 246, 0.1); color: var(--primary); }
-        .nav-item i { font-size: 1.5rem; flex-shrink: 0; }
-
-        /* --- MAIN AREA --- */
-        .main-content {
-            flex: 1; padding: 30px 40px; overflow-y: auto;
-            background: radial-gradient(circle at top right, #1E293B 0%, var(--bg-deep) 40%);
-        }
-
-        /* HEADER */
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .welcome-text h1 { font-size: 2rem; font-weight: 700; margin-bottom: 5px; }
         .welcome-text p { color: var(--text-muted); }
@@ -576,11 +94,10 @@
         }
         .upgrade-btn:hover { transform: translateY(-2px); }
 
-        /* --- BENTO GRID LAYOUT --- */
+        /* BENTO GRID */
         .bento-grid {
             display: grid;
             grid-template-columns: 1.5fr 1fr 1fr;
-            grid-template-rows: auto auto;
             gap: 24px;
             margin-bottom: 40px;
         }
@@ -596,19 +113,26 @@
         }
         .bento-card:hover { border-color: var(--primary); transform: translateY(-2px); }
 
-        /* FEATURE STYLES */
         .vocab-card { grid-column: span 1; background: linear-gradient(145deg, #1e1b4b 0%, #312e81 100%); border-color: #4338ca; }
+        .vocab-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .vocab-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #a5b4fc; }
         .vocab-word { font-size: 1.8rem; font-weight: 800; color: white; margin-bottom: 5px; }
         .vocab-type { font-style: italic; color: #818cf8; font-size: 0.9rem; }
         .vocab-def { margin-top: 10px; font-size: 0.95rem; line-height: 1.5; color: #e0e7ff; opacity: 0.9; }
 
         .ai-card { grid-column: span 2; background: linear-gradient(145deg, #1A1F30 0%, #252B42 100%); display: flex; flex-direction: column; }
+        .ai-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .ai-title { font-size: 1.1rem; font-weight: 700; color: #E2E8F0; }
         .ai-response { font-size: 0.9rem; color: #94A3B8; line-height: 1.5; margin-bottom: 15px; max-height: 80px; overflow-y: auto; }
         .ai-input { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: white; padding: 10px 15px; border-radius: 12px; }
         .ai-btn { background: var(--primary); color: white; border: none; padding: 0 20px; border-radius: 12px; cursor: pointer; }
 
         .library-section { grid-column: 1 / -1; }
         .lib-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .tabs { background: var(--bg-panel); padding: 4px; border-radius: 12px; display: inline-flex; border: 1px solid var(--border); }
+        .tab-btn { background: transparent; border: none; color: var(--text-muted); padding: 8px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .tab-btn.active { background: var(--primary); color: white; box-shadow: var(--glow); }
+
         .mock-scroller { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         
         .mock-item {
@@ -624,8 +148,8 @@
         .play-btn { margin-top: auto; width: 100%; padding: 10px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; }
         .btn-go { background: white; color: var(--bg-deep); }
 
-        /* --- PRICING OVERLAY STYLES --- */
-        #pricing-view { display: none; } /* Hidden by default */
+        /* PRICING VIEW */
+        #pricing-view { display: none; }
         .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 40px; }
         .price-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 20px; padding: 30px; text-align: center; position: relative; }
         .price-card.popular { border-color: var(--primary); background: linear-gradient(180deg, rgba(59,130,246,0.1), var(--bg-panel)); transform: scale(1.05); }
@@ -639,6 +163,13 @@
         .modal { background: var(--bg-panel); padding: 30px; border-radius: 20px; border: 1px solid var(--border); width: 90%; max-width: 500px; }
         .modal input { width: 100%; padding: 12px; margin: 15px 0; background: var(--bg-deep); border: 1px solid var(--border); color: white; border-radius: 8px; }
 
+        @media (max-width: 1024px) {
+            .bento-grid { grid-template-columns: 1fr; }
+            .sidebar { width: 0; padding: 0; overflow: hidden; } 
+            .main-content { padding: 20px; }
+            .ai-card { grid-column: span 1; }
+            .pricing-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -685,7 +216,7 @@
                     <i class="material-icons-round">bolt</i> Upgrade
                 </button>
                 <div class="settings-btn" onclick="openSettings()">
-                    <i class="material-icons-round">settings</i>
+                    <i class="material-icons-round">settings</i> Settings
                 </div>
             </div>
         </div>
@@ -722,9 +253,10 @@
                     <div class="lib-header">
                         <h2>Mock Terminal</h2>
                         <div style="display:flex; gap:10px;">
-                            <button class="settings-btn" onclick="switchTab('SAMPLE')">🧪 Test</button>
-                            <button class="settings-btn" onclick="switchTab('INDORE')">Indore</button>
-                            <button class="settings-btn" onclick="switchTab('ROHTAK')">Rohtak</button>
+                            <button class="settings-btn" onclick="switchTab('SAMPLE', this)">🧪 Test Zone</button>
+                            <button class="settings-btn" onclick="switchTab('INDORE', this)">Indore</button>
+                            <button class="settings-btn" onclick="switchTab('ROHTAK', this)">Rohtak</button>
+                            <button class="settings-btn" onclick="switchTab('JIPMAT', this)">JIPMAT</button>
                         </div>
                     </div>
                     <div class="mock-scroller" id="mock-list"></div>
@@ -732,9 +264,9 @@
             </div>
         </div>
 
-        <!-- VIEW 2: PRICING (Hidden by default) -->
+        <!-- VIEW 2: PRICING -->
         <div id="pricing-view">
-            <h2 style="text-align:center;">Choose Your Weapon</h2>
+            <h2 style="text-align:center; margin-bottom:30px;">Upgrade Your Arsenal</h2>
             <div class="pricing-grid">
                 <div class="price-card">
                     <h3>Starter</h3>
@@ -770,6 +302,7 @@
 
     </div>
 
+    <!-- LOGIC -->
     <script>
         const firebaseConfig = { apiKey: "AIzaSyBTbfSlz0xvfBzAWmJzXDGbIC6Up0-6eU4", authDomain: "aptitudelabs-in.firebaseapp.com", projectId: "aptitudelabs-in", storageBucket: "aptitudelabs-in.firebasestorage.app", messagingSenderId: "175469863880", appId: "1:175469863880:web:b7b25ed27120665af716fd" };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
@@ -777,7 +310,6 @@
         const auth = firebase.auth();
         const apiKey = ""; 
 
-        // --- NAVIGATION LOGIC ---
         function showDashboard() {
             document.getElementById('dashboard-view').style.display = 'block';
             document.getElementById('pricing-view').style.display = 'none';
@@ -787,7 +319,6 @@
             document.getElementById('pricing-view').style.display = 'block';
         }
 
-        // --- INIT ---
         window.onload = function() {
             const key = localStorage.getItem("gemini_key");
             if(key) document.getElementById('ai-output').innerText = "AI System Online.";
@@ -804,7 +335,14 @@
             });
         };
 
-        // --- MOCK RENDER ---
+        function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
+        function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
+        function saveApiKey() { localStorage.setItem("gemini_key", document.getElementById('api-key-input').value); closeSettings(); location.reload(); }
+        
+        async function askGemini() { /* ... AI Logic ... */ }
+        function generateNewWord() { /* ... AI Logic ... */ }
+        function updateVocabUI(w, t, d) { document.getElementById('vocab-content').innerHTML = `<div>${w}</div><div style="color:#aaa; font-style:italic;">${t}</div><div>${d}</div>`; }
+
         async function fetchStatusAndRender(category) {
             let liveMocks = {};
             try {
@@ -837,16 +375,7 @@
             }
         }
 
-        // --- SETTINGS & AI (Simplified for brevity) ---
-        function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
-        function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
-        function saveApiKey() { localStorage.setItem("gemini_key", document.getElementById('api-key-input').value); closeSettings(); location.reload(); }
-        
-        async function askGemini() { /* ... AI Logic ... */ }
-        function generateNewWord() { /* ... AI Logic ... */ }
-        function updateVocabUI(w, t, d) { document.getElementById('vocab-content').innerHTML = `<div>${w}</div><div style="color:#aaa; font-style:italic;">${t}</div><div>${d}</div>`; }
-
-        window.switchTab = (cat) => fetchStatusAndRender(cat);
+        window.switchTab = (cat, btn) => fetchStatusAndRender(cat);
         window.startTest = (id) => { localStorage.setItem("activeMockId", id); window.location.href = "instructions.html"; }
         window.logout = () => auth.signOut().then(() => window.location.href = "login.html");
     </script>
