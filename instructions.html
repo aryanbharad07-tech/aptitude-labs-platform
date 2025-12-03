@@ -50,8 +50,7 @@
                     </tr>
                 </thead>
                 <tbody id="pattern-table">
-                    <!-- JS will inject rows here -->
-                </tbody>
+                    </tbody>
             </table>
 
             <h3>Marking Scheme:</h3>
@@ -85,6 +84,16 @@
     <script>
         // --- 1. EXAM PATTERN CONFIGURATION ---
         const PATTERNS = {
+            "TEST_MOCK_1": {
+                name: "Test Mock 1",
+                sections: [
+                    { name: "QA (Short Answer)", q: 4, time: 2 },
+                    { name: "QA (MCQ)", q: 4, time: 2 },
+                    { name: "Verbal Ability", q: 4, time: 1 }
+                ],
+                switching: false, 
+                totalTime: 5
+            },
             "SAMPLE": {
                 name: "SAMPLE TEST",
                 sections: [
@@ -131,7 +140,8 @@
         const mockId = localStorage.getItem("activeMockId") || "INDORE";
         let currentPattern = PATTERNS["INDORE"]; // Default
 
-        if (mockId.includes("SAMPLE")) currentPattern = PATTERNS["SAMPLE"];
+        if (mockId.includes("TEST")) currentPattern = PATTERNS["TEST_MOCK_1"];
+        else if (mockId.includes("SAMPLE")) currentPattern = PATTERNS["SAMPLE"];
         else if (mockId.includes("ROHTAK")) currentPattern = PATTERNS["ROHTAK"];
         else if (mockId.includes("JIPMAT")) currentPattern = PATTERNS["JIPMAT"];
         else if (mockId.includes("INDORE")) currentPattern = PATTERNS["INDORE"];

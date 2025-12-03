@@ -11,76 +11,102 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <style>
-        /* ... Keeping your existing styles ... */
         :root { --primary: #2563EB; --bg: #F3F4F6; --border: #E5E7EB; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; }
+
+        /* HEADER */
         header { background: white; padding: 15px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         header h2 { margin: 0; font-size: 1.2rem; color: #111827; }
         .status-bar { font-size: 0.9rem; color: #666; }
+
+        /* MAIN LAYOUT */
         .workspace { display: flex; flex: 1; overflow: hidden; }
-        .sidebar { width: 300px; background: white; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-        .config-box { padding: 20px; border-bottom: 1px solid var(--border); background: #f9fafb; }
+        
+        /* SIDEBAR */
+        .sidebar { width: 340px; background: white; border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; }
+        
+        /* BANNER MANAGER STYLES */
+        .banner-manager { padding: 20px; border-bottom: 1px solid var(--border); background: #F8FAFC; }
+        .bm-header { font-weight: 700; font-size: 0.9rem; color: #334155; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
+        .banner-input { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 8px; font-size: 0.85rem; }
+        .add-btn { width: 100%; background: #3B82F6; color: white; border: none; padding: 8px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .add-btn:hover { background: #2563EB; }
+
+        .banner-list { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; max-height: 200px; overflow-y: auto; }
+        .banner-item { background: white; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; position: relative; display: flex; gap: 10px; align-items: center; }
+        .banner-thumb { width: 60px; height: 40px; object-fit: cover; border-radius: 4px; background: #eee; }
+        .del-btn { position: absolute; top: 5px; right: 5px; background: #FECACA; color: #DC2626; border: none; width: 20px; height: 20px; border-radius: 50%; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+
+        /* MOCK CONFIG STYLES */
+        .config-box { padding: 20px; border-bottom: 1px solid var(--border); }
         .config-box label { display: block; font-size: 0.8rem; font-weight: 700; color: #4B5563; margin-bottom: 5px; }
         .config-box input, .config-box select { width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; margin-bottom: 10px; }
-        .publish-box { background: white; border: 1px solid #ddd; padding: 10px; border-radius: 6px; margin-top: 10px; text-align: center; }
+        
         .status-indicator { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; margin-bottom: 5px; }
         .is-live { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
         .is-locked { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
         .btn-toggle { width: 100%; padding: 6px; font-size: 0.8rem; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #f0f0f0; }
+
+        /* EDITOR & GRID (Standard) */
         .q-list-header { padding: 10px 20px; background: #e5e7eb; font-weight: bold; font-size: 0.85rem; display: flex; justify-content: space-between; }
         .q-grid { flex: 1; overflow-y: auto; padding: 10px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; align-content: start; }
-        .q-btn { aspect-ratio: 1; border: 1px solid #d1d5db; background: white; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; position: relative; }
-        .q-btn:hover { border-color: var(--primary); color: var(--primary); }
-        .q-btn.exists { background: #D1FAE5; color: #065F46; border-color: #A7F3D0; } 
-        .q-btn.active { border: 2px solid var(--primary); font-weight: bold; transform: scale(1.1); }
+        .q-btn { aspect-ratio: 1; border: 1px solid #d1d5db; background: white; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; }
+        .q-btn.exists { background: #D1FAE5; color: #065F46; border-color: #A7F3D0; }
+        
         .editor { flex: 1; padding: 30px; overflow-y: auto; max-width: 900px; margin: 0 auto; }
         .editor-card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .section-info { background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF; padding: 10px; border-radius: 6px; margin-bottom: 20px; font-size: 0.9rem; font-weight: 600; display: flex; justify-content: space-between; }
-        .row { display: flex; gap: 20px; margin-bottom: 15px; }
-        .col { flex: 1; }
+        .section-info { background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF; padding: 10px; border-radius: 6px; margin-bottom: 20px; font-size: 0.9rem; font-weight: 600; }
+        .row { display: flex; gap: 20px; margin-bottom: 15px; } .col { flex: 1; }
         label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; color: #374151; }
         input[type="text"], input[type="number"], textarea, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem; }
-        textarea { resize: vertical; min-height: 80px; font-family: inherit; }
+        textarea { resize: vertical; min-height: 80px; }
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: #F9FAFB; padding: 15px; border-radius: 8px; border: 1px solid #E5E7EB; margin-bottom: 15px; }
         .opt-row { display: flex; align-items: center; }
-        .opt-row input[type="radio"] { margin-right: 10px; transform: scale(1.2); cursor: pointer; }
         .toolbar { margin-top: 20px; display: flex; gap: 15px; padding-top: 20px; border-top: 1px solid #eee; }
         .btn { padding: 10px 24px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; font-size: 1rem; }
         .btn-save { background: var(--primary); color: white; flex: 1; }
-        .btn-save:hover { background: #1D4ED8; }
-        .btn-new { background: #fff; border: 1px solid #ccc; color: #333; }
-        .badge { padding: 2px 6px; background: #eee; border-radius: 4px; font-size: 0.75rem; margin-left: 5px; }
         .hidden { display: none; }
     </style>
 </head>
 <body>
 
     <header>
-        <h2>Teacher's Console <span class="badge">Smart Editor</span></h2>
+        <h2>Teacher's Console <span style="font-size:0.8rem; background:#eee; padding:4px 8px; border-radius:4px; margin-left:5px;">CMS V3.1</span></h2>
         <div class="status-bar">Admin: <span id="admin-id">...</span></div>
     </header>
 
     <div class="workspace">
-        <!-- SIDEBAR -->
+        
         <div class="sidebar">
+            
+            <div class="banner-manager">
+                <div class="bm-header">📢 Slideshow Manager</div>
+                <input type="text" id="ban-img" class="banner-input" placeholder="Image Path (e.g. banners/1.png)">
+                <input type="text" id="ban-title" class="banner-input" placeholder="Title (e.g. 'Boost Your Score')">
+                <input type="text" id="ban-sub" class="banner-input" placeholder="Subtitle">
+                <button onclick="addBanner()" class="add-btn">+ Add Slide</button>
+                
+                <div id="banner-list" class="banner-list">
+                    </div>
+            </div>
+
             <div class="config-box">
-                <label>1. Select Exam Pattern</label>
+                <label>Select Exam Pattern</label>
                 <select id="exam-cat" onchange="updateMockConfig()">
-                    <option value="SAMPLE">Sample Test (6 Qs)</option>
-                    <option value="INDORE">IPMAT Indore (Fixed)</option>
+                    <option value="TEST">Test Mock (12 Qs)</option> <option value="SAMPLE">Sample Test (6 Qs)</option>
+                    <option value="INDORE">IPMAT Indore</option>
                     <option value="ROHTAK">IPMAT Rohtak</option>
                     <option value="JIPMAT">JIPMAT</option>
                 </select>
                 
-                <label>2. Mock Number</label>
+                <label>Mock Number</label>
                 <input type="number" id="mock-num" value="1" min="1" max="50" oninput="updateMockConfig()">
                 
                 <div style="font-size:0.8rem; color:#666; margin-top:5px;">
-                    Active ID: <strong id="active-mock-id" style="color:var(--primary);">SAMPLE-MOCK-01</strong>
+                    Active ID: <strong id="active-mock-id" style="color:var(--primary);">INDORE-MOCK-01</strong>
                 </div>
 
-                <!-- PUBLISH CONTROLS -->
-                <div class="publish-box">
+                <div style="margin-top:10px; text-align:center;">
                     <span id="status-badge" class="status-indicator is-locked">🔴 LOCKED</span>
                     <button class="btn-toggle" onclick="toggleLiveStatus()">Toggle Status</button>
                 </div>
@@ -88,50 +114,32 @@
                 <button onclick="loadQuestionsList()" style="width:100%; margin-top:10px; padding:8px; cursor:pointer; background:white; border:1px solid #ccc; border-radius:4px;">🔄 Refresh Grid</button>
             </div>
 
-            <div class="q-list-header">
-                <span>Question Grid</span>
-                <span id="q-count">0/0</span>
-            </div>
+            <div class="q-list-header"><span>Question Grid</span><span id="q-count">0/0</span></div>
             <div class="q-grid" id="q-grid"></div>
         </div>
 
-        <!-- EDITOR -->
         <div class="editor">
             <div class="editor-card">
                 <div class="section-info" id="section-info-bar">
                     <span id="current-sec-name">QA (Short Answer)</span>
-                    <span id="current-sec-range">Range: Q1 - Q2</span>
+                    <span id="current-sec-range">Range: Q1 - Q15</span>
                 </div>
 
                 <form id="editor-form">
                     <input type="hidden" id="doc-id">
-
                     <div class="row">
-                        <div class="col" style="flex:0.3;">
-                            <label>Q. No <span style="color:red">*</span></label>
-                            <input type="number" id="q-number" placeholder="1" required oninput="checkPatternRules()">
-                        </div>
-                        <div class="col">
-                            <label>Section (Auto-Detected)</label>
-                            <input type="text" id="section" readonly style="background:#f0f0f0; color:#555;">
-                        </div>
+                        <div class="col" style="flex:0.3;"><label>Q. No <span style="color:red">*</span></label><input type="number" id="q-number" placeholder="1" required oninput="checkPatternRules()"></div>
+                        <div class="col"><label>Section (Auto)</label><input type="text" id="section" readonly style="background:#f0f0f0; color:#555;"></div>
                         <div class="col" style="flex:0.4;">
-                            <label>Type (Auto)</label>
+                            <label>Type</label>
                             <select id="q-type" onchange="toggleFields()" disabled style="background:#f0f0f0; color:#555;">
-                                <option value="MCQ">MCQ</option>
-                                <option value="SA">Short Answer</option>
-                                <option value="RC">RC Passage</option>
+                                <option value="MCQ">MCQ</option><option value="SA">Short Answer</option><option value="RC">RC Passage</option>
                             </select>
                         </div>
                     </div>
 
-                    <div id="passage-box" class="hidden">
-                        <label>Reading Comprehension Passage / DI Data:</label>
-                        <textarea id="passage-text" style="height:150px;" placeholder="Paste passage here..."></textarea>
-                    </div>
-
-                    <label>Question Text <span style="color:red">*</span></label>
-                    <textarea id="q-text" required placeholder="Type the question here..."></textarea>
+                    <div id="passage-box" class="hidden"><label>Passage:</label><textarea id="passage-text" style="height:150px;"></textarea></div>
+                    <label>Question Text <span style="color:red">*</span></label><textarea id="q-text" required></textarea>
 
                     <div id="options-box">
                         <label>Options & Correct Answer:</label>
@@ -143,16 +151,11 @@
                         </div>
                     </div>
 
-                    <div id="sa-box" class="hidden">
-                        <label>Correct Numerical Answer:</label>
-                        <input type="text" id="sa-val" placeholder="e.g. 24">
-                    </div>
-
-                    <label>Detailed Solution (Explanation):</label>
-                    <textarea id="solution-text" placeholder="Step-by-step solution..."></textarea>
+                    <div id="sa-box" class="hidden"><label>Correct Numeric:</label><input type="text" id="sa-val"></div>
+                    <label>Solution:</label><textarea id="solution-text"></textarea>
 
                     <div class="toolbar">
-                        <button type="button" class="btn btn-new" onclick="prepareNewEntry()">Clear / Next</button>
+                        <button type="button" class="btn" onclick="prepareNewEntry()" style="background:#fff; border:1px solid #ccc;">Clear</button>
                         <button type="submit" class="btn btn-save" id="save-btn">Save Question</button>
                     </div>
                 </form>
@@ -161,59 +164,83 @@
     </div>
 
     <script>
-        // --- CONFIGURATION ---
-        const ADMIN_EMAIL = "your.admin.email@example.com"; // UPDATE THIS!
+        const ADMIN_EMAIL = "your.admin.email@example.com"; // UPDATE THIS
         
         const firebaseConfig = { apiKey: "AIzaSyBTbfSlz0xvfBzAWmJzXDGbIC6Up0-6eU4", authDomain: "aptitudelabs-in.firebaseapp.com", projectId: "aptitudelabs-in", storageBucket: "aptitudelabs-in.firebasestorage.app", messagingSenderId: "175469863880", appId: "1:175469863880:web:b7b25ed27120665af716fd" };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // --- NEW SAMPLE RULES ---
+        // EXAM RULES
         const EXAM_RULES = {
-            "SAMPLE": [
-                { name: "QA (Short Answer)", type: "SA", start: 1, end: 2 },
-                { name: "QA (MCQ)", type: "MCQ", start: 3, end: 4 },
-                { name: "Verbal Ability", type: "MCQ", start: 5, end: 6 }
-            ],
-            "INDORE": [
-                { name: "QA (Short Answer)", type: "SA", start: 1, end: 15 },
-                { name: "QA (MCQ)", type: "MCQ", start: 16, end: 45 },
-                { name: "Verbal Ability", type: "MCQ", start: 46, end: 90 }
-            ],
-            "ROHTAK": [
-                { name: "Quantitative Ability", type: "MCQ", start: 1, end: 40 },
-                { name: "Logical Reasoning", type: "MCQ", start: 41, end: 80 },
-                { name: "Verbal Ability", type: "MCQ", start: 81, end: 120 }
-            ],
-            "JIPMAT": [
-                { name: "Quantitative Aptitude", type: "MCQ", start: 1, end: 33 },
-                { name: "DILR", type: "MCQ", start: 34, end: 66 },
-                { name: "Verbal Ability", type: "MCQ", start: 67, end: 100 }
-            ]
+            "TEST": [{name:"QA (Short Answer)", type:"SA", start:1, end:4}, {name:"QA (MCQ)", type:"MCQ", start:5, end:8}, {name:"Verbal Ability", type:"MCQ", start:9, end:12}], // ADDED HERE
+            "SAMPLE": [{name:"QA-SA", type:"SA", start:1, end:2}, {name:"QA-MCQ", type:"MCQ", start:3, end:4}, {name:"VA", type:"MCQ", start:5, end:6}],
+            "INDORE": [{name:"QA (Short Answer)", type:"SA", start:1, end:15}, {name:"QA (MCQ)", type:"MCQ", start:16, end:45}, {name:"Verbal Ability", type:"MCQ", start:46, end:90}],
+            "ROHTAK": [{name:"Quantitative Ability", type:"MCQ", start:1, end:40}, {name:"Logical Reasoning", type:"MCQ", start:41, end:80}, {name:"Verbal Ability", type:"MCQ", start:81, end:120}],
+            "JIPMAT": [{name:"Quantitative Aptitude", type:"MCQ", start:1, end:33}, {name:"DILR", type:"MCQ", start:34, end:66}, {name:"Verbal Ability", type:"MCQ", start:67, end:100}]
         };
 
-        let currentQuestions = {}; 
-        let isCurrentMockLive = false;
+        let currentQuestions = {}; let isCurrentMockLive = false;
 
         auth.onAuthStateChanged(user => {
             if(user && user.email === ADMIN_EMAIL) {
                 document.getElementById('admin-id').innerText = user.email;
                 updateMockConfig();
-            } else {
-                window.location.href = "login.html";
-            }
+                loadBanners();
+            } else { window.location.href = "login.html"; }
         });
 
-        // --- UI & LOGIC ---
+        // --- BANNER LOGIC ---
+        async function addBanner() {
+            const title = document.getElementById('ban-title').value;
+            const sub = document.getElementById('ban-sub').value;
+            const img = document.getElementById('ban-img').value;
+            
+            if(!title || !img) return alert("Title and Image Path are required.");
+            
+            await db.collection('banners').add({
+                title, subtitle: sub, image: img, timestamp: new Date()
+            });
+            
+            document.getElementById('ban-title').value = "";
+            document.getElementById('ban-img').value = "";
+            loadBanners();
+        }
+
+        async function loadBanners() {
+            const list = document.getElementById('banner-list');
+            list.innerHTML = "Loading...";
+            const snap = await db.collection('banners').orderBy('timestamp', 'desc').get();
+            list.innerHTML = "";
+            
+            snap.forEach(doc => {
+                const b = doc.data();
+                list.innerHTML += `
+                    <div class="banner-item">
+                        <button class="del-btn" onclick="deleteBanner('${doc.id}')">×</button>
+                        <img src="${b.image}" class="banner-thumb" onerror="this.src='https://via.placeholder.com/50'">
+                        <div style="overflow:hidden;">
+                            <div style="font-weight:bold; font-size:0.8rem; white-space:nowrap;">${b.title}</div>
+                            <div style="color:#666;font-size:0.7rem;">${b.subtitle}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        async function deleteBanner(id) {
+            if(confirm("Delete this slide?")) {
+                await db.collection('banners').doc(id).delete();
+                loadBanners();
+            }
+        }
+
+        // --- MOCK CONFIG LOGIC ---
         function updateMockConfig() {
             const cat = document.getElementById('exam-cat').value;
             const num = document.getElementById('mock-num').value.padStart(2, '0');
             document.getElementById('active-mock-id').innerText = `${cat}-MOCK-${num}`;
-            
-            checkPatternRules(1); 
-            checkLiveStatus();
-            loadQuestionsList();
+            checkPatternRules(1); checkLiveStatus(); loadQuestionsList();
         }
 
         async function checkLiveStatus() {
@@ -222,34 +249,23 @@
             try {
                 const doc = await db.collection('exam_status').doc(mockId).get();
                 if(doc.exists && doc.data().active) {
-                    isCurrentMockLive = true;
-                    badge.innerText = "🟢 LIVE";
-                    badge.className = "status-indicator is-live";
+                    isCurrentMockLive = true; badge.innerText = "🟢 LIVE"; badge.className = "status-indicator is-live";
                 } else {
-                    isCurrentMockLive = false;
-                    badge.innerText = "🔴 LOCKED";
-                    badge.className = "status-indicator is-locked";
+                    isCurrentMockLive = false; badge.innerText = "🔴 LOCKED"; badge.className = "status-indicator is-locked";
                 }
-            } catch(e) { console.error(e); }
+            } catch(e) {}
         }
 
         async function toggleLiveStatus() {
             const mockId = document.getElementById('active-mock-id').innerText;
-            const newState = !isCurrentMockLive;
-            if(confirm(`Make ${mockId} ${newState ? 'LIVE' : 'LOCKED'}?`)) {
-                await db.collection('exam_status').doc(mockId).set({
-                    active: newState,
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-                checkLiveStatus();
-            }
+            await db.collection('exam_status').doc(mockId).set({ active: !isCurrentMockLive }, { merge: true });
+            checkLiveStatus();
         }
 
         function checkPatternRules(forceNum) {
             const cat = document.getElementById('exam-cat').value;
             const rules = EXAM_RULES[cat];
             let qNum = forceNum || parseInt(document.getElementById('q-number').value) || 1;
-
             const activeRule = rules.find(r => qNum >= r.start && qNum <= r.end);
 
             if (activeRule) {
@@ -257,10 +273,8 @@
                 document.getElementById('q-type').value = activeRule.type;
                 document.getElementById('current-sec-name').innerText = activeRule.name;
                 document.getElementById('current-sec-range').innerText = `Range: Q${activeRule.start} - Q${activeRule.end}`;
-                document.getElementById('section-info-bar').style.background = "#EFF6FF"; 
             } else {
                 document.getElementById('section').value = "Out of Range";
-                document.getElementById('section-info-bar').style.background = "#FEE2E2"; 
             }
             toggleFields();
         }
@@ -276,91 +290,68 @@
             const mockId = document.getElementById('active-mock-id').innerText;
             const cat = document.getElementById('exam-cat').value;
             const totalQ = EXAM_RULES[cat][EXAM_RULES[cat].length-1].end;
-            
             const grid = document.getElementById('q-grid');
             grid.innerHTML = 'Loading...';
             currentQuestions = {};
 
-            try {
-                const snapshot = await db.collection('questions').where('mockId', '==', mockId).get();
-                grid.innerHTML = '';
-                document.getElementById('q-count').innerText = `${snapshot.size}/${totalQ}`;
+            const snapshot = await db.collection('questions').where('mockId', '==', mockId).get();
+            grid.innerHTML = '';
+            document.getElementById('q-count').innerText = `${snapshot.size}/${totalQ}`;
 
-                for(let i=1; i<=totalQ; i++) {
-                    const btn = document.createElement('div');
-                    btn.className = 'q-btn';
-                    btn.innerText = i;
-                    btn.id = `btn-q-${i}`;
-                    btn.onclick = () => loadQuestionForEdit(i);
-                    grid.appendChild(btn);
+            for(let i=1; i<=totalQ; i++) {
+                const btn = document.createElement('div');
+                btn.className = 'q-btn'; btn.innerText = i; btn.id = `btn-q-${i}`;
+                btn.onclick = () => loadQuestionForEdit(i);
+                grid.appendChild(btn);
+            }
+
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if(data.qNumber) {
+                    currentQuestions[data.qNumber] = { id: doc.id, ...data };
+                    document.getElementById(`btn-q-${data.qNumber}`).classList.add('exists');
                 }
-
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    if(data.qNumber) {
-                        currentQuestions[data.qNumber] = { id: doc.id, ...data };
-                        const btn = document.getElementById(`btn-q-${data.qNumber}`);
-                        if(btn) btn.classList.add('exists');
-                    }
-                });
-            } catch (e) { console.error(e); }
+            });
         }
 
         function loadQuestionForEdit(qNum) {
-            resetForm();
+            prepareNewEntry();
             document.getElementById('q-number').value = qNum;
             checkPatternRules(qNum);
-
             const data = currentQuestions[qNum];
             if (data) {
                 document.getElementById('doc-id').value = data.id;
                 document.getElementById('q-text').value = data.text;
                 document.getElementById('solution-text').value = data.solution || "";
-                
                 if(data.type === 'RC') document.getElementById('passage-text').value = data.passage || "";
-                if(data.type === 'SA') {
-                    document.getElementById('sa-val').value = data.correct;
-                } else {
-                    document.getElementById('opt-a').value = data.options[0] || "";
-                    document.getElementById('opt-b').value = data.options[1] || "";
-                    document.getElementById('opt-c').value = data.options[2] || "";
-                    document.getElementById('opt-d').value = data.options[3] || "";
-                    
+                if(data.type === 'SA') document.getElementById('sa-val').value = data.correct;
+                else {
+                    ['a','b','c','d'].forEach((opt, i) => document.getElementById(`opt-${opt}`).value = data.options[i] || "");
                     const idx = data.options.indexOf(data.correct);
                     if(idx > -1) document.querySelectorAll('input[name="correct"]')[idx].checked = true;
                 }
-                
                 document.getElementById('save-btn').innerText = "Update Question";
             }
         }
 
-        function resetForm() {
+        function prepareNewEntry() {
             document.getElementById('editor-form').reset();
             document.getElementById('doc-id').value = "";
             document.getElementById('save-btn').innerText = "Save Question";
-        }
-        
-        function prepareNewEntry() {
-            const currentQ = parseInt(document.getElementById('q-number').value);
-            resetForm();
-            document.getElementById('q-number').value = currentQ + 1; 
-            checkPatternRules(currentQ + 1);
+            toggleFields();
         }
 
         document.getElementById('editor-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('save-btn');
             btn.disabled = true;
-
             try {
                 const mockId = document.getElementById('active-mock-id').innerText;
                 const qNum = parseInt(document.getElementById('q-number').value);
                 const type = document.getElementById('q-type').value;
                 
                 let data = {
-                    mockId: mockId,
-                    qNumber: qNum,
-                    type: type,
+                    mockId, qNumber: qNum, type,
                     section: document.getElementById('section').value,
                     text: document.getElementById('q-text').value,
                     solution: document.getElementById('solution-text').value,
@@ -369,36 +360,213 @@
 
                 if(type === 'SA') {
                     data.correct = document.getElementById('sa-val').value;
-                    if(!data.correct) throw new Error("Enter correct numeric answer");
                     data.options = [];
                 } else {
-                    data.options = [
-                        document.getElementById('opt-a').value,
-                        document.getElementById('opt-b').value,
-                        document.getElementById('opt-c').value,
-                        document.getElementById('opt-d').value
-                    ];
+                    data.options = ['a','b','c','d'].map(o => document.getElementById(`opt-${o}`).value);
                     const selected = document.querySelector('input[name="correct"]:checked');
-                    if(!selected) throw new Error("Select correct option");
-                    const map = {'A':0, 'B':1, 'C':2, 'D':3};
-                    data.correct = data.options[map[selected.value]];
+                    if(!selected) throw new Error("Select option");
+                    data.correct = data.options[{'A':0,'B':1,'C':2,'D':3}[selected.value]];
                     if(type === 'RC') data.passage = document.getElementById('passage-text').value;
                 }
 
                 const docId = document.getElementById('doc-id').value;
-                if(docId) {
-                    await db.collection('questions').doc(docId).update(data);
-                } else {
-                    await db.collection('questions').add(data);
-                }
+                if(docId) await db.collection('questions').doc(docId).update(data);
+                else await db.collection('questions').add(data);
 
                 alert("Saved!");
-                loadQuestionsList(); 
-                prepareNewEntry();
-
+                loadQuestionsList();
+                
             } catch (err) { alert(err.message); } 
             finally { btn.disabled = false; }
         });
+    </script>
+</body>
+</html>
+
+### 3. `instructions.html`
+*Changes made: Added `TEST_MOCK_1` to `PATTERNS` and updated detection logic.*
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Instructions | Aptitude Labs</title>
+    <link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap)" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; margin: 0; background: #F9FAFB; display: flex; flex-direction: column; height: 100vh; }
+        .header { background: #2c3e50; color: white; padding: 15px 30px; display: flex; align-items: center; justify-content: space-between; }
+        .header h1 { font-size: 1.2rem; margin: 0; }
+        .user-pic { width: 40px; height: 40px; background: #fff; border-radius: 50%; }
+        .container { flex: 1; display: flex; overflow: hidden; }
+        .content-area { flex: 1; padding: 40px; overflow-y: auto; background: white; }
+        .title-strip { background: #3D85C6; color: white; padding: 10px 15px; font-weight: bold; margin-bottom: 20px; }
+        h3 { border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+        ul { line-height: 1.8; color: #333; font-size: 0.95rem; }
+        .table-view { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.9rem; }
+        .table-view th, .table-view td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        .table-view th { background: #f0f0f0; }
+        .sidebar { width: 250px; background: #EAF0F6; border-left: 1px solid #ccc; display: flex; flex-direction: column; align-items: center; padding-top: 30px; }
+        .sidebar img { width: 100px; height: 100px; border: 1px solid #ccc; background: white; }
+        .sidebar p { font-weight: bold; margin-top: 10px; color: #333; }
+        .footer { background: #fff; padding: 15px 40px; border-top: 1px solid #ccc; display: flex; justify-content: space-between; align-items: center; }
+        .btn-proceed { background: #3D85C6; color: white; border: none; padding: 12px 30px; font-weight: bold; cursor: pointer; opacity: 0.5; pointer-events: none; }
+        .btn-proceed.active { opacity: 1; pointer-events: auto; background: #28A745; }
+        .confirmation { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+        input[type="checkbox"] { transform: scale(1.3); cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Aptitude Labs Assessment</h1>
+        <div class="user-pic"></div>
+    </div>
+
+    <div class="container">
+        <div class="content-area">
+            <div class="title-strip">General Instructions</div>
+            
+            <p><strong>Please read the instructions carefully:</strong></p>
+            <p><strong>Total Duration:</strong> <span id="total-duration">--</span> Minutes</p>
+            
+            <table class="table-view">
+                <thead>
+                    <tr>
+                        <th>Section Name</th>
+                        <th>No. of Questions</th>
+                        <th>Time Limit</th>
+                    </tr>
+                </thead>
+                <tbody id="pattern-table">
+                    </tbody>
+            </table>
+
+            <h3>Marking Scheme:</h3>
+            <ul>
+                <li><strong>+4 Marks</strong> for every correct answer.</li>
+                <li><strong>-1 Mark</strong> for every wrong answer (MCQ).</li>
+                <li><strong>0 Marks</strong> for wrong answers in Short Answer (SA) / TITA.</li>
+                <li><strong>0 Marks</strong> for unattempted questions.</li>
+            </ul>
+
+            <h3>Navigation Rules:</h3>
+            <ul id="switching-rule">
+                <li>Loading rules...</li>
+            </ul>
+        </div>
+
+        <div class="sidebar">
+            <img src="[https://via.placeholder.com/100](https://via.placeholder.com/100)" alt="Student">
+            <p>Candidate Name</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="confirmation">
+            <input type="checkbox" id="agree-check" onchange="toggleButton()">
+            <label for="agree-check">I have read and understood the instructions. I agree that I am not carrying any prohibited gadgets.</label>
+        </div>
+        <button id="btn-start" class="btn-proceed" onclick="startExam()">I am ready to begin</button>
+    </div>
+
+    <script>
+        // --- 1. EXAM PATTERN CONFIGURATION ---
+        const PATTERNS = {
+            "TEST_MOCK_1": {
+                name: "Test Mock 1",
+                sections: [
+                    { name: "QA (Short Answer)", q: 4, time: 2 },
+                    { name: "QA (MCQ)", q: 4, time: 2 },
+                    { name: "Verbal Ability", q: 4, time: 1 }
+                ],
+                switching: false, 
+                totalTime: 5
+            },
+            "SAMPLE": {
+                name: "SAMPLE TEST",
+                sections: [
+                    { name: "QA (Short Answer)", q: 2, time: 2 },
+                    { name: "QA (MCQ)", q: 2, time: 2 },
+                    { name: "Verbal Ability", q: 2, time: 2 }
+                ],
+                switching: false, 
+                totalTime: 6
+            },
+            "INDORE": {
+                name: "IPMAT Indore",
+                sections: [
+                    { name: "QA (Short Answer)", q: 15, time: 40 },
+                    { name: "QA (MCQ)", q: 30, time: 40 },
+                    { name: "Verbal Ability", q: 45, time: 40 }
+                ],
+                switching: false,
+                totalTime: 120
+            },
+            "ROHTAK": {
+                name: "IPMAT Rohtak",
+                sections: [
+                    { name: "Quantitative Ability", q: 40, time: "Flexible" },
+                    { name: "Logical Reasoning", q: 40, time: "Flexible" },
+                    { name: "Verbal Ability", q: 40, time: "Flexible" }
+                ],
+                switching: true, 
+                totalTime: 120
+            },
+            "JIPMAT": {
+                name: "JIPMAT",
+                sections: [
+                    { name: "Quantitative Aptitude", q: 33, time: "Flexible" },
+                    { name: "DILR", q: 33, time: "Flexible" },
+                    { name: "Verbal Ability", q: 34, time: "Flexible" }
+                ],
+                switching: true,
+                totalTime: 150
+            }
+        };
+
+        // --- 2. DETECT PATTERN ---
+        const mockId = localStorage.getItem("activeMockId") || "INDORE";
+        let currentPattern = PATTERNS["INDORE"]; // Default
+
+        if (mockId.includes("TEST")) currentPattern = PATTERNS["TEST_MOCK_1"]; // ADDED HERE
+        else if (mockId.includes("SAMPLE")) currentPattern = PATTERNS["SAMPLE"];
+        else if (mockId.includes("ROHTAK")) currentPattern = PATTERNS["ROHTAK"];
+        else if (mockId.includes("JIPMAT")) currentPattern = PATTERNS["JIPMAT"];
+        else if (mockId.includes("INDORE")) currentPattern = PATTERNS["INDORE"];
+
+        // --- 3. RENDER UI ---
+        document.getElementById('total-duration').innerText = currentPattern.totalTime;
+        
+        const tableBody = document.getElementById('pattern-table');
+        currentPattern.sections.forEach(sec => {
+            tableBody.innerHTML += `
+                <tr>
+                    <td>${sec.name}</td>
+                    <td>${sec.q}</td>
+                    <td>${sec.time === "Flexible" ? "Composite Time" : sec.time + " Mins"}</td>
+                </tr>
+            `;
+        });
+
+        const ruleList = document.getElementById('switching-rule');
+        if (currentPattern.switching) {
+            ruleList.innerHTML = `<li style="color:green; font-weight:bold;">You CAN switch between sections at any time.</li>`;
+        } else {
+            ruleList.innerHTML = `<li style="color:red; font-weight:bold;">You CANNOT switch between sections. Each section has a fixed time limit. The system will auto-submit the section when time ends.</li>`;
+        }
+
+        // --- 4. LOGIC ---
+        function toggleButton() {
+            const chk = document.getElementById('agree-check');
+            const btn = document.getElementById('btn-start');
+            if (chk.checked) btn.classList.add('active');
+            else btn.classList.remove('active');
+        }
+
+        function startExam() {
+            window.location.href = "exam.html";
+        }
     </script>
 </body>
 </html>

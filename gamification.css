@@ -1,136 +1,94 @@
-/* gamification.css */
+/* --- CONTAINER --- */
+.league-tile { perspective: 2000px; background: transparent !important; border: none !important; padding: 0 !important; overflow: visible !important; width: 100%; display:flex; justify-content:center; }
 
-/* --- TILE CONTAINER IN BENTO GRID --- */
-.league-tile {
-    grid-row: span 2; /* Make it tall */
-    padding: 0 !important; /* Remove standard bento padding for full card fit */
-    background: transparent !important;
-    border: none !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    perspective: 1000px; /* For 3D effect */
-}
-
-/* --- THE CARD BASE --- */
-.league-card {
-    width: 100%;
-    height: 100%;
-    border-radius: 24px;
+/* --- CARD PHYSICS --- */
+.card-flipper {
+    width: 100%; max-width: 300px; height: 100%; 
     position: relative;
-    font-family: 'Outfit', sans-serif;
-    overflow: hidden;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-    display: flex;
-    flex-direction: column;
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease-out;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px -10px var(--glow-color);
+}
+.card-flipper.is-flipped { transform: rotateY(180deg) !important; transition: transform 0.6s cubic-bezier(0.4, 2, 0.5, 1); }
+
+/* --- FRONT FACE: VIBRANT COLOR --- */
+.card-front {
+    position: absolute; inset: 0; backface-visibility: hidden;
+    border-radius: 20px; overflow: hidden;
+    /* THEME GRADIENT */
+    background-image: var(--theme-gradient);
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.3);
+    
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    padding: 30px 0;
 }
 
-.league-card:hover {
-    transform: translateY(-5px) scale(1.02);
+/* SHIMMER */
+.card-front::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.4) 45%, rgba(255,255,255,0.1) 50%, transparent 60%);
+    mix-blend-mode: overlay; pointer-events: none;
+    transform: translateX(-100%); animation: shimmer 6s infinite ease-in-out;
 }
 
-/* --- THEME: ROOKIE (Wood & Paper) --- */
-.theme-rookie {
-    background: linear-gradient(180deg, #F2E8D5 0%, #D9C2A3 100%);
-    border: 4px solid #5C4033;
-    color: #3e2b22;
+/* 3D ELEMENTS */
+.user-nameplate {
+    font-family: 'Rajdhani', sans-serif; font-weight: 800; font-size: 1.4rem;
+    color: white; text-transform: uppercase; letter-spacing: 2px;
+    transform: translateZ(30px); text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-/* Notebook Texture Overlay */
-.theme-rookie::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(92, 64, 51, 0.1) 20px);
-    pointer-events: none;
+.league-asset {
+    width: 140px; height: 140px; object-fit: contain;
+    filter: drop-shadow(0 20px 30px rgba(0,0,0,0.4)); 
+    transform: translateZ(60px); 
+    animation: float 6s ease-in-out infinite;
 }
 
-/* --- INTERNAL ELEMENTS --- */
-.lc-header {
-    background: #5C4033;
-    color: #fff;
-    padding: 12px;
-    text-align: center;
-    font-weight: 800;
-    letter-spacing: 1px;
-    margin-top: 20px;
-    position: relative;
-    z-index: 2;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%);
-    width: 90%;
-    margin-left: auto;
-    margin-right: auto;
+.league-title {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1rem;
+    color: rgba(255,255,255,0.9); text-transform: uppercase; letter-spacing: 4px;
+    transform: translateZ(20px); margin-top: -10px;
 }
 
-.lc-emblem-area {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    position: relative;
+/* STATS */
+.stats-container { width: 80%; transform: translateZ(25px); text-align:center; }
+.xp-track {
+    width: 100%; height: 6px; background: rgba(0,0,0,0.2); border-radius: 10px; overflow: hidden; margin-bottom: 5px;
+}
+.xp-bar { height: 100%; background: white; box-shadow: 0 0 10px white; }
+.xp-text { font-family: 'Rajdhani', sans-serif; font-size: 0.9rem; font-weight: 700; color: white; }
+
+/* INFO BTN */
+.info-btn {
+    position: absolute; bottom: 20px; right: 20px;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: rgba(255,255,255,0.3); border: 1px solid white;
+    color: white; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 0.8rem;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 20; transform: translateZ(40px);
 }
 
-.shield-icon {
-    font-size: 80px;
-    color: #5C4033; /* Fallback */
-    filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3));
-    z-index: 2;
+/* BACK FACE */
+.card-back {
+    position: absolute; inset: 0; backface-visibility: hidden; transform: rotateY(180deg);
+    border-radius: 20px; background: white;
+    border: 4px solid var(--theme-color);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: #111; padding: 25px; text-align: center;
 }
 
-.watermark {
-    position: absolute;
-    font-size: 150px;
-    opacity: 0.05;
-    color: #000;
-    z-index: 1;
-}
+/* ANIMATIONS */
+@keyframes float { 0%, 100% { transform: translateZ(60px) translateY(0); } 50% { transform: translateZ(60px) translateY(-10px); } }
+@keyframes shimmer { 0% { transform: translateX(-150%); } 100% { transform: translateX(150%); } }
 
-.lc-stats-strip {
-    background: #C0A080;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: #3e2b22;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
-    z-index: 2;
-}
-
-.lc-perks-box {
-    background: rgba(255, 255, 255, 0.5);
-    margin: 15px;
-    padding: 15px;
-    border-radius: 12px;
-    border: 2px dashed #A67B5B;
-    z-index: 2;
-}
-
-.lc-perks-title {
-    font-size: 0.7rem;
-    font-weight: 800;
-    color: #5C4033;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-}
-
-.lc-perk-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.85rem;
-    margin-bottom: 6px;
-    font-weight: 600;
-}
-
-.lc-footer {
-    text-align: center;
-    font-size: 0.7rem;
-    padding-bottom: 10px;
-    opacity: 0.8;
-    font-weight: 600;
-}
+/* THEMES */
+.theme-rookie { --theme-gradient: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); --theme-color: #D97706; --glow-color: rgba(245, 158, 11, 0.5); }
+.theme-scholar { --theme-gradient: linear-gradient(135deg, #10B981 0%, #059669 100%); --theme-color: #059669; --glow-color: rgba(16, 185, 129, 0.5); }
+.theme-achiever { --theme-gradient: linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%); --theme-color: #B45309; --glow-color: rgba(252, 211, 77, 0.5); }
+.theme-prodigy { --theme-gradient: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); --theme-color: #6D28D9; --glow-color: rgba(139, 92, 246, 0.5); }
+.theme-elite { --theme-gradient: linear-gradient(135deg, #34D399 0%, #059669 100%); --theme-color: #065F46; --glow-color: rgba(52, 211, 153, 0.5); }
+.theme-master { --theme-gradient: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); --theme-color: #1E40AF; --glow-color: rgba(59, 130, 246, 0.5); }
+.theme-legend { --theme-gradient: linear-gradient(135deg, #6366F1 0%, #4338CA 100%); --theme-color: #312E81; --glow-color: rgba(99, 102, 241, 0.6); }

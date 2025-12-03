@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aptitude Labs | Mock Series</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="mocks.css"> 
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        function logoutUser() {
+            try {
+                if (typeof firebase !== 'undefined' && firebase.auth()) {
+                    firebase.auth().signOut();
+                }
+            } catch (e) { console.log(e); }
+            window.location.href = 'login.html';
+        }
+    </script>
+</head>
+<body>
+
+    <nav class="top-nav">
+        <div class="brand">
+            <span class="material-icons-round brand-icon">change_history</span>
+            APTITUDE LABS
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="mocks.html" class="active">Mocks</a> 
+            <a href="#">Practice</a>
+            <a href="#">Leaderboard</a>
+            <a href="#">Analysis</a>
+            <a href="#">Mentor</a>
+            <a href="pricing.html">Pricing</a>
+        </div>
+        <div class="flex align-center gap-2 text-gray-400">
+            <span class="material-icons-round" style="cursor:pointer; font-size:24px;">settings</span>
+            <span class="material-icons-round" onclick="logoutUser()" style="cursor:pointer; font-size:24px; margin-left:15px; color:#ef4444;">logout</span>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        
+        <div class="header-row">
+            <div class="page-title-group">
+                <div class="page-title">Mock Test Series</div>
+                <div class="page-subtitle">Select a series to begin your assessment</div>
+            </div>
+
+            <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
+                <div class="stats-ticker">
+                    <div class="ticker-item">
+                        <div class="t-label">Course Complete</div>
+                        <div class="t-value" id="stat-progress">0<span>%</span></div>
+                    </div>
+                    <div class="ticker-item">
+                        <div class="t-label">Avg Percentile</div>
+                        <div class="t-value" id="stat-perc">--</div>
+                    </div>
+                    <div class="ticker-item">
+                        <div class="t-label">Questions Solved</div>
+                        <div class="t-value" id="stat-qs">0</div>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <span class="filter-label">Hide Completed</span>
+                    <label class="switch">
+                        <input type="checkbox" id="toggle-completed" onchange="toggleCompletedMocks()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="series-tabs" id="series-tabs">
+            <div class="series-tab active" data-series="ADMIN">Admin Panel</div>
+            <div class="series-tab" data-series="INDORE">IPMAT Indore</div>
+            <div class="series-tab" data-series="ROHTAK">IPMAT Rohtak</div>
+            <div class="series-tab" data-series="JIPMAT">JIPMAT</div>
+            <div class="series-tab" data-series="IIMKBMSAT">IIMK BMSAT</div>
+        </div>
+
+        <div class="mock-list-area" id="mock-list-area">
+            
+            <div class="mock-series active" id="series-ADMIN">
+                <div class="mock-list-container">
+                    <div class="flip-container">
+                        <span class="flip-icon material-icons-round" onclick="this.closest('.flip-container').classList.toggle('flipped'); event.stopPropagation();">sync</span>
+                        <div class="front" onclick="handleMockAction('TEST-MOCK-01', false)">
+                            <div class="card-top">
+                                <div class="mock-chip chip-ready"><span class="material-icons-round" style="font-size:12px;">bolt</span> Open</div>
+                            </div>
+                            <div class="card-mid">
+                                <div class="mock-number">01</div>
+                                <div class="mock-series-lbl">ADMIN</div>
+                            </div>
+                            <div class="card-bot">
+                                <div class="meta-info">
+                                    <span><i class="material-icons-round" style="font-size:14px;">timer</i> 5m</span>
+                                    <span><i class="material-icons-round" style="font-size:14px;">quiz</i> 12Q</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="back" onclick="handleMockAction('TEST-MOCK-01', false)">
+                            <div class="score-value-main" style="color:#64748b;">48</div>
+                            <div class="score-label-small" style="margin-bottom:20px;">Max Marks</div>
+                            <button class="btn-launch-full">Start Test</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mock-series" id="series-INDORE">
+                <div class="mock-list-container" id="indore-mocks"></div>
+            </div>
+            <div class="mock-series" id="series-ROHTAK">
+                 <div class="mock-list-container" id="rohtak-mocks"></div>
+            </div>
+            <div class="mock-series" id="series-JIPMAT">
+                 <div class="mock-list-container" id="jipmat-mocks"></div>
+            </div>
+            <div class="mock-series" id="series-IIMKBMSAT">
+                 <div class="mock-list-container" id="iimkbmsat-mocks"></div>
+            </div>
+
+        </div>
+    </div>
+    
+    <script src="mocks.js"></script>
+
+</body>
+</html>

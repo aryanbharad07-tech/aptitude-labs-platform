@@ -3,292 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pricing Plans | Aptitude Labs</title>
+    <title>Aptitude Labs | Pricing</title>
     
-    <!-- Professional Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     
+    <link rel="stylesheet" href="dashboard.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    
+    <script src="firebase-config.js"></script>
+
+    <script>
+        function logoutUser() {
+            // Force redirect to login page regardless of Firebase status
+            try {
+                if (typeof firebase !== 'undefined' && firebase.auth()) {
+                    firebase.auth().signOut();
+                }
+            } catch (e) { console.log(e); }
+            
+            window.location.href = 'login.html';
+        }
+    </script>
+
     <style>
-        /* --- PREMIUM DARK THEME VARIABLES --- */
-        :root {
-            --bg-deep: #020617; /* Deepest Indigo/Black */
-            --glass-surface: rgba(30, 41, 59, 0.4);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --primary: #6366F1; /* Indigo */
-            --primary-glow: rgba(99, 102, 241, 0.4);
-            --accent: #EC4899; /* Pink */
-            --text-main: #F8FAFC;
-            --text-muted: #94A3B8;
-            --success: #10B981;
-        }
-
-        /* RESET & BASE */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            font-family: 'Outfit', sans-serif; 
-            background-color: var(--bg-deep); 
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-            /* Subtle Mesh Gradient Background */
-            background-image: 
-                radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.15) 0%, transparent 50%);
-        }
-
-        /* --- HEADER --- */
-        .navbar {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 24px 48px;
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--glass-border);
-            position: sticky; top: 0; z-index: 100;
-            background: rgba(2, 6, 23, 0.8);
-        }
-
-        .logo { 
-            font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em;
-            display: flex; align-items: center; gap: 8px;
-            background: linear-gradient(135deg, #fff 0%, #94A3B8 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        
-        .nav-link { 
-            color: var(--text-muted); text-decoration: none; font-weight: 600; 
-            transition: 0.2s; font-size: 0.95rem;
-        }
-        .nav-link:hover { color: white; }
-
-        /* --- HERO SECTION --- */
-        .hero { 
-            text-align: center; padding: 80px 20px 60px; 
-            max-width: 800px; margin: 0 auto;
-        }
-        .hero h1 { 
-            font-size: 3.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 16px;
-            background: linear-gradient(to right, #fff, #cbd5e1);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        .hero p { font-size: 1.2rem; color: var(--text-muted); line-height: 1.6; }
-
-        /* --- PRICING GRID (THE CORE) --- */
-        .pricing-container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 40px 80px;
-            width: 100%;
-            display: grid;
-            /* STRICT 3-COLUMN LAYOUT */
-            grid-template-columns: repeat(3, 1fr);
-            gap: 32px;
-            align-items: center; /* Center cards vertically if heights differ */
-        }
-
-        /* CARD STYLES */
-        .plan-card {
-            background: var(--glass-surface);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 40px 32px;
-            display: flex; flex-direction: column;
-            position: relative;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(12px);
-            height: 100%;
-        }
-
-        /* Hover Lift */
-        .plan-card:hover {
-            transform: translateY(-8px);
-            border-color: var(--primary);
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
-        }
-
-        /* POPULAR CARD (MIDDLE) */
-        .popular {
-            background: linear-gradient(180deg, rgba(99, 102, 241, 0.1) 0%, rgba(30, 41, 59, 0.6) 100%);
-            border: 1px solid var(--primary);
-            box-shadow: 0 0 40px var(--primary-glow);
-            transform: scale(1.05); /* Make it bigger */
-            z-index: 10;
-        }
-        .popular:hover { transform: scale(1.05) translateY(-8px); }
-
-        .badge {
-            position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
-            background: var(--primary); color: white; padding: 6px 16px;
-            border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;
-            font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
-            box-shadow: 0 4px 15px var(--primary-glow);
-        }
-
-        /* Typography inside Card */
-        .plan-name { font-size: 1.25rem; font-weight: 700; color: white; margin-bottom: 8px; }
-        .plan-desc { font-size: 0.9rem; color: var(--text-muted); min-height: 40px; }
-        
-        .pricing { margin: 24px 0; display: flex; align-items: baseline; gap: 4px; }
-        .currency { font-size: 1.5rem; color: var(--text-muted); font-weight: 500; }
-        .amount { font-size: 3.5rem; font-weight: 800; color: white; line-height: 1; }
-        .period { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
-
-        /* Feature List */
-        .features { list-style: none; margin-bottom: 32px; flex-grow: 1; }
-        .feature-item { 
-            display: flex; align-items: center; gap: 12px; 
-            padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
-            color: var(--text-main); font-size: 0.95rem;
-        }
-        .feature-item:last-child { border-bottom: none; }
-        
-        .feature-item i { font-size: 1.25rem; color: var(--primary); }
-        .feature-item.disabled { opacity: 0.4; text-decoration: line-through; }
-        .feature-item.disabled i { color: var(--text-muted); }
-
-        /* Buttons */
-        .btn {
-            width: 100%; padding: 16px; border-radius: 12px;
-            font-weight: 700; font-size: 1rem; cursor: pointer;
-            text-align: center; text-decoration: none; transition: 0.2s;
-            display: inline-block; border: none;
-        }
-        .btn-outline {
-            background: transparent; border: 1px solid var(--glass-border); color: white;
-        }
-        .btn-outline:hover { background: rgba(255,255,255,0.05); border-color: white; }
-
-        .btn-primary {
-            background: var(--primary); color: white;
-            box-shadow: 0 4px 20px var(--primary-glow);
-        }
-        .btn-primary:hover { background: #4F46E5; transform: scale(1.02); }
-
-        /* --- FOOTER (RAZORPAY COMPLIANCE) --- */
-        footer {
-            margin-top: auto; padding: 60px 40px;
-            border-top: 1px solid var(--glass-border);
-            text-align: center; background: rgba(2, 6, 23, 0.5);
-        }
-        .footer-links { margin-bottom: 24px; display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; }
-        .footer-links a { color: var(--text-muted); text-decoration: none; transition: 0.2s; font-size: 0.9rem; }
-        .footer-links a:hover { color: var(--primary); }
-        .copyright { color: rgba(148, 163, 184, 0.5); font-size: 0.8rem; }
-
-        /* --- MOBILE RESPONSIVENESS --- */
-        @media (max-width: 1024px) {
-            .pricing-container { 
-                grid-template-columns: 1fr; /* Stack vertically on tablet/mobile */
-                max-width: 500px;
-            }
-            .popular { transform: none; }
-            .popular:hover { transform: translateY(-8px); }
-            .hero h1 { font-size: 2.5rem; }
+        /* --- PRICING PAGE STYLES --- */
+        .main-container { width: 90%; max-width: 1400px; margin: 40px auto; display: flex; flex-direction: column; align-items: center; }
+        .pricing-header { text-align: center; margin-bottom: 60px; max-width: 600px; }
+        .pricing-title { font-family: 'Inter', sans-serif; font-size: 2.8rem; font-weight: 800; color: #fff; margin-bottom: 15px; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.1; }
+        .pricing-subtitle { color: #94a3b8; font-size: 1.1rem; line-height: 1.5; }
+        .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; width: 100%; align-items: start; }
+        .price-card { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 40px; position: relative; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: transform 0.3s ease, border-color 0.3s ease; display: flex; flex-direction: column; }
+        .price-card:hover { transform: translateY(-10px); border-color: rgba(56, 189, 248, 0.3); z-index: 10; }
+        .price-card.featured { background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.15), transparent 60%), #1e293b; border: 1px solid rgba(56, 189, 248, 0.5); box-shadow: 0 0 40px rgba(56, 189, 248, 0.15); transform: scale(1.05); z-index: 2; }
+        .price-card.featured:hover { transform: scale(1.05) translateY(-10px); box-shadow: 0 0 50px rgba(56, 189, 248, 0.25); }
+        .popular-badge { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: #38bdf8; color: #0f172a; padding: 6px 16px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4); white-space: nowrap; }
+        .plan-name { font-size: 1.1rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; }
+        .price-area { display: flex; align-items: baseline; margin-bottom: 30px; color: #fff; }
+        .currency { font-size: 1.5rem; font-weight: 600; vertical-align: top; }
+        .amount { font-size: 3.5rem; font-weight: 800; line-height: 1; font-family: 'Inter', sans-serif;}
+        .period { color: #64748b; margin-left: 8px; font-weight: 500; }
+        .features-list { list-style: none; padding: 0; margin-bottom: 40px; flex-grow: 1; }
+        .features-list li { display: flex; align-items: center; gap: 12px; color: #cbd5e1; margin-bottom: 15px; font-size: 0.95rem; }
+        .features-list li .material-icons-round { color: #38bdf8; font-size: 20px; background: rgba(56, 189, 248, 0.1); border-radius: 50%; padding: 2px; flex-shrink: 0; }
+        .features-list li.disabled { color: #475569; }
+        .features-list li.disabled .material-icons-round { color: #475569; background: transparent; }
+        .btn-price { width: 100%; padding: 16px; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.3s; border: none; font-family: 'Inter', sans-serif; }
+        .btn-outline { background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; }
+        .btn-outline:hover { border-color: #fff; background: rgba(255, 255, 255, 0.05); }
+        .btn-fill { background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%); color: #0f172a; box-shadow: 0 4px 20px rgba(14, 165, 233, 0.3); }
+        .btn-fill:hover { box-shadow: 0 6px 25px rgba(14, 165, 233, 0.5); transform: translateY(-2px); }
+        .pricing-footer { margin-top: 80px; width: 100%; text-align: center; padding-top: 30px; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: center; gap: 40px; }
+        .footer-link { color: #94a3b8; text-decoration: none; transition: color 0.3s ease; font-weight: 500; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+        .footer-link:hover { color: #38bdf8; }
+        @media (max-width: 1000px) {
+            .pricing-grid { grid-template-columns: 1fr; max-width: 450px; }
+            .price-card.featured { transform: scale(1); }
+            .price-card.featured:hover { transform: translateY(-10px); }
         }
     </style>
 </head>
 <body>
 
-    <!-- NAVBAR -->
-    <nav class="navbar">
-        <div class="logo">
-            <i class="material-icons-round" style="color:var(--primary);">token</i> Aptitude Labs
+    <nav class="top-nav">
+        <div class="brand">
+            <span class="material-icons-round brand-icon">change_history</span>
+            APTITUDE LABS
         </div>
-        <a href="login.html" class="nav-link">Login to Dashboard →</a>
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="mocks.html">Mocks</a> 
+            <a href="#">Practice</a>
+            <a href="#">Leaderboard</a>
+            <a href="#">Analysis</a>
+            <a href="#">Mentor</a>
+            <a href="pricing.html" class="active">Pricing</a>
+        </div>
+        <div class="flex align-center gap-2 text-gray-400">
+            <span class="material-icons-round" style="cursor:pointer; font-size:24px;">settings</span>
+            <span class="material-icons-round" onclick="logoutUser()" style="cursor:pointer; font-size:24px; margin-left:15px; color:#ef4444;">logout</span>
+        </div>
     </nav>
 
-    <!-- HERO HEADER -->
-    <section class="hero">
-        <h1>Invest in Your Future</h1>
-        <p>Transparent pricing for serious aspirants. No hidden fees, just results.</p>
-    </section>
-
-    <!-- PRICING CARDS -->
-    <div class="pricing-container">
+    <div class="main-container">
         
-        <!-- 1. FREE PLAN -->
-        <div class="plan-card">
-            <div class="plan-name">Starter</div>
-            <div class="plan-desc">Perfect for testing the waters.</div>
-            
-            <div class="pricing">
-                <span class="currency">₹</span>
-                <span class="amount">0</span>
-                <span class="period">/ forever</span>
-            </div>
-
-            <ul class="features">
-                <li class="feature-item"><i class="material-icons-round">check_circle</i> 1 Full-Length Mock</li>
-                <li class="feature-item"><i class="material-icons-round">check_circle</i> 2 Sectional Tests</li>
-                <li class="feature-item"><i class="material-icons-round">check_circle</i> Basic Analytics</li>
-                <li class="feature-item disabled"><i class="material-icons-round">lock</i> AI Performance Report</li>
-                <li class="feature-item disabled"><i class="material-icons-round">lock</i> Video Solutions</li>
-            </ul>
-
-            <a href="login.html" class="btn btn-outline">Start Free</a>
+        <div class="pricing-header">
+            <div class="pricing-title">Upgrade Your Plans</div>
+            <div class="pricing-subtitle">Choose the plan that fits your preparation strategy.</div>
         </div>
 
-        <!-- 2. SECTIONAL PLAN (POPULAR) -->
-        <div class="plan-card popular">
-            <div class="badge">Best Value</div>
-            <div class="plan-name">Sectional Booster</div>
-            <div class="plan-desc">Master specific topics quickly.</div>
-            
-            <div class="pricing">
-                <span class="currency">₹</span>
-                <span class="amount">499</span>
-                <span class="period">/ one-time</span>
+        <div class="pricing-grid">
+            <div class="price-card">
+                <div class="plan-name">Rookie</div>
+                <div class="price-area">
+                    <span class="currency">₹</span>
+                    <span class="amount">0</span>
+                    <span class="period">/ forever</span>
+                </div>
+                <ul class="features-list">
+                    <li><span class="material-icons-round">check</span> 1 Free Mock Test</li>
+                    <li><span class="material-icons-round">check</span> Basic Analysis</li>
+                    <li><span class="material-icons-round">check</span> Daily Quests</li>
+                    <li class="disabled"><span class="material-icons-round">close</span> Full Mock Series</li>
+                    <li class="disabled"><span class="material-icons-round">close</span> AI Performance Insights</li>
+                </ul>
+                <button class="btn-price btn-outline">Current Plan</button>
             </div>
 
-            <ul class="features">
-                <li class="feature-item"><i class="material-icons-round">verified</i> 20 Sectional Tests</li>
-                <li class="feature-item"><i class="material-icons-round">verified</i> Detailed Solutions</li>
-                <li class="feature-item"><i class="material-icons-round">verified</i> Topic-wise Breakdown</li>
-                <li class="feature-item"><i class="material-icons-round">verified</i> Priority Support</li>
-                <li class="feature-item disabled"><i class="material-icons-round">lock</i> Full Mocks</li>
-            </ul>
+            <div class="price-card featured">
+                <div class="popular-badge">Most Popular</div>
+                <div class="plan-name" style="color:#38bdf8;">Pro League</div>
+                <div class="price-area">
+                    <span class="currency">₹</span>
+                    <span class="amount">4999</span>
+                    <span class="period">/ year</span>
+                </div>
+                <ul class="features-list">
+                    <li><span class="material-icons-round">check</span> <strong>All 20+ Mock Tests</strong></li>
+                    <li><span class="material-icons-round">check</span> Advanced AI Analysis</li>
+                    <li><span class="material-icons-round">check</span> Global Leaderboard Access</li>
+                    <li><span class="material-icons-round">check</span> Mentor Chat Support</li>
+                    <li><span class="material-icons-round">check</span> Unlimited Practice Qs</li>
+                </ul>
+                <button class="btn-price btn-fill" onclick="alert('Redirecting to Payment Gateway...')">Upgrade to Pro</button>
+            </div>
 
-            <a href="login.html" class="btn btn-primary">Get Access</a>
+            <div class="price-card">
+                <div class="plan-name">Elite</div>
+                <div class="price-area">
+                    <span class="currency">₹</span>
+                    <span class="amount">7999</span>
+                    <span class="period">/ year</span>
+                </div>
+                <ul class="features-list">
+                    <li><span class="material-icons-round">check</span> Everything in Pro</li>
+                    <li><span class="material-icons-round">check</span> 1-on-1 Video Calls</li>
+                    <li><span class="material-icons-round">check</span> Personal Study Plan</li>
+                    <li><span class="material-icons-round">check</span> Interview Prep Module</li>
+                    <li><span class="material-icons-round">check</span> Video Solutions</li>
+                </ul>
+                <button class="btn-price btn-outline" onclick="alert('Redirecting to Payment Gateway...')">Go Elite</button>
+            </div>
         </div>
 
-        <!-- 3. PRO PLAN -->
-        <div class="plan-card">
-            <div class="plan-name">IPMAT Pro</div>
-            <div class="plan-desc">The complete ecosystem.</div>
-            
-            <div class="pricing">
-                <span class="currency">₹</span>
-                <span class="amount">2499</span>
-                <span class="period">/ one-time</span>
-            </div>
-
-            <ul class="features">
-                <li class="feature-item"><i class="material-icons-round">auto_awesome</i> 20 Full-Length Mocks</li>
-                <li class="feature-item"><i class="material-icons-round">auto_awesome</i> AI Tutor Access</li>
-                <li class="feature-item"><i class="material-icons-round">auto_awesome</i> Video Solutions</li>
-                <li class="feature-item"><i class="material-icons-round">auto_awesome</i> All Previous Papers</li>
-                <li class="feature-item"><i class="material-icons-round">auto_awesome</i> Personal Mentor</li>
-            </ul>
-
-            <a href="login.html" class="btn btn-outline">Go Premium</a>
+        <div class="pricing-footer">
+            <a href="privacy.html" class="footer-link">
+                <span class="material-icons-round" style="font-size:18px;">verified_user</span> Privacy Policy
+            </a>
+            <a href="refund.html" class="footer-link">
+                <span class="material-icons-round" style="font-size:18px;">receipt_long</span> Refund Policy
+            </a>
         </div>
 
     </div>
-
-    <!-- FOOTER -->
-    <footer>
-        <div class="footer-links">
-            <a href="privacy.html">Privacy Policy</a>
-            <a href="terms.html">Terms of Service</a>
-            <a href="refund.html">Refund Policy</a>
-            <a href="contact.html">Contact Us</a>
-        </div>
-        <div class="copyright">
-            &copy; 2025 Aptitude Labs. All rights reserved. Registered Entity.
-        </div>
-    </footer>
 
 </body>
 </html>

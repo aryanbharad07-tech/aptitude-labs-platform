@@ -6,6 +6,11 @@ const auth = firebase.auth();
 
 // --- EXAM RULES ---
 const PATTERNS = {
+    "TEST_MOCK_1": { 
+        sections: ["QA (Short Answer)", "QA (MCQ)", "Verbal Ability"], 
+        limits: [2, 2, 1], // 2min, 2min, 1min (Total 5 mins)
+        switching: false 
+    },
     "SAMPLE": { 
         sections: ["QA (Short Answer)", "QA (MCQ)", "Verbal Ability"], 
         limits: [2, 2, 2], // Testing limits
@@ -61,7 +66,8 @@ window.onload = function() {
 
 function setupExamPattern() {
     // 1. Detect Pattern
-    if (activeMockId.includes("SAMPLE")) currentConfig = PATTERNS["SAMPLE"];
+    if (activeMockId.includes("TEST")) currentConfig = PATTERNS["TEST_MOCK_1"];
+    else if (activeMockId.includes("SAMPLE")) currentConfig = PATTERNS["SAMPLE"];
     else if (activeMockId.includes("ROHTAK")) currentConfig = PATTERNS["ROHTAK"];
     else if (activeMockId.includes("JIPMAT")) currentConfig = PATTERNS["JIPMAT"];
     else currentConfig = PATTERNS["INDORE"];

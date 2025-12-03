@@ -3,264 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission Control | Aptitude Labs</title>
+    <title>Aptitude Labs | Mission Control</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     
-    <link rel="stylesheet" href="gamification.css">
+    <link rel="stylesheet" href="dashboard.css">
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    
+    <script src="firebase-config.js"></script>
 
-    <style>
-        :root {
-            --bg-deep: #0B0F19;
-            --bg-panel: #151B2B;
-            --primary: #3B82F6;
-            --accent: #8B5CF6;
-            --border: rgba(255, 255, 255, 0.08);
-            --text-main: #F8FAFC;
-            --text-muted: #94A3B8;
+    <script>
+        function logoutUser() {
+            console.log("Attempting Logout...");
+            // Try Firebase Logout safely
+            try {
+                if (typeof firebase !== 'undefined' && firebase.auth()) {
+                    firebase.auth().signOut();
+                }
+            } catch (error) {
+                console.warn("Firebase logout warning (ignoring to force redirect):", error);
+            }
+            // FORCE REDIRECT
+            window.location.href = 'login.html';
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-        
-        body { 
-            background-color: var(--bg-deep); 
-            color: var(--text-main); 
-            min-height: 100vh; 
-            display: flex;
-            overflow: hidden; 
-        }
-
-        /* SIDEBAR (Kept same as before) */
-        .sidebar { width: 80px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 30px 0; z-index: 50; transition: width 0.3s; }
-        .sidebar:hover { width: 240px; align-items: flex-start; padding-left: 20px; }
-        .brand-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; margin-bottom: 40px; flex-shrink: 0; }
-        .brand-text { display: none; font-size: 1.2rem; font-weight: 700; margin-left: 15px; white-space: nowrap; }
-        .sidebar:hover .brand-text { display: block; }
-        .sidebar:hover .brand-row { display: flex; align-items: center; width: 100%; }
-        .nav-item { margin-bottom: 20px; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 15px; padding: 10px; border-radius: 10px; transition: 0.2s; width: 40px; overflow: hidden; white-space: nowrap; }
-        .sidebar:hover .nav-item { width: 200px; }
-        .nav-item:hover, .nav-item.active { background: rgba(59, 130, 246, 0.1); color: var(--primary); }
-        .nav-item i { font-size: 1.5rem; flex-shrink: 0; }
-
-        /* MAIN CONTENT */
-        .main-content { flex: 1; padding: 30px 40px; overflow-y: auto; background: radial-gradient(circle at top right, #1E293B 0%, var(--bg-deep) 40%); }
-        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .welcome-text h1 { font-size: 2rem; font-weight: 700; margin-bottom: 5px; }
-        .welcome-text p { color: var(--text-muted); }
-        .header-actions { display: flex; gap: 15px; }
-        .settings-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 8px 16px; border-radius: 30px; color: var(--text-muted); cursor: pointer; display:flex; align-items:center; gap:8px;}
-        .upgrade-btn { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); border: none; padding: 8px 20px; border-radius: 30px; font-weight: 700; color: white; cursor: pointer; display:flex; align-items:center; gap:8px; }
-
-        /* UPDATED BENTO GRID LAYOUT */
-        .bento-grid {
-            display: grid;
-            grid-template-columns: 300px 1fr 1fr; /* Fixed width for League Card */
-            grid-template-rows: auto auto; /* Two main rows */
-            gap: 24px;
-            margin-bottom: 40px;
-        }
-
-        .bento-card {
-            background: rgba(21, 27, 43, 0.6);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 24px;
-            position: relative; overflow: hidden;
-        }
-
-        /* Specific Card Placements */
-        .league-tile { grid-column: 1; grid-row: 1 / span 2; } /* Tall League Card */
-        
-        .ai-card { grid-column: 2 / span 2; grid-row: 1; min-height: 200px; display: flex; flex-direction: column; background: linear-gradient(145deg, #1A1F30 0%, #252B42 100%); }
-        
-        .vocab-card { grid-column: 2; grid-row: 2; background: linear-gradient(145deg, #1e1b4b 0%, #312e81 100%); border-color: #4338ca; }
-        
-        .stat-card-small { grid-column: 3; grid-row: 2; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-
-        .library-section { grid-column: 1 / -1; margin-top: 20px; }
-
-        /* AI Elements */
-        .ai-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: white; padding: 10px 15px; border-radius: 12px; margin-top: auto; }
-        
-        /* Library Elements */
-        .lib-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .mock-scroller { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .mock-item { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 20px; position: relative; height: 180px; display: flex; flex-direction: column; }
-        .m-badge { position: absolute; top: 15px; right: 15px; font-size: 0.7rem; font-weight: 700; padding: 4px 8px; border-radius: 4px; }
-        .live { background: rgba(16, 185, 129, 0.2); color: #34D399; }
-        .locked { background: rgba(239, 68, 68, 0.1); color: #F87171; }
-        .play-btn { margin-top: auto; width: 100%; padding: 10px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; }
-
-        /* Modal & Pricing (Hidden initially) */
-        #pricing-view, .modal-overlay { display: none; }
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal { background: var(--bg-panel); padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; border: 1px solid var(--border); }
-        
-        @media (max-width: 1024px) {
-            .bento-grid { grid-template-columns: 1fr; }
-            .league-tile { grid-column: span 1; height: 450px; } /* Mobile adjustments */
-            .sidebar { width: 0; } 
-            .main-content { padding: 20px; }
-        }
-    </style>
+    </script>
 </head>
 <body>
 
-    <div class="modal-overlay" id="settings-modal" style="display:none;">
-        <div class="modal">
-            <h2>⚙️ AI Configuration</h2>
-            <input type="text" id="api-key-input" placeholder="Paste Gemini API Key..." style="width:100%; padding:12px; margin:15px 0; background:#0B0F19; border:1px solid #333; color:white;">
-            <div style="text-align:right;">
-                <button onclick="closeSettings()" style="padding:8px 16px; border-radius:8px; cursor:pointer;">Cancel</button>
-                <button onclick="saveApiKey()" style="padding:8px 16px; border-radius:8px; background:#3B82F6; color:white; border:none; cursor:pointer;">Save</button>
-            </div>
+    <nav class="top-nav">
+        <div class="brand">
+            <span class="material-icons-round brand-icon">change_history</span>
+            APTITUDE LABS
         </div>
-    </div>
-
-    <nav class="sidebar">
-        <div class="brand-row">
-            <div class="brand-icon">AL</div>
-            <span class="brand-text">Aptitude Labs</span>
+        <div class="nav-links">
+            <a href="dashboard.html" class="active">Dashboard</a>
+            <a href="mocks.html">Mocks</a> 
+            <a href="#">Practice</a>
+            <a href="#">Leaderboard</a>
+            <a href="#">Analysis</a>
+            <a href="#">Mentor</a>
+            <a href="pricing.html">Pricing</a>
         </div>
-        <div class="nav-item active" onclick="showDashboard()">
-            <i class="material-icons-round">dashboard</i> <span>Dashboard</span>
-        </div>
-        <div class="nav-item" onclick="showPricing()">
-            <i class="material-icons-round">monetization_on</i> <span>Plans</span>
-        </div>
-        <div class="nav-item" style="margin-top: auto;" onclick="logout()">
-            <i class="material-icons-round">logout</i> <span>Logout</span>
+        <div class="flex align-center gap-2 text-gray-400">
+            <span class="material-icons-round" style="cursor:pointer; font-size:24px;">settings</span>
+            <span class="material-icons-round" onclick="logoutUser()" style="cursor:pointer; font-size:24px; margin-left:15px; color:#ef4444;">logout</span>
         </div>
     </nav>
 
-    <div class="main-content">
+    <div class="main-container">
         
-        <div class="header-row">
-            <div class="welcome-text">
-                <h1 id="greeting">Hello, Aspirant.</h1>
-                <p>Mission Control Center</p>
-            </div>
-            <div class="header-actions">
-                <button class="upgrade-btn" onclick="showPricing()">
-                    <i class="material-icons-round">bolt</i> Upgrade
-                </button>
-                <div class="settings-btn" onclick="openSettings()">
-                    <i class="material-icons-round">settings</i>
-                </div>
-            </div>
-        </div>
-
-        <div id="dashboard-view">
-            <div class="bento-grid">
+        <div>
+            <div class="hero-banner">
+                <video autoplay muted loop playsinline class="hero-video">
+                    <source src="banner.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="hero-overlay"></div>
                 
-                <div class="bento-card league-tile">
-                    <div id="gamification-container" style="width:100%; height:100%;">
-                        <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#888;">
-                            Loading League Data...
+                <div class="hero-title">The AIR Mock access will be live soon</div>
+                <div class="hero-subtitle">Prepare for the ultimate national challenge.</div>
+                <button class="hero-btn" onclick="window.location.href='mocks.html'">Mocks</button>
+            </div>
+
+            <div class="two-col-grid">
+                <div class="card">
+                    <div class="card-title">Daily Quests</div>
+                    <div class="quest-item" onclick="toggleCheck(this)">
+                        <span class="material-icons-round checkbox">check_box</span>
+                        <span class="quest-text">Daily Quests in Sunday</span>
+                    </div>
+                    <div class="quest-item" onclick="toggleCheck(this)">
+                        <span class="material-icons-round checkbox">check_box</span>
+                        <span class="quest-text">Daily Quests in 35 minutes</span>
+                    </div>
+                    <div class="quest-item" onclick="toggleCheck(this)">
+                        <span class="material-icons-round checkbox-unchecked">check_box_outline_blank</span>
+                        <span class="quest-text">Daily Quests in Immutes</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Today's Practice</div>
+                    <div class="practice-item">
+                        <div class="doc-icon"><span class="material-icons-round">description</span></div>
+                        <div class="practice-content">
+                            <div class="practice-title">
+                                <span>Free Daily RCs: India's Labor</span>
+                                <span class="material-icons-round" style="color:var(--text-secondary); font-size:16px">north_east</span>
+                            </div>
+                            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 60%; background: var(--accent-neon);"></div></div>
+                        </div>
+                    </div>
+                    <div class="practice-item" style="margin-bottom: 0;">
+                        <div class="doc-icon" style="background: rgba(245, 158, 11, 0.15); color: #FCD34D; border: 1px solid rgba(245, 158, 11, 0.3);"><span class="material-icons-round">book</span></div>
+                        <div class="practice-content">
+                            <div class="practice-title">
+                                <span>Weekly DI/LR: The Office Roster</span>
+                                <span class="material-icons-round" style="color:var(--text-secondary); font-size:16px">north_east</span>
+                            </div>
+                            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 30%; background: #F59E0B;"></div></div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="bento-card ai-card">
-                    <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
-                        <i class="material-icons-round" style="color:#F472B6;">auto_awesome</i>
-                        <span style="font-weight:700;">Aptitude Labs AI Tutor</span>
+            <div class="two-col-grid" style="margin-bottom: 0;">
+                 <div class="card">
+                    <div class="card-title">Quick Links</div>
+                    <div class="quick-link-btn"><span class="material-icons-round ql-icon">menu_book</span><div class="ql-text">Syllabus</div></div>
+                    <div class="quick-link-btn"><span class="material-icons-round ql-icon">assignment</span><div class="ql-text">Exam Pattern</div></div>
+                    <div class="quick-link-btn" style="margin-bottom: 0;"><span class="material-icons-round ql-icon">folder_open</span><div class="ql-text">Application Tracker</div></div>
+                </div>
+                
+                <div class="card announcement-card">
+                    <div class="card-title">
+                        <span>Announcements</span>
+                        <span class="material-icons-round" style="color:var(--text-secondary);">campaign</span>
                     </div>
-                    <div id="ai-output" style="color:#94A3B8; margin-bottom:10px;">Setup API key to activate.</div>
-                    <input type="text" class="ai-input" placeholder="Ask a doubt..." onkeypress="if(event.key === 'Enter') askGemini()">
-                </div>
-
-                <div class="bento-card vocab-card">
-                    <div style="display:flex; justify-content:space-between;">
-                        <span style="font-size:0.75rem; color:#a5b4fc;">WORD OF THE DAY</span>
-                        <i class="material-icons-round" style="font-size:1rem; cursor:pointer;" onclick="generateNewWord()">refresh</i>
-                    </div>
-                    <div style="font-size:1.5rem; font-weight:800; margin:10px 0;">Ephemeral</div>
-                    <div style="font-style:italic; color:#818cf8; font-size:0.9rem;">adj. Lasting for a very short time.</div>
-                </div>
-
-                <div class="bento-card stat-card-small">
-                    <div style="font-size:0.8rem; color:#94A3B8;">TESTS TAKEN</div>
-                    <div style="font-size:2rem; font-weight:800; color:white;">0</div>
-                </div>
-
-                <div class="library-section">
-                    <div class="lib-header">
-                        <h2>Mock Terminal</h2>
-                        <div style="display:flex; gap:10px;">
-                            <button class="settings-btn" onclick="switchTab('INDORE')">Indore</button>
-                            <button class="settings-btn" onclick="switchTab('ROHTAK')">Rohtak</button>
+                    <div class="announcement-item">
+                        <span class="material-icons-round bell-icon" style="color: #EF4444; background: rgba(239, 68, 68, 0.15);">notifications_active</span>
+                        <div>
+                            <div style="font-weight:600;">Forms Released</div>
+                            <span class="notif-meta">IPMAT Indore forms are out now.</span>
                         </div>
                     </div>
-                    <div class="mock-scroller" id="mock-list">
+                    <div class="announcement-item">
+                        <span class="material-icons-round bell-icon" style="background:rgba(56, 189, 248, 0.15); color:var(--accent-neon);">emoji_events</span>
+                        <div>
+                            <div style="font-weight:600;">Weekend Cup</div>
+                            <span class="notif-meta">Top 10 winners get Pro access.</span>
                         </div>
+                    </div>
+                    <div class="announcement-item">
+                        <span class="material-icons-round bell-icon" style="background:rgba(156, 163, 175, 0.15); color:var(--text-secondary);">update</span>
+                        <div>
+                            <div style="font-weight:600;">System Update</div>
+                            <span class="notif-meta">Maintenance at 2 AM tonight.</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div id="pricing-view">
-            <h2 style="text-align:center;">Upgrade Your Arsenal</h2>
+        <div>
+            <div class="card league-card" id="league-card-container">
+                <span class="material-icons-round info-icon" onclick="openLeagueModal()">info</span>
+                <div class="shield-icon-container">
+                    <img id="league-img" src="assets/rookie.png" alt="League" class="shield-img">
+                </div>
+                <div class="league-info">
+                    <div class="league-label">CURRENT LEAGUE</div>
+                    <div class="league-name" id="league-name">ROOKIE</div>
+                    <div style="position: relative; margin-top:5px;">
+                        <div class="xp-values" id="xp-text">0 / 1000 XP</div>
+                        <div class="xp-progress-bg"><div class="xp-progress-fill" id="xp-bar"></div></div>
+                    </div>
+                    <div class="username" id="display-name">Loading...</div>
+                </div>
             </div>
 
+            <div class="stats-grid">
+                <div class="card stat-box">
+                    <div class="stat-label">TOTAL XP</div>
+                    <div class="stat-value" id="total-xp">0</div>
+                </div>
+                <div class="card stat-box streak-box">
+                    <div class="stat-label" style="color: #FCD34D;">14 Day</div>
+                    <div class="stat-value">STREAK <span class="fire-icon">🔥</span></div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="card-title">Live Leaderboard</div>
+                
+                <div class="podium-container" id="podium-container">
+                    <div class="podium-place rank-2">
+                        <img src="https://i.pravatar.cc/100?img=5" class="avatar">
+                        <div class="winner-name" id="rank-2-name">--</div>
+                        <div class="rank-bar bar-silver" id="rank-2-score">0</div>
+                    </div>
+                    <div class="podium-place rank-1">
+                        <span class="material-icons-round winner-crown">emoji_events</span>
+                        <img src="https://i.pravatar.cc/100?img=3" class="avatar" style="border-color:#FCD34D;">
+                        <div class="winner-name" style="font-weight:800;" id="rank-1-name">--</div>
+                        <div class="rank-bar bar-gold" id="rank-1-score">0</div>
+                    </div>
+                    <div class="podium-place rank-3">
+                        <img src="https://i.pravatar.cc/100?img=8" class="avatar">
+                        <div class="winner-name" id="rank-3-name">--</div>
+                        <div class="rank-bar bar-bronze" id="rank-3-score">0</div>
+                    </div>
+                </div>
+
+                <div class="user-rank-row">
+                    <span id="user-rank-display">You</span>
+                    <span id="user-rank-xp">0 XP</span>
+                </div>
+            </div>
+
+            <div class="card vocab-card">
+                <div class="vocab-header"><span class="vocab-label">WORD OF THE DAY</span><span class="material-icons-round" style="color:var(--accent-violet); cursor:pointer;">refresh</span></div>
+                <div class="vocab-word">Ephemeral</div>
+                <div class="vocab-def">Lasting for a very short time.</div>
+            </div>
+        </div>
     </div>
 
-    <script src="gamification.js"></script>
+    <div id="league-modal" class="modal-overlay">
+        <div class="modal">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="margin:0; font-weight:800;">League Progression</h3>
+                <span class="material-icons-round" style="cursor:pointer;" onclick="closeLeagueModal()">close</span>
+            </div>
+            <div id="league-list-container">
+                </div>
+        </div>
+    </div>
 
-    <script>
-        const firebaseConfig = { apiKey: "AIzaSyBTbfSlz0xvfBzAWmJzXDGbIC6Up0-6eU4", authDomain: "aptitudelabs-in.firebaseapp.com", projectId: "aptitudelabs-in", storageBucket: "aptitudelabs-in.firebasestorage.app", messagingSenderId: "175469863880", appId: "1:175469863880:web:b7b25ed27120665af716fd" };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
+    <script src="dashboard.js"></script>
 
-        // UI Toggles
-        function showDashboard() { document.getElementById('dashboard-view').style.display='block'; document.getElementById('pricing-view').style.display='none'; }
-        function showPricing() { document.getElementById('dashboard-view').style.display='none'; document.getElementById('pricing-view').style.display='block'; }
-        function openSettings() { document.getElementById('settings-modal').style.display='flex'; }
-        function closeSettings() { document.getElementById('settings-modal').style.display='none'; }
-        function logout() { auth.signOut().then(() => window.location.href = "login.html"); }
-
-        // Initialization
-        window.onload = function() {
-            auth.onAuthStateChanged(user => {
-                if(user) {
-                    document.getElementById('greeting').innerText = `Hello, ${user.email.split('@')[0]}.`;
-                    
-                    // 1. Fetch Mocks
-                    fetchStatusAndRender('INDORE');
-                    
-                    // 2. Initialize Gamification (From gamification.js)
-                    initGamification(user); 
-                } else {
-                    window.location.href = "login.html";
-                }
-            });
-        };
-
-        async function fetchStatusAndRender(category) {
-            const container = document.getElementById('mock-list');
-            container.innerHTML = '<div style="color:#666;">Loading mocks...</div>';
-            
-            // Mock Data for Demo
-            let html = '';
-            for(let i=1; i<=5; i++) {
-                html += `
-                <div class="mock-item">
-                    <span class="m-badge ${i===1?'live':'locked'}">${i===1?'LIVE':'LOCKED'}</span>
-                    <div style="font-size:2rem; font-weight:800; color:rgba(255,255,255,0.05); margin-bottom:10px;">${i}</div>
-                    <div style="font-weight:600;">${category} Mock ${i}</div>
-                    <button class="play-btn ${i===1?'btn-go':''}" ${i!==1?'disabled':''}>${i===1?'Start':'Locked'}</button>
-                </div>`;
-            }
-            container.innerHTML = html;
-        }
-
-        function switchTab(cat) { fetchStatusAndRender(cat); }
-    </script>
 </body>
 </html>
