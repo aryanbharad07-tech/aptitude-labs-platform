@@ -1,8 +1,6 @@
 /**
- * Aptitude Labs Admin Console v4.1 (Fixed for Engine Compatibility)
+ * Aptitude Labs Admin Console v4.2 (With In-Page Login)
  * Logic Controller
- * * Context: This file assumes Firebase has been initialized by 'firebase-config.js'
- * and the Firebase SDKs have been loaded in 'admin.html'.
  */
 
 // --- CONFIGURATION ---
@@ -13,8 +11,6 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 
 // --- EXAM PATTERNS ---
-// ! IMPORTANT: These "name" strings must EXACTLY match the 'sections' array in script.js
-// ! If they don't match, the Exam Engine will load 0 questions for that section.
 const EXAM_RULES = {
     "TEST": [
         {name:"QA (Short Answer)", type:"SA", start:1, end:4}, 
@@ -22,7 +18,6 @@ const EXAM_RULES = {
         {name:"Verbal Ability", type:"MCQ", start:9, end:12}
     ],
     "SAMPLE": [
-        // FIXED: Changed from "QA-SA" to "QA (Short Answer)" to match script.js
         {name:"QA (Short Answer)", type:"SA", start:1, end:2}, 
         {name:"QA (MCQ)", type:"MCQ", start:3, end:4}, 
         {name:"Verbal Ability", type:"MCQ", start:5, end:6}
@@ -80,7 +75,13 @@ const els = {
     banTitle: document.getElementById('ban-title'),
     banImg: document.getElementById('ban-img'),
     addBanBtn: document.getElementById('add-banner-btn'),
-    banList: document.getElementById('banner-list')
+    banList: document.getElementById('banner-list'),
+    // Login Overlay Elements
+    loginOverlay: document.getElementById('admin-login-overlay'),
+    admEmail: document.getElementById('adm-email'),
+    admPass: document.getElementById('adm-pass'),
+    admLoginBtn: document.getElementById('adm-login-btn'),
+    loginError: document.getElementById('login-error')
 };
 
 // --- INITIALIZATION ---
@@ -92,36 +93,74 @@ document.addEventListener('DOMContentLoaded', () => {
 function initAuth() {
     auth.onAuthStateChanged(user => {
         if(user && user.email === ADMIN_EMAIL) {
+            // Success: Admin Logged In
             els.email.innerText = user.email;
+            els.loginOverlay.classList.add('hidden'); // Hide overlay
             initDashboard();
         } else { 
-            // If user is not logged in or not the admin, redirect
-            window.location.href = "login.html"; 
+            // Failure: Show Overlay (Do not redirect)
+            els.loginOverlay.classList.remove('hidden');
+            if(user) {
+                // Logged in but wrong email
+                els.loginError.innerText = "Access Denied: Not an Admin Account";
+                auth.signOut();
+            }
         }
     });
 }
 
 function initDashboard() {
-    updateMockConfig(); // Load initial grid
-    loadBanners(); // Load banners
+    updateMockConfig(); 
+    loadBanners(); 
 }
 
 function attachListeners() {
+    // Auth
+    els.logout.addEventListener('click', () => {
+        auth.signOut();
+        window.location.reload();
+    });
+    
+    // Login Overlay Action
+    els.admLoginBtn.addEventListener('click', handleAdminLogin);
+
     // Config Changes
     els.examCat.addEventListener('change', updateMockConfig);
     els.mockNum.addEventListener('input', updateMockConfig);
     els.refreshBtn.addEventListener('click', loadQuestionsList);
     els.statusBtn.addEventListener('click', toggleLiveStatus);
-    els.logout.addEventListener('click', () => auth.signOut());
 
     // Editor Logic
-    els.qNum.addEventListener('input', () => checkPatternRules()); // Only updates rules, preserves typed data
+    els.qNum.addEventListener('input', () => checkPatternRules()); 
     els.type.addEventListener('change', toggleFields);
     els.clearBtn.addEventListener('click', prepareNewEntry);
     els.form.addEventListener('submit', handleSaveQuestion);
 
     // Banner Logic
     els.addBanBtn.addEventListener('click', addBanner);
+}
+
+// --- LOGIN LOGIC ---
+async function handleAdminLogin() {
+    const email = els.admEmail.value;
+    const pass = els.admPass.value;
+    
+    if(!email || !pass) {
+        els.loginError.innerText = "Please fill all fields";
+        return;
+    }
+
+    els.admLoginBtn.innerText = "Verifying...";
+    els.loginError.innerText = "";
+    
+    try {
+        await auth.signInWithEmailAndPassword(email, pass);
+        // Note: initAuth will trigger automatically on state change to hide the modal
+    } catch(e) {
+        console.error(e);
+        els.loginError.innerText = "Invalid Email or Password";
+        els.admLoginBtn.innerText = "Login to Console";
+    }
 }
 
 // --- CORE LOGIC ---
@@ -133,7 +172,6 @@ function updateMockConfig() {
     
     checkLiveStatus();
     loadQuestionsList();
-    // We intentionally do NOT reset the editor here to allow admin to switch mocks while keeping editor data if needed.
 }
 
 async function checkLiveStatus() {
@@ -172,7 +210,6 @@ async function loadQuestionsList() {
     const mockId = els.activeId.innerText;
     const cat = els.examCat.value;
     
-    // Safety check for rules
     if (!EXAM_RULES[cat]) return showToast("Exam Pattern Config Missing", "error");
 
     const totalQ = EXAM_RULES[cat][EXAM_RULES[cat].length-1].end;
@@ -186,13 +223,11 @@ async function loadQuestionsList() {
         els.qGrid.innerHTML = '';
         els.qCount.innerText = `${snapshot.size}/${totalQ}`;
 
-        // Map existing questions
         snapshot.forEach(doc => {
             const data = doc.data();
             if(data.qNumber) currentQuestions[data.qNumber] = { id: doc.id, ...data };
         });
 
-        // Build Grid
         for(let i=1; i<=totalQ; i++) {
             const btn = document.createElement('div');
             btn.className = 'q-btn';
@@ -239,7 +274,7 @@ function toggleFields() {
 function loadQuestionForEdit(qNum) {
     prepareNewEntry();
     els.qNum.value = qNum;
-    checkPatternRules(qNum); // Set types based on rule
+    checkPatternRules(qNum); 
     
     const data = currentQuestions[qNum];
     if (data) {
@@ -252,11 +287,9 @@ function loadQuestionForEdit(qNum) {
         if(data.type === 'SA') {
             els.saVal.value = data.correct || "";
         } else {
-            // Populate Options
             ['a','b','c','d'].forEach((opt, i) => {
                 document.getElementById(`opt-${opt}`).value = data.options[i] || "";
             });
-            // Set Correct Radio
             const idx = data.options.indexOf(data.correct);
             if(idx > -1) {
                 const radios = document.getElementsByName("correct");
@@ -272,8 +305,6 @@ function prepareNewEntry() {
     els.form.reset();
     els.docId.value = "";
     els.saveBtn.innerText = "Save Question";
-    
-    // Preserve the mock number rule if valid
     const currentQ = parseInt(els.qNum.value);
     if(currentQ) checkPatternRules(currentQ);
 }
@@ -303,7 +334,6 @@ async function handleSaveQuestion(e) {
             data.options = [];
         } else {
             data.options = ['a','b','c','d'].map(o => document.getElementById(`opt-${o}`).value);
-            // Validation: Ensure options aren't empty
             if(data.options.some(o => o.trim() === "")) throw new Error("All options A-D must be filled");
             
             const selected = document.querySelector('input[name="correct"]:checked');
@@ -318,7 +348,7 @@ async function handleSaveQuestion(e) {
         else await db.collection('questions').add(data); 
 
         showToast(`Question ${qNum} Saved Successfully!`, "success");
-        loadQuestionsList(); // Refresh grid
+        loadQuestionsList(); 
         
     } catch (err) {
         showToast(err.message, "error");
@@ -372,8 +402,6 @@ window.deleteBanner = async (id) => {
         showToast("Banner Deleted", "success");
     }
 };
-
-// --- UTILITIES ---
 
 function showToast(msg, type) {
     const container = document.getElementById('toast-container');
