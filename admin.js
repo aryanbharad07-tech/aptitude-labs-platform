@@ -1,22 +1,15 @@
 /**
  * Aptitude Labs Admin Console v4.0
  * Logic Controller
+ * * Context: This file assumes Firebase has been initialized by 'firebase-config.js'
+ * and the Firebase SDKs have been loaded in 'admin.html'.
  */
 
 // --- CONFIGURATION ---
 const ADMIN_EMAIL = "aptitudelabshost@gmail.com"; 
 
-const firebaseConfig = { 
-    apiKey: "AIzaSyBTbfSlz0xvfBzAWmJzXDGbIC6Up0-6eU4", 
-    authDomain: "aptitudelabs-in.firebaseapp.com", 
-    projectId: "aptitudelabs-in", 
-    storageBucket: "aptitudelabs-in.firebasestorage.app", 
-    messagingSenderId: "175469863880", 
-    appId: "1:175469863880:web:b7b25ed27120665af716fd" 
-};
-
-// Initialize Firebase
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+// --- FIREBASE REFERENCES (Assuming initialization is complete) ---
+// We access the global 'firebase' object created by the SDK in admin.html.
 const db = firebase.firestore();
 const auth = firebase.auth();
 
@@ -80,6 +73,7 @@ function initAuth() {
             els.email.innerText = user.email;
             initDashboard();
         } else { 
+            // If user is not logged in or not the admin, redirect
             window.location.href = "login.html"; 
         }
     });
