@@ -3,110 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Portal | Aptitude Labs</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <title>Aptitude Labs | Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="admin.css">
-
+    
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-    <header class="app-header">
+    <aside class="sidebar">
         <div class="brand">
-            <h2>Aptitude Labs <span class="badge">CMS v4.1</span></h2>
+            🚀 Aptitude Labs <span class="badge">Admin</span>
         </div>
-        <div class="user-profile">
-            <span class="status-dot online"></span>
-            <span id="admin-email">Verifying...</span>
-            <button id="logout-btn" class="btn-text">Logout</button>
-        </div>
-    </header>
 
-    <div class="main-layout">
+        <div class="widget">
+            <div class="widget-title">Configuration</div>
+            <div class="form-group">
+                <select id="exam-cat">
+                    <option value="TEST">Test Mock (12 Qs)</option>
+                    <option value="SAMPLE">Sample Test (6 Qs)</option>
+                    <option value="INDORE">IPMAT Indore</option>
+                    <option value="ROHTAK">IPMAT Rohtak</option>
+                    <option value="JIPMAT">JIPMAT</option>
+                </select>
+            </div>
+            <div class="row-group">
+                <input type="number" id="mock-num" value="1" min="1" max="50">
+                <button id="refresh-grid-btn" class="btn-icon">↻</button>
+            </div>
+        </div>
+
+        <div class="widget status-card">
+            <div>
+                <div class="widget-title">Status</div>
+                <strong id="active-mock-id" style="font-size: 0.8rem;">Loading...</strong>
+            </div>
+            <button id="toggle-status-btn" class="btn-status locked">LOCKED</button>
+        </div>
+
+        <div class="widget grid-area">
+            <div class="widget-title" style="display:flex; justify-content:space-between;">
+                Questions <span id="q-count">0/0</span>
+            </div>
+            <div id="q-grid" class="q-grid">
+                </div>
+        </div>
         
-        <aside class="sidebar">
-            
-            <div class="widget-card">
-                <div class="widget-header">⚙️ Exam Configuration</div>
-                <div class="form-group">
-                    <label>Exam Pattern</label>
-                    <select id="exam-cat" class="input-field">
-                        <option value="TEST">Test Mock (12 Qs)</option>
-                        <option value="SAMPLE">Sample Test (6 Qs)</option>
-                        <option value="INDORE">IPMAT Indore</option>
-                        <option value="ROHTAK">IPMAT Rohtak</option>
-                        <option value="JIPMAT">JIPMAT</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label>Mock Number</label>
-                    <div class="input-group">
-                        <input type="number" id="mock-num" value="1" min="1" max="50" class="input-field">
-                        <button id="refresh-grid-btn" class="btn-icon" title="Refresh Grid">🔄</button>
-                    </div>
-                </div>
+        <div class="widget">
+             <div class="widget-title">Add Banner</div>
+             <input type="text" id="ban-title" placeholder="Title" style="margin-bottom:5px;">
+             <input type="text" id="ban-img" placeholder="Image URL">
+             <button id="add-banner-btn" class="btn-secondary" style="width:100%; margin-top:5px; font-size:0.8rem;">+ Add Banner</button>
+             <div id="banner-list" style="margin-top:10px; max-height:50px; overflow:auto;"></div>
+        </div>
+    </aside>
 
-                <div class="status-box">
-                    <div class="status-info">
-                        <small>Active ID</small>
-                        <strong id="active-mock-id">...</strong>
-                    </div>
-                    <button id="toggle-status-btn" class="btn-status locked">🔴 LOCKED</button>
-                </div>
+    <main class="main-content">
+        <div class="top-bar">
+            <div></div> <div class="user-info">
+                <span id="admin-email">Connecting...</span>
+                <button id="logout-btn" class="btn-logout">Sign Out</button>
             </div>
+        </div>
 
-            <div class="widget-card flex-grow">
-                <div class="widget-header">
-                    <span>Question Grid</span>
-                    <span id="q-count" class="badge-count">0/0</span>
-                </div>
-                <div class="q-grid-container" id="q-grid">
-                    </div>
-            </div>
-
-            <div class="widget-card">
-                <div class="widget-header">📢 Banners</div>
-                <div class="banner-controls">
-                    <input type="text" id="ban-title" placeholder="Title" class="input-sm">
-                    <input type="text" id="ban-img" placeholder="Img URL" class="input-sm">
-                    <button id="add-banner-btn" class="btn-primary-sm">+ Add</button>
-                </div>
-                <div id="banner-list" class="banner-list"></div>
-            </div>
-
-        </aside>
-
-        <main class="editor-area">
-            <div class="editor-container">
+        <div class="editor-wrapper">
+            <div class="editor-card">
                 
                 <div class="editor-header">
-                    <div>
-                        <h3 id="current-sec-name">Select a Question</h3>
-                        <small id="current-sec-range">Range: --</small>
+                    <div class="editor-title">
+                        <h2 id="current-sec-name">Edit Question</h2>
+                        <p id="current-sec-range">Select a number from the grid</p>
                     </div>
-                    <button type="button" id="clear-btn" class="btn-secondary">New Question</button>
+                    <button type="button" id="clear-btn" class="btn-secondary">New Entry</button>
                 </div>
 
                 <form id="editor-form">
                     <input type="hidden" id="doc-id">
                     
-                    <div class="row">
-                        <div class="col-sm">
-                            <label>Q. No <span class="required">*</span></label>
-                            <input type="number" id="q-number" class="input-field" placeholder="1" required>
+                    <div class="form-grid">
+                        <div>
+                            <label>No. <span class="required">*</span></label>
+                            <input type="number" id="q-number" placeholder="1" required>
                         </div>
-                        <div class="col-md">
-                            <label>Section (Auto)</label>
-                            <input type="text" id="section" class="input-field bg-gray" readonly>
+                        <div>
+                            <label>Section</label>
+                            <input type="text" id="section" readonly style="background:#f3f4f6; color:#6b7280;">
                         </div>
-                        <div class="col-sm">
+                        <div>
                             <label>Type</label>
-                            <select id="q-type" class="input-field bg-gray" disabled>
+                            <select id="q-type">
                                 <option value="MCQ">MCQ</option>
                                 <option value="SA">Short Answer</option>
                                 <option value="RC">RC Passage</option>
@@ -115,58 +102,55 @@
                     </div>
 
                     <div id="passage-box" class="form-group hidden">
-                        <label>Passage Text</label>
-                        <textarea id="passage-text" class="input-area h-150"></textarea>
+                        <label>Reading Comprehension Passage</label>
+                        <textarea id="passage-text" class="input-area" rows="6" placeholder="Paste passage here..."></textarea>
                     </div>
 
                     <div class="form-group">
                         <label>Question Text <span class="required">*</span></label>
-                        <textarea id="q-text" class="input-area h-100" required></textarea>
+                        <textarea id="q-text" class="input-area" rows="4" required></textarea>
                     </div>
 
-                    <div id="options-box" class="form-group">
-                        <label>Options & Correct Answer</label>
-                        <div class="options-grid">
-                            <div class="opt-row"><input type="radio" name="correct" value="A"><input type="text" id="opt-a" placeholder="Option A" class="input-field"></div>
-                            <div class="opt-row"><input type="radio" name="correct" value="B"><input type="text" id="opt-b" placeholder="Option B" class="input-field"></div>
-                            <div class="opt-row"><input type="radio" name="correct" value="C"><input type="text" id="opt-c" placeholder="Option C" class="input-field"></div>
-                            <div class="opt-row"><input type="radio" name="correct" value="D"><input type="text" id="opt-d" placeholder="Option D" class="input-field"></div>
-                        </div>
+                    <div id="options-box" class="form-group options-container">
+                        <label>Options & Correct Selection</label>
+                        <div class="opt-row"><input type="radio" name="correct" value="A" class="opt-radio"><input type="text" id="opt-a" placeholder="Option A"></div>
+                        <div class="opt-row"><input type="radio" name="correct" value="B" class="opt-radio"><input type="text" id="opt-b" placeholder="Option B"></div>
+                        <div class="opt-row"><input type="radio" name="correct" value="C" class="opt-radio"><input type="text" id="opt-c" placeholder="Option C"></div>
+                        <div class="opt-row"><input type="radio" name="correct" value="D" class="opt-radio"><input type="text" id="opt-d" placeholder="Option D"></div>
                     </div>
 
-                    <div id="sa-box" class="form-group hidden">
-                        <label>Correct Numeric Answer</label>
-                        <input type="text" id="sa-val" class="input-field" placeholder="e.g. 45">
+                    <div id="sa-box" class="form-group numeric-box hidden">
+                        <label style="margin-bottom:12px;">Correct Numeric Answer</label>
+                        <input type="number" id="sa-val" placeholder="0" step="any">
+                        <small style="color:#6b7280; display:block; margin-top:8px;">Enter the exact numeric value</small>
                     </div>
 
                     <div class="form-group">
                         <label>Solution / Explanation</label>
-                        <textarea id="solution-text" class="input-area h-80"></textarea>
+                        <textarea id="solution-text" class="input-area" rows="3" placeholder="Explain the answer..."></textarea>
                     </div>
 
-                    <div class="form-actions">
-                        <button type="submit" id="save-btn" class="btn-primary full-width">Save Question</button>
-                    </div>
+                    <button type="submit" id="save-btn" class="btn-primary">Save Question</button>
                 </form>
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
 
-    <div id="admin-login-overlay" class="login-overlay">
-        <div class="login-box">
-            <h3>Admin Access</h3>
+    <div id="admin-login-overlay" class="overlay">
+        <div class="login-modal">
+            <h2>Admin Access</h2>
             <div class="form-group">
-                <input type="email" id="adm-email" class="input-field" placeholder="Admin Email" value="aptitudelabshost@gmail.com">
+                <input type="email" id="adm-email" placeholder="admin@aptitudelabs.com" value="aptitudelabshost@gmail.com">
             </div>
             <div class="form-group">
-                <input type="password" id="adm-pass" class="input-field" placeholder="Password">
+                <input type="password" id="adm-pass" placeholder="Password">
             </div>
-            <button id="adm-login-btn" class="btn-primary full-width">Login to Console</button>
-            <p id="login-error" class="error-text"></p>
+            <button id="adm-login-btn" class="btn-primary">Secure Login</button>
+            <div id="login-error" class="error-msg"></div>
         </div>
     </div>
 
-    <div id="toast-container"></div>
+    <div id="toast-container" class="toast-container"></div>
 
     <script src="firebase-config.js"></script>
     <script src="admin.js"></script>
