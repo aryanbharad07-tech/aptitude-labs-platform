@@ -1,5 +1,5 @@
 /**
- * Aptitude Labs Admin Console v4.0
+ * Aptitude Labs Admin Console v4.1 (Fixed for Engine Compatibility)
  * Logic Controller
  * * Context: This file assumes Firebase has been initialized by 'firebase-config.js'
  * and the Firebase SDKs have been loaded in 'admin.html'.
@@ -8,18 +8,40 @@
 // --- CONFIGURATION ---
 const ADMIN_EMAIL = "aptitudelabshost@gmail.com"; 
 
-// --- FIREBASE REFERENCES (Assuming initialization is complete) ---
-// We access the global 'firebase' object created by the SDK in admin.html.
+// --- FIREBASE REFERENCES ---
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-// Exam Patterns
+// --- EXAM PATTERNS ---
+// ! IMPORTANT: These "name" strings must EXACTLY match the 'sections' array in script.js
+// ! If they don't match, the Exam Engine will load 0 questions for that section.
 const EXAM_RULES = {
-    "TEST": [{name:"QA (Short Answer)", type:"SA", start:1, end:4}, {name:"QA (MCQ)", type:"MCQ", start:5, end:8}, {name:"Verbal Ability", type:"MCQ", start:9, end:12}],
-    "SAMPLE": [{name:"QA-SA", type:"SA", start:1, end:2}, {name:"QA-MCQ", type:"MCQ", start:3, end:4}, {name:"VA", type:"MCQ", start:5, end:6}],
-    "INDORE": [{name:"QA (Short Answer)", type:"SA", start:1, end:15}, {name:"QA (MCQ)", type:"MCQ", start:16, end:45}, {name:"Verbal Ability", type:"MCQ", start:46, end:90}],
-    "ROHTAK": [{name:"Quantitative Ability", type:"MCQ", start:1, end:40}, {name:"Logical Reasoning", type:"MCQ", start:41, end:80}, {name:"Verbal Ability", type:"MCQ", start:81, end:120}],
-    "JIPMAT": [{name:"Quantitative Aptitude", type:"MCQ", start:1, end:33}, {name:"DILR", type:"MCQ", start:34, end:66}, {name:"Verbal Ability", type:"MCQ", start:67, end:100}]
+    "TEST": [
+        {name:"QA (Short Answer)", type:"SA", start:1, end:4}, 
+        {name:"QA (MCQ)", type:"MCQ", start:5, end:8}, 
+        {name:"Verbal Ability", type:"MCQ", start:9, end:12}
+    ],
+    "SAMPLE": [
+        // FIXED: Changed from "QA-SA" to "QA (Short Answer)" to match script.js
+        {name:"QA (Short Answer)", type:"SA", start:1, end:2}, 
+        {name:"QA (MCQ)", type:"MCQ", start:3, end:4}, 
+        {name:"Verbal Ability", type:"MCQ", start:5, end:6}
+    ],
+    "INDORE": [
+        {name:"QA (Short Answer)", type:"SA", start:1, end:15}, 
+        {name:"QA (MCQ)", type:"MCQ", start:16, end:45}, 
+        {name:"Verbal Ability", type:"MCQ", start:46, end:90}
+    ],
+    "ROHTAK": [
+        {name:"Quantitative Ability", type:"MCQ", start:1, end:40}, 
+        {name:"Logical Reasoning", type:"MCQ", start:41, end:80}, 
+        {name:"Verbal Ability", type:"MCQ", start:81, end:120}
+    ],
+    "JIPMAT": [
+        {name:"Quantitative Aptitude", type:"MCQ", start:1, end:33}, 
+        {name:"DILR", type:"MCQ", start:34, end:66}, 
+        {name:"Verbal Ability", type:"MCQ", start:67, end:100}
+    ]
 };
 
 // State
@@ -293,14 +315,10 @@ async function handleSaveQuestion(e) {
 
         const docId = els.docId.value;
         if(docId) await db.collection('questions').doc(docId).update(data);
-        else await db.collection('questions').add(data);
+        else await db.collection('questions').add(data); 
 
         showToast(`Question ${qNum} Saved Successfully!`, "success");
         loadQuestionsList(); // Refresh grid
-        
-        // Optional: Auto-increment to next question for faster entry
-        // els.qNum.value = qNum + 1;
-        // checkPatternRules();
         
     } catch (err) {
         showToast(err.message, "error");
