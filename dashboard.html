@@ -1,21 +1,28 @@
+<!-- #page01 -->
 <!DOCTYPE html>
 <html lang="en">
+<!-- #page01.01: Document Head & Metadata -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aptitude Labs | Mission Control</title>
     
+    <!-- #page01.01.01: Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     
+    <!-- #page01.01.02: Main Stylesheet -->
     <link rel="stylesheet" href="dashboard.css">
 
+    <!-- #page01.01.03: Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     
+    <!-- #page01.01.04: Firebase Configuration -->
     <script src="firebase-config.js"></script>
 
+    <!-- #page01.01.05: Logout Function -->
     <script>
         function logoutUser() {
             console.log("Attempting Logout...");
@@ -34,11 +41,14 @@
 </head>
 <body>
 
+    <!-- #page01.02: Top Navigation Bar -->
     <nav class="top-nav">
+        <!-- #page01.02.01: Brand Logo -->
         <div class="brand">
             <span class="material-icons-round brand-icon">change_history</span>
             APTITUDE LABS
         </div>
+        <!-- #page01.02.02: Navigation Links -->
         <div class="nav-links">
             <a href="dashboard.html" class="active">Dashboard</a>
             <a href="mocks.html">Mocks</a> 
@@ -48,15 +58,19 @@
             <a href="#">Mentor</a>
             <a href="pricing.html">Pricing</a>
         </div>
+        <!-- #page01.02.03: User Actions (Settings, Logout) -->
         <div class="flex align-center gap-2 text-gray-400">
             <span class="material-icons-round" style="cursor:pointer; font-size:24px;">settings</span>
             <span class="material-icons-round" onclick="logoutUser()" style="cursor:pointer; font-size:24px; margin-left:15px; color:#ef4444;">logout</span>
         </div>
     </nav>
 
+    <!-- #page01.03: Main Content Container -->
     <div class="main-container">
         
+        <!-- #page01.03.01: Left Column -->
         <div>
+            <!-- #page01.03.01.01: Hero Banner -->
             <div class="hero-banner">
                 <video autoplay muted loop playsinline class="hero-video">
                     <source src="banner.mp4" type="video/mp4">
@@ -69,7 +83,9 @@
                 <button class="hero-btn" onclick="window.location.href='mocks.html'">Mocks</button>
             </div>
 
+            <!-- #page01.03.01.02: Two-Column Grid (Quests & Practice) -->
             <div class="two-col-grid">
+                <!-- Daily Quests Card -->
                 <div class="card">
                     <div class="card-title">Daily Quests</div>
                     <div class="quest-item" onclick="toggleCheck(this)">
@@ -86,6 +102,7 @@
                     </div>
                 </div>
 
+                <!-- Today's Practice Card -->
                 <div class="card">
                     <div class="card-title">Today's Practice</div>
                     <div class="practice-item">
@@ -111,7 +128,9 @@
                 </div>
             </div>
 
+            <!-- #page01.03.01.03: Two-Column Grid (Quick Links & Announcements) -->
             <div class="two-col-grid" style="margin-bottom: 0;">
+                <!-- Quick Links Card -->
                  <div class="card">
                     <div class="card-title">Quick Links</div>
                     <div class="quick-link-btn"><span class="material-icons-round ql-icon">menu_book</span><div class="ql-text">Syllabus</div></div>
@@ -119,6 +138,7 @@
                     <div class="quick-link-btn" style="margin-bottom: 0;"><span class="material-icons-round ql-icon">folder_open</span><div class="ql-text">Application Tracker</div></div>
                 </div>
                 
+                <!-- Announcements Card -->
                 <div class="card announcement-card">
                     <div class="card-title">
                         <span>Announcements</span>
@@ -149,7 +169,9 @@
             </div>
         </div>
 
+        <!-- #page01.03.02: Right Column -->
         <div>
+            <!-- #page01.03.02.01: League Card -->
             <div class="card league-card" id="league-card-container">
                 <span class="material-icons-round info-icon" onclick="openLeagueModal()">info</span>
                 <div class="shield-icon-container">
@@ -166,6 +188,7 @@
                 </div>
             </div>
 
+            <!-- #page01.03.02.02: Stats Grid -->
             <div class="stats-grid">
                 <div class="card stat-box">
                     <div class="stat-label">TOTAL XP</div>
@@ -177,6 +200,7 @@
                 </div>
             </div>
 
+            <!-- #page01.03.02.03: Live Leaderboard Card -->
             <div class="card" style="margin-bottom: 24px;">
                 <div class="card-title">Live Leaderboard</div>
                 
@@ -205,6 +229,7 @@
                 </div>
             </div>
 
+            <!-- #page01.03.02.04: Word of the Day Card -->
             <div class="card vocab-card">
                 <div class="vocab-header"><span class="vocab-label">WORD OF THE DAY</span><span class="material-icons-round" style="color:var(--accent-violet); cursor:pointer;">refresh</span></div>
                 <div class="vocab-word">Ephemeral</div>
@@ -213,6 +238,7 @@
         </div>
     </div>
 
+    <!-- #page01.04: League Progression Modal -->
     <div id="league-modal" class="modal-overlay">
         <div class="modal">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -224,6 +250,7 @@
         </div>
     </div>
 
+    <!-- #page01.05: Main Dashboard Script -->
     <script src="dashboard.js"></script>
 
 </body>

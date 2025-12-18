@@ -1,7 +1,11 @@
+// #js/dashboard.js
+
+// #js.01: Firebase Initialization
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-// --- GAMIFICATION CONFIG ---
+// #js.02: Gamification Configuration
+// #js.02.01: LEAGUES Array
 const LEAGUES = [
     { name: "ROOKIE", limit: 1000, img: "assets/rookie.png" },
     { name: "SCHOLAR", limit: 2500, img: "assets/scholar.png" },
@@ -12,19 +16,22 @@ const LEAGUES = [
     { name: "LEGEND", limit: 1000000, img: "assets/legend.png" } 
 ];
 
+// #js.03: Page Load & Auth State
 window.onload = function() {
+    // #js.03.01: Auth State Change Listener
     auth.onAuthStateChanged(user => {
         if(user) {
+            // #js.03.01.01: User is signed in
             const username = user.email.split('@')[0].toUpperCase();
             document.getElementById('display-name').innerText = username;
             document.getElementById('user-rank-display').innerText = `#?? ${username}`;
             
-            // SAVE USER NAME TO DB (Required for Leaderboard)
+            // #js.03.01.02: Save user data to Firestore
             db.collection('users').doc(user.uid).set({ 
                 displayName: username 
             }, { merge: true });
 
-            // Listen to XP Changes
+            // #js.03.01.03: Listen for XP changes in real-time
             db.collection('users').doc(user.uid).onSnapshot(doc => {
                 if(doc.exists) {
                     const xp = doc.data().totalXP || 0;
@@ -32,30 +39,34 @@ window.onload = function() {
                     // Update the "User Rank Row" in the Podium card
                     document.getElementById('user-rank-xp').innerText = `${xp.toLocaleString()} XP`;
                 } else {
-                    // Init user if not exists
+                    // #js.03.01.03.01: Initialize user if they don't exist in Firestore
                     db.collection('users').doc(user.uid).set({ totalXP: 0, displayName: username }, { merge: true });
                     updateGamification(0);
                 }
             });
 
-            // FETCH LEADERBOARD FOR PODIUM
+            // #js.03.01.04: Fetch leaderboard data
             fetchLeaderboard();
-        } else { window.location.href = "login.html"; }
+        } else { 
+            // #js.03.01.05: User is not signed in, redirect to login
+            window.location.href = "login.html"; 
+        }
     });
 };
 
+// #js.04: Leaderboard Functions
 function fetchLeaderboard() {
-    // Get Top 3 Users ordered by totalXP Descending
+    // #js.04.01: Fetch top 3 users from Firestore
     db.collection('users').orderBy('totalXP', 'desc').limit(3).onSnapshot(snapshot => {
         const docs = snapshot.docs;
         
-        // Rank 1 (Gold)
+        // #js.04.01.01: Update Rank 1 (Gold)
         if(docs[0]) {
             document.getElementById('rank-1-name').innerText = docs[0].data().displayName || "User";
             document.getElementById('rank-1-score').innerText = (docs[0].data().totalXP || 0).toLocaleString();
         }
 
-        // Rank 2 (Silver)
+        // #js.04.01.02: Update Rank 2 (Silver)
         if(docs[1]) {
             document.getElementById('rank-2-name').innerText = docs[1].data().displayName || "User";
             document.getElementById('rank-2-score').innerText = (docs[1].data().totalXP || 0).toLocaleString();
@@ -64,7 +75,7 @@ function fetchLeaderboard() {
             document.getElementById('rank-2-score').innerText = "0";
         }
 
-        // Rank 3 (Bronze)
+        // #js.04.01.03: Update Rank 3 (Bronze)
         if(docs[2]) {
             document.getElementById('rank-3-name').innerText = docs[2].data().displayName || "User";
             document.getElementById('rank-3-score').innerText = (docs[2].data().totalXP || 0).toLocaleString();
@@ -75,10 +86,11 @@ function fetchLeaderboard() {
     });
 }
 
+// #js.05: Gamification UI Update
 function updateGamification(xp) {
     document.getElementById('total-xp').innerText = xp.toLocaleString();
     
-    // Determine League
+    // #js.05.01: Determine user's current league based on XP
     let currentLeagueIndex = 0;
     for(let i=0; i<LEAGUES.length; i++) {
         if(xp < LEAGUES[i].limit) {
@@ -95,11 +107,11 @@ function updateGamification(xp) {
     const prevLimit = currentLeagueIndex === 0 ? 0 : LEAGUES[currentLeagueIndex-1].limit;
     const nextLimit = currentLeague.limit;
     
-    // Update Card UI
+    // #js.05.02: Update League Card UI elements
     document.getElementById('league-name').innerText = currentLeague.name;
     document.getElementById('league-img').src = currentLeague.img;
     
-    // Calculate Progress Bar
+    // #js.05.03: Calculate and update XP progress bar
     const range = nextLimit - prevLimit;
     const progress = xp - prevLimit;
     const percentage = Math.min((progress / range) * 100, 100);
@@ -107,14 +119,16 @@ function updateGamification(xp) {
     document.getElementById('xp-bar').style.width = percentage + "%";
     document.getElementById('xp-text').innerText = `${xp} / ${nextLimit} XP`;
 
-    // Store for Modal
+    // #js.05.04: Store current league index for the modal
     window.currentLeagueIndex = currentLeagueIndex;
 }
 
+// #js.06: Modal Functions
 function openLeagueModal() {
     const container = document.getElementById('league-list-container');
     container.innerHTML = '';
     
+    // #js.06.01: Populate league list in the modal
     LEAGUES.forEach((lg, idx) => {
         const isCurrent = idx === window.currentLeagueIndex;
         const isUnlocked = idx <= window.currentLeagueIndex;
@@ -142,6 +156,7 @@ function openLeagueModal() {
 
 function closeLeagueModal() { document.getElementById('league-modal').style.display = 'none'; }
 
+// #js.07: Daily Quest Interaction
 function toggleCheck(el) {
     const icon = el.querySelector('.material-icons-round');
     const text = el.querySelector('.quest-text');
