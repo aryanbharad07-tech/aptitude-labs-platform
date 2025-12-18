@@ -7,13 +7,13 @@ const auth = firebase.auth();
 // #js.02: Gamification Configuration
 // #js.02.01: LEAGUES Array
 const LEAGUES = [
-    { name: "ROOKIE", limit: 1000, img: "assets/rookie.png" },
-    { name: "SCHOLAR", limit: 2500, img: "assets/scholar.png" },
-    { name: "ACHIEVER", limit: 5000, img: "assets/achiever.png" },
-    { name: "PRODIGY", limit: 10000, img: "assets/prodigy.png" },
-    { name: "ELITE", limit: 20000, img: "assets/elite.png" },
-    { name: "MASTER", limit: 35000, img: "assets/master.png" },
-    { name: "LEGEND", limit: 1000000, img: "assets/legend.png" } 
+    { name: "ROOKIE", limit: 1000, img: "assets/ROOKIE.png" },
+    { name: "SCHOLAR", limit: 2500, img: "assets/SCHOLAR.png" },
+    { name: "ACHIEVER", limit: 5000, img: "assets/ACHIEVER.png" },
+    { name: "PRODIGY", limit: 10000, img: "assets/PRODIGY.png" },
+    { name: "ELITE", limit: 20000, img: "assets/ELITE.png" },
+    { name: "MASTER", limit: 35000, img: "assets/MASTER.png" },
+    { name: "LEGEND", limit: 1000000, img: "assets/LEGEND.png" } 
 ];
 
 // #js.03: Page Load & Auth State
@@ -36,7 +36,6 @@ window.onload = function() {
                 if(doc.exists) {
                     const xp = doc.data().totalXP || 0;
                     updateGamification(xp);
-                    // Update the "User Rank Row" in the Podium card
                     document.getElementById('user-rank-xp').innerText = `${xp.toLocaleString()} XP`;
                 } else {
                     // #js.03.01.03.01: Initialize user if they don't exist in Firestore
@@ -47,8 +46,10 @@ window.onload = function() {
 
             // #js.03.01.04: Fetch leaderboard data
             fetchLeaderboard();
+            // #js.03.01.05: Load user's quests
+            loadQuests(user.uid);
         } else { 
-            // #js.03.01.05: User is not signed in, redirect to login
+            // #js.03.01.06: User is not signed in, redirect to login
             window.location.href = "login.html"; 
         }
     });
@@ -169,4 +170,62 @@ function toggleCheck(el) {
         icon.classList.add('checkbox'); icon.classList.remove('checkbox-unchecked');
         text.classList.add('strikethrough');
     }
+}
+
+// #js.08: Editable Quests
+function saveQuests() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const questsData = {
+        'quest-1': { 
+            text: document.querySelector('#quest-1 .quest-text').innerText,
+            checked: document.querySelector('#quest-1 .checkbox').textContent === 'check_box'
+        },
+        'quest-2': { 
+            text: document.querySelector('#quest-2 .quest-text').innerText,
+            checked: document.querySelector('#quest-2 .checkbox').textContent === 'check_box'
+        },
+        'quest-3': { 
+            text: document.querySelector('#quest-3 .quest-text').innerText,
+            checked: document.querySelector('#quest-3 .checkbox').textContent === 'check_box'
+        }
+    };
+
+    db.collection('quests').doc(user.uid).set(questsData).then(() => {
+        console.log("Quests saved!");
+        // Optional: Add a visual confirmation
+    }).catch(error => {
+        console.error("Error saving quests: ", error);
+    });
+}
+
+function loadQuests(userId) {
+    db.collection('quests').doc(userId).get().then(doc => {
+        if (doc.exists) {
+            const quests = doc.data();
+            for (const id in quests) {
+                const questEl = document.getElementById(id);
+                if (questEl) {
+                    questEl.querySelector('.quest-text').innerText = quests[id].text;
+                    const icon = questEl.querySelector('.material-icons-round');
+                    if (quests[id].checked) {
+                        icon.textContent = 'check_box';
+                        icon.classList.add('checkbox');
+                        icon.classList.remove('checkbox-unchecked');
+                        questEl.querySelector('.quest-text').classList.add('strikethrough');
+                    } else {
+                        icon.textContent = 'check_box_outline_blank';
+                        icon.classList.remove('checkbox');
+                        icon.classList.add('checkbox-unchecked');
+                        questEl.querySelector('.quest-text').classList.remove('strikethrough');
+                    }
+                }
+            }
+        } else {
+            // No saved quests, do nothing and leave the default quests.
+        }
+    }).catch(error => {
+        console.error("Error loading quests: ", error);
+    });
 }

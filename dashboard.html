@@ -87,18 +87,18 @@
             <div class="two-col-grid">
                 <!-- Daily Quests Card -->
                 <div class="card">
-                    <div class="card-title">Daily Quests</div>
-                    <div class="quest-item" onclick="toggleCheck(this)">
+                    <div class="card-title">Daily Quests<span class="material-icons-round save-quests-btn" onclick="saveQuests()">save</span></div>
+                    <div class="quest-item" id="quest-1" onclick="toggleCheck(this)">
                         <span class="material-icons-round checkbox">check_box</span>
-                        <span class="quest-text">Daily Quests in Sunday</span>
+                        <span class="quest-text" contenteditable="true">Daily Quests in Sunday</span>
                     </div>
-                    <div class="quest-item" onclick="toggleCheck(this)">
+                    <div class="quest-item" id="quest-2" onclick="toggleCheck(this)">
                         <span class="material-icons-round checkbox">check_box</span>
-                        <span class="quest-text">Daily Quests in 35 minutes</span>
+                        <span class="quest-text" contenteditable="true">Daily Quests in 35 minutes</span>
                     </div>
-                    <div class="quest-item" onclick="toggleCheck(this)">
+                    <div class="quest-item" id="quest-3" onclick="toggleCheck(this)">
                         <span class="material-icons-round checkbox-unchecked">check_box_outline_blank</span>
-                        <span class="quest-text">Daily Quests in Immutes</span>
+                        <span class="quest-text" contenteditable="true">Daily Quests in Immutes</span>
                     </div>
                 </div>
 
@@ -175,7 +175,7 @@
             <div class="card league-card" id="league-card-container">
                 <span class="material-icons-round info-icon" onclick="openLeagueModal()">info</span>
                 <div class="shield-icon-container">
-                    <img id="league-img" src="assets/rookie.png" alt="League" class="shield-img">
+                    <img id="league-img" src="assets/ROOKIE.png" alt="League" class="shield-img">
                 </div>
                 <div class="league-info">
                     <div class="league-label">CURRENT LEAGUE</div>
@@ -206,18 +206,18 @@
                 
                 <div class="podium-container" id="podium-container">
                     <div class="podium-place rank-2">
-                        <img src="https://i.pravatar.cc/100?img=5" class="avatar">
+                        <img src="https://i.pravatar.cc/100?img=5" class="avatar" alt="Rank 2 Avatar">
                         <div class="winner-name" id="rank-2-name">--</div>
                         <div class="rank-bar bar-silver" id="rank-2-score">0</div>
                     </div>
                     <div class="podium-place rank-1">
                         <span class="material-icons-round winner-crown">emoji_events</span>
-                        <img src="https://i.pravatar.cc/100?img=3" class="avatar" style="border-color:#FCD34D;">
+                        <img src="https://i.pravatar.cc/100?img=3" class="avatar" style="border-color:#FCD34D;" alt="Rank 1 Avatar">
                         <div class="winner-name" style="font-weight:800;" id="rank-1-name">--</div>
                         <div class="rank-bar bar-gold" id="rank-1-score">0</div>
                     </div>
                     <div class="podium-place rank-3">
-                        <img src="https://i.pravatar.cc/100?img=8" class="avatar">
+                        <img src="https://i.pravatar.cc/100?img=8" class="avatar" alt="Rank 3 Avatar">
                         <div class="winner-name" id="rank-3-name">--</div>
                         <div class="rank-bar bar-bronze" id="rank-3-score">0</div>
                     </div>
