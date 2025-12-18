@@ -1,5 +1,3 @@
-const firebaseConfig = { apiKey: "AIzaSyBTbfSlz0xvfBzAWmJzXDGbIC6Up0-6eU4", authDomain: "aptitudelabs-in.firebaseapp.com", projectId: "aptitudelabs-in", storageBucket: "aptitudelabs-in.firebasestorage.app", messagingSenderId: "175469863880", appId: "1:175469863880:web:b7b25ed27120665af716fd" };
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
