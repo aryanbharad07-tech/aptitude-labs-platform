@@ -4,22 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Aptitude Labs</title>
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-    
+
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
 
     <style>
-        /* --- THEME: CONNECTED AURORA --- */
+        /* --- THEME: TITANIUM AURORA --- */
         :root {
-            --bg-deep: #020617;       /* Darkest Blue */
-            --accent: #38bdf8;        /* Sky Blue */
+            --bg-deep: #0f111a;       /* Titanium Dark */
+            --accent: #38bdf8;        /* Neon Blue */
             --accent-glow: rgba(56, 189, 248, 0.6);
             --text-main: #F8FAFC;
             --text-muted: #94A3B8;
+            --glass-panel: rgba(30, 35, 45, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
@@ -30,73 +33,59 @@
             background-color: var(--bg-deep);
             overflow: hidden;
             color: var(--text-main);
-            /* Spotlight Variables */
             --mouse-x: 50%;
             --mouse-y: 50%;
         }
 
-        /* --- 1. LEFT SIDE: BRANDING (Themed Background) --- */
+        /* --- LEFT SIDE: BRANDING --- */
         .brand-section {
             flex: 1.3;
             position: relative;
             z-index: 10;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start; /* Text at Top */
+            justify-content: flex-start;
             padding: 100px 80px;
             overflow: hidden;
         }
 
-        /* Campus Image Background */
         .brand-bg {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('campus-vector.jpg'); 
+            background-image: url('campus-vector.jpg');
             background-size: cover;
             background-position: center;
             z-index: -2;
-            opacity: 0.6; /* Visible but subtle */
+            opacity: 0.4;
             animation: panImage 30s infinite alternate ease-in-out;
         }
         @keyframes panImage { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
 
-        /* THEME OVERLAY (Connects to Dashboard) */
         .brand-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            /* Deep Blue/Slate Gradient */
-            background: linear-gradient(135deg, rgba(2, 6, 23, 0.95) 0%, rgba(15, 23, 42, 0.85) 100%);
+            background: linear-gradient(135deg, rgba(15, 17, 26, 0.95) 0%, rgba(15, 23, 42, 0.85) 100%);
             z-index: -1;
         }
 
-        /* Interactive Grid (Subtle) */
         .grid-spotlight {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: 
+            background-image:
                 linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
             background-size: 50px 50px;
-            mask-image: radial-gradient(
-                600px circle at var(--mouse-x) var(--mouse-y),
-                black, transparent
-            );
-            -webkit-mask-image: radial-gradient(
-                600px circle at var(--mouse-x) var(--mouse-y),
-                black, transparent
-            );
+            mask-image: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), black, transparent);
+            -webkit-mask-image: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), black, transparent);
             z-index: 0;
             pointer-events: none;
         }
 
-        /* Content */
-        .logo-text { 
-            font-size: 1.25rem; font-weight: 700; margin-bottom: 30px; 
+        .logo-text {
+            font-size: 1.25rem; font-weight: 700; margin-bottom: 30px;
             display: flex; align-items: center; gap: 10px; color: var(--accent);
             text-transform: uppercase; letter-spacing: 2px;
         }
-        .logo-text i { font-size: 1.6rem; }
 
-        /* Spotlight Text Effect */
-        .hero-title { 
-            font-size: 4.5rem; font-weight: 800; line-height: 1.05; margin-bottom: 25px; 
+        .hero-title {
+            font-size: 4.5rem; font-weight: 800; line-height: 1.05; margin-bottom: 25px;
             letter-spacing: -1.5px; color: white;
         }
         .shimmer-text {
@@ -109,114 +98,86 @@
         }
         @keyframes shine { to { background-position: 200% center; } }
 
-        .hero-desc { 
-            font-size: 1.15rem; line-height: 1.6; color: #cbd5e1; margin-bottom: 45px; 
-            max-width: 90%; font-weight: 400; 
+        .hero-desc {
+            font-size: 1.15rem; line-height: 1.6; color: #cbd5e1; margin-bottom: 45px;
+            max-width: 90%; font-weight: 400;
             border-left: 3px solid var(--accent); padding-left: 20px;
         }
 
-        /* Glass Icons Stack */
         .features { display: flex; flex-direction: column; gap: 20px; margin-top: 10px; }
         .feat-badge {
             background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 12px 20px; border-radius: 16px; 
+            border: 1px solid var(--glass-border);
+            padding: 12px 20px; border-radius: 16px;
             font-size: 1rem; font-weight: 500;
-            display: flex; align-items: center; gap: 15px; 
-            backdrop-filter: blur(5px);
-            color: #e2e8f0; width: fit-content;
+            display: flex; align-items: center; gap: 15px;
+            backdrop-filter: blur(5px); color: #e2e8f0; width: fit-content;
             transition: 0.3s;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
-        .feat-badge:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--accent);
-            transform: translateX(10px);
-        }
-        
+        .feat-badge:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--accent); transform: translateX(10px); }
         .icon-box {
             width: 36px; height: 36px;
             background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: inset 0 2px 5px rgba(255,255,255,0.1), 0 5px 10px rgba(0,0,0,0.3);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
             border: 1px solid rgba(255,255,255,0.1);
         }
         .icon-box i { color: var(--accent); font-size: 1.2rem; }
 
-
-        /* --- 2. RIGHT SIDE: LOGIN PORTAL (Solid Theme) --- */
+        /* --- RIGHT SIDE: LOGIN FORM --- */
         .login-section {
-            flex: 0.8;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            z-index: 10;
-            background: #020617; /* Solid Dark to match Dashboard BG */
-            border-left: 1px solid rgba(255,255,255,0.05);
+            flex: 0.8; display: flex; align-items: center; justify-content: center;
+            padding: 40px; z-index: 10;
+            background: var(--bg-deep);
+            border-left: 1px solid var(--glass-border);
         }
 
-        /* Diamond Cut Login Card */
         .login-card {
-            width: 100%; max-width: 420px;
-            padding: 48px;
-            background: rgba(15, 23, 42, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-top: 1px solid rgba(255, 255, 255, 0.3); 
-            border-left: 1px solid rgba(255, 255, 255, 0.15);
+            width: 100%; max-width: 420px; padding: 48px;
+            background: var(--glass-panel);
+            border: 1px solid var(--glass-border);
             border-radius: 24px;
             box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.5);
-            position: relative;
-            overflow: hidden;
+            backdrop-filter: blur(20px);
         }
 
         .form-header h2 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; color: white; letter-spacing: -0.5px; }
         .form-header p { color: var(--text-muted); margin-bottom: 40px; font-size: 0.95rem; }
 
-        /* Inner Glow Inputs */
-        .input-group { margin-bottom: 25px; position: relative; }
+        .input-group { margin-bottom: 25px; }
         .input-group label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
-        
+
         .input-wrapper { position: relative; }
-        .input-wrapper i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #64748b; font-size: 1.3rem; transition: 0.3s; pointer-events: none; }
-        
+        .input-wrapper i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #64748b; font-size: 1.3rem; pointer-events: none; }
+
         input {
-            width: 100%; padding: 16px 16px 16px 48px; 
-            background: rgba(0, 0, 0, 0.3); 
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px; color: white; font-size: 1rem; font-weight: 500;
+            width: 100%; padding: 16px 16px 16px 48px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px; color: white; font-size: 1rem;
             transition: all 0.3s ease;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); 
         }
         input:focus {
             outline: none; border-color: var(--accent);
             background: rgba(0, 0, 0, 0.5);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 0 15px rgba(56, 189, 248, 0.2);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
         }
         input:focus + i { color: var(--accent); }
 
-        /* Magnetic Buttons */
         .btn-primary {
             width: 100%; padding: 16px; border: none; border-radius: 12px;
             background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
             color: #0f172a; font-size: 1rem; font-weight: 700;
-            cursor: pointer; margin-bottom: 16px; transition: 0.1s;
+            cursor: pointer; margin-bottom: 16px; transition: 0.3s;
             box-shadow: 0 10px 30px rgba(56, 189, 248, 0.25);
-            position: relative; z-index: 2;
         }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 15px 40px rgba(56, 189, 248, 0.4); }
+
         .btn-secondary {
             width: 100%; padding: 16px; background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px;
-            color: var(--text-muted); font-weight: 600; cursor: pointer; transition: 0.1s;
-            font-size: 0.9rem; position: relative; z-index: 2;
+            border: 1px solid var(--glass-border); border-radius: 12px;
+            color: var(--text-muted); font-weight: 600; cursor: pointer; transition: 0.2s;
         }
         .btn-secondary:hover { border-color: var(--accent); color: white; background: rgba(56, 189, 248, 0.05); }
-
-        .resend-link { display: block; text-align: center; margin-top: 24px; font-size: 0.85rem; color: var(--text-muted); text-decoration: none; cursor: pointer; display: none; }
-        .resend-link:hover { color: var(--accent); text-decoration: underline; }
 
         .notification { margin-top: 20px; padding: 12px; border-radius: 8px; font-size: 0.85rem; display: none; text-align: center; }
         .notif-error { background: rgba(239, 68, 68, 0.1); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.2); }
@@ -225,150 +186,115 @@
         @media (max-width: 1100px) {
             body { flex-direction: column; overflow-y: auto; height: auto; }
             .brand-section { padding: 80px 40px; min-height: 500px; justify-content: center; text-align: center; }
-            .features { align-items: center; }
-            .login-section { padding: 60px 20px; min-height: 600px; border-left: none; border-top: 1px solid rgba(255,255,255,0.05); }
+            .login-section { padding: 60px 20px; min-height: 600px; border-left: none; }
         }
     </style>
 </head>
 <body>
 
-    <div class="brand-section">
-        <div class="brand-bg"></div> <div class="brand-overlay"></div> <div class="grid-spotlight"></div> <div class="brand-content">
-            <div class="logo-text"><i class="material-icons-round">token</i> APTITUDE LABS</div>
-            
-            <h1 class="hero-title">
-                Crack the Code<br>to <span class="shimmer-text">IIMs.</span>
-            </h1>
-            
-            <p class="hero-desc">
-                Join India's most advanced adaptive learning ecosystem. Experience a mock environment 100% identical to the actual exam interface.
-            </p>
-            
-            <div class="features">
-                <div class="feat-badge">
-                    <div class="icon-box"><i class="material-icons-round">sports_esports</i></div> 
-                    Gamification
-                </div>
-                <div class="feat-badge">
-                    <div class="icon-box"><i class="material-icons-round">emoji_events</i></div> 
-                    AIR Mocks
-                </div>
-                <div class="feat-badge">
-                    <div class="icon-box"><i class="material-icons-round">school</i></div> 
-                    Mentorships
-                </div>
-            </div>
+<div class="brand-section">
+    <div class="brand-bg"></div> <div class="brand-overlay"></div> <div class="grid-spotlight"></div>
+    <div class="brand-content">
+        <div class="logo-text"><i class="material-icons-round">token</i> APTITUDE LABS</div>
+        <h1 class="hero-title">Crack the Code<br>to <span class="shimmer-text">IIMs.</span></h1>
+        <p class="hero-desc">Join India's most advanced adaptive learning ecosystem.</p>
+        <div class="features">
+            <div class="feat-badge"><div class="icon-box"><i class="material-icons-round">sports_esports</i></div> Gamification</div>
+            <div class="feat-badge"><div class="icon-box"><i class="material-icons-round">emoji_events</i></div> AIR Mocks</div>
+            <div class="feat-badge"><div class="icon-box"><i class="material-icons-round">school</i></div> Mentorships</div>
         </div>
     </div>
+</div>
 
-    <div class="login-section">
-        <div class="login-card">
-            <div class="form-header">
-                <h2>Login Portal</h2>
-                <p>Authenticate to access your dashboard.</p>
-            </div>
-
-            <div class="input-group">
-                <label>Student Email</label>
-                <div class="input-wrapper">
-                    <input type="email" id="email" placeholder="name@example.com">
-                    <i class="material-icons-round">alternate_email</i>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <label>Password</label>
-                <div class="input-wrapper">
-                    <input type="password" id="password" placeholder="••••••••">
-                    <i class="material-icons-round">lock</i>
-                </div>
-            </div>
-
-            <button class="btn-primary magnetic-btn" id="loginBtn">INITIALIZE SESSION</button>
-            <button class="btn-secondary magnetic-btn" id="signupBtn">CREATE NEW ACCOUNT</button>
-
-            <a id="resendBtn" class="resend-link">Verification missing? Resend Link</a>
-
-            <div id="status-msg" class="notification"></div>
+<div class="login-section">
+    <div class="login-card">
+        <div class="form-header">
+            <h2>Login Portal</h2>
+            <p>Authenticate to access your dashboard.</p>
         </div>
+        <div class="input-group">
+            <label>Student Email</label>
+            <div class="input-wrapper">
+                <input type="email" id="email" placeholder="name@example.com">
+                <i class="material-icons-round">alternate_email</i>
+            </div>
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <div class="input-wrapper">
+                <input type="password" id="password" placeholder="••••••••">
+                <i class="material-icons-round">lock</i>
+            </div>
+        </div>
+        <button class="btn-primary" id="loginBtn">INITIALIZE SESSION</button>
+        <button class="btn-secondary" id="signupBtn">CREATE NEW ACCOUNT</button>
+        <div id="status-msg" class="notification"></div>
     </div>
+</div>
 
-    <script>
-        // Spotlight & Magnetic Effects
-        document.addEventListener('mousemove', (e) => {
-            document.body.style.setProperty('--mouse-x', e.clientX + 'px');
-            document.body.style.setProperty('--mouse-y', e.clientY + 'px');
-        });
+<script>
+    // Mouse Spotlight Effect
+    document.addEventListener('mousemove', (e) => {
+        document.body.style.setProperty('--mouse-x', e.clientX + 'px');
+        document.body.style.setProperty('--mouse-y', e.clientY + 'px');
+    });
 
-        const btns = document.querySelectorAll('.magnetic-btn');
-        btns.forEach(btn => {
-            btn.addEventListener('mousemove', (e) => {
-                const rect = btn.getBoundingClientRect();
-                const x = e.clientX - rect.left - rect.width / 2;
-                const y = e.clientY - rect.top - rect.height / 2;
-                btn.style.transform = `translate(${x * 0.15}px, ${y * 0.15}px)`;
-            });
-            btn.addEventListener('mouseleave', () => { btn.style.transform = 'translate(0, 0)'; });
-        });
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const emailInput = document.getElementById("email");
+    const passInput = document.getElementById("password");
+    const statusMsg = document.getElementById("status-msg");
 
-        // Firebase Config
-        const firebaseConfig = { apiKey: "AIzaSyBTbfSlz0xvfBzAWmJzXDGbIC6Up0-6eU4", authDomain: "aptitudelabs-in.firebaseapp.com", projectId: "aptitudelabs-in", storageBucket: "aptitudelabs-in.firebasestorage.app", messagingSenderId: "175469863880", appId: "1:175469863880:web:b7b25ed27120665af716fd" };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+    function showMessage(msg, type) {
+        statusMsg.style.display = 'block';
+        statusMsg.innerText = msg;
+        statusMsg.className = `notification ${type === 'error' ? 'notif-error' : 'notif-success'}`;
+    }
 
-        const emailInput = document.getElementById("email");
-        const passInput = document.getElementById("password");
-        const statusMsg = document.getElementById("status-msg");
-        const resendBtn = document.getElementById("resendBtn");
+    // LOGIN LOGIC - UPDATED TO CHECK PROFILE STATUS
+    document.getElementById("loginBtn").addEventListener("click", () => {
+        const email = emailInput.value;
+        const pass = passInput.value;
+        statusMsg.style.display = 'none';
 
-        function showMessage(msg, type) {
-            statusMsg.style.display = 'block';
-            statusMsg.innerText = msg;
-            statusMsg.className = `notification ${type === 'error' ? 'notif-error' : 'notif-success'}`;
-        }
-
-        document.getElementById("loginBtn").addEventListener("click", () => {
-            const email = emailInput.value;
-            const pass = passInput.value;
-            statusMsg.style.display = 'none'; 
-            auth.signInWithEmailAndPassword(email, pass)
-                .then((userCredential) => {
-                    if (userCredential.user.emailVerified) window.location.href = "dashboard.html";
-                    else {
-                        auth.signOut();
-                        showMessage("Access Denied: Email not verified.", "error");
-                        resendBtn.style.display = "block";
+        auth.signInWithEmailAndPassword(email, pass)
+            .then(async (userCredential) => {
+                const user = userCredential.user;
+                if (user.emailVerified) {
+                    // Check if profile is complete
+                    try {
+                        const doc = await db.collection('users').doc(user.uid).get();
+                        if (doc.exists && doc.data().profileComplete) {
+                            window.location.href = "dashboard.html";
+                        } else {
+                            window.location.href = "create-profile.html";
+                        }
+                    } catch (e) {
+                        console.error("Profile Check Error:", e);
+                        window.location.href = "create-profile.html"; // Fallback safety
                     }
-                })
-                .catch((error) => showMessage(error.message, "error"));
-        });
+                } else {
+                    auth.signOut();
+                    showMessage("Access Denied: Email not verified.", "error");
+                }
+            })
+            .catch((error) => showMessage(error.message, "error"));
+    });
 
-        document.getElementById("signupBtn").addEventListener("click", () => {
-            const email = emailInput.value;
-            const pass = passInput.value;
-            statusMsg.style.display = 'none';
-            auth.createUserWithEmailAndPassword(email, pass)
-                .then((userCredential) => {
-                    userCredential.user.sendEmailVerification().then(() => {
-                        showMessage(`Verification link sent to ${email}. Check Spam!`, "success");
-                        auth.signOut();
-                    });
-                })
-                .catch((error) => showMessage(error.message, "error"));
-        });
-
-        resendBtn.addEventListener("click", () => {
-            const email = emailInput.value;
-            const pass = passInput.value;
-            auth.signInWithEmailAndPassword(email, pass)
-                .then((userCredential) => { 
-                    userCredential.user.sendEmailVerification().then(() => {
-                        showMessage(`Verification link sent to ${email}. Check Spam!`, "success");
-                        auth.signOut();
-                    });
-                })
-                .catch((error) => showMessage("Enter correct credentials to resend.", "error"));
-        });
-    </script>
+    // SIGNUP LOGIC
+    document.getElementById("signupBtn").addEventListener("click", () => {
+        const email = emailInput.value;
+        const pass = passInput.value;
+        statusMsg.style.display = 'none';
+        auth.createUserWithEmailAndPassword(email, pass)
+            .then((userCredential) => {
+                userCredential.user.sendEmailVerification().then(() => {
+                    showMessage(`Verification link sent to ${email}. Check Spam!`, "success");
+                    auth.signOut();
+                });
+            })
+            .catch((error) => showMessage(error.message, "error"));
+    });
+</script>
 </body>
 </html>

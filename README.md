@@ -39,6 +39,36 @@ Example:
 
 ---
 
+## Session 2: New Features & Bug Fixes
+
+### #TASK-03: Implement Editable Daily Quests
+- **Objective:** Allow users to edit and save their own Daily Quests.
+- **Symptom:** Quest text was static and could not be modified by the user.
+- **Action:**
+    1.  **`#html/dashboard.html` (`#page01.03.01.02`):**
+        - Added `contenteditable="true"` to the `.quest-text` spans.
+        - Added unique IDs (`quest-1`, `quest-2`, `quest-3`) to each `.quest-item`.
+        - Added a `save` icon to the card title with an `onclick="saveQuests()"` event.
+    2.  **`#css/dashboard.css` (`#css.15`):**
+        - Added styles for the new `.save-quests-btn`.
+        - Added a `:focus` style for the editable quest text to provide a visual cue.
+    3.  **`#js/dashboard.js` (`#js.08`, `#js.03.01.05`):**
+        - Created a `saveQuests()` function to get the text and checked state of the three quests and save them to a `quests` collection in Firestore under the user's UID.
+        - Created a `loadQuests()` function to retrieve the saved quest data from Firestore.
+        - Updated the `onAuthStateChanged` listener to call `loadQuests()` on user login.
+- **Result:** **IMPLEMENTED**. Quests are now editable and persistent for each user.
+
+### #TASK-04: Fix Podium Accessibility & Typo
+- **Objective:** Correct accessibility and HTML errors in the leaderboard podium.
+- **Symptom:** An `<img>` tag was missing an `alt` attribute and a `<div>` had a class name typo.
+- **Location:** `#html/dashboard.html` -> `#page01.03.02.03`
+- **Action:**
+    - Added `alt` attributes to all three avatar images in the podium.
+    - Corrected `class="winner-.name"` to `class="winner-name"`.
+- **Result:** **FIXED**. The HTML is now valid and more accessible.
+
+---
+
 ## Session 1: Initial Dashboard Troubleshooting
 
 ### Objective

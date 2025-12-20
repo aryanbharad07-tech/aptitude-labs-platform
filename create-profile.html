@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Profile | Aptitude Labs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="stylesheet" href="create-profile.css">
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+</head>
+<body>
+
+<div class="dashboard-backdrop" id="backdrop">
+    <div class="db-sidebar"></div>
+    <div class="db-main">
+        <div class="db-header"></div>
+        <div class="db-grid">
+            <div class="db-card big"></div>
+            <div class="db-card small"></div>
+            <div class="db-card medium"></div>
+        </div>
+    </div>
+    <div class="glass-overlay" id="blur-layer"></div>
+</div>
+
+<div class="container">
+    <div class="profile-card" id="main-card">
+
+        <div class="card-header">
+            <div class="step-indicator">ONBOARDING STEP 1/1</div>
+            <h1>Student Profile</h1>
+            <p>Please complete your details to personalize your learning path.</p>
+        </div>
+
+        <form id="profile-form">
+            <div class="form-body">
+                <div class="pfp-section">
+                    <div class="pfp-wrapper">
+                        <img id="profile-pic-preview" src="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23334155'%3e%3cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3e%3c/svg%3e">
+                        <div class="pfp-overlay" onclick="document.getElementById('photo-upload').click()">
+                            <span class="material-icons-round">edit</span>
+                        </div>
+                    </div>
+                    <input type="file" id="photo-upload" accept="image/*" hidden>
+                    <div class="pfp-label">UPLOAD PHOTO</div>
+                </div>
+
+                <div class="details-section">
+                    <div class="form-row">
+                        <div class="form-group floating">
+                            <input type="text" id="name" placeholder=" " required>
+                            <label for="name">Full Name</label>
+                        </div>
+                        <div class="form-group floating">
+                            <input type="text" id="username" placeholder=" " required>
+                            <label for="username">Username</label>
+                            <div class="status-indicator" id="username-status"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group floating">
+                            <input type="email" id="email" placeholder=" " disabled>
+                            <label for="email">Email Address</label>
+                        </div>
+                        <div class="form-group floating">
+                            <input type="tel" id="phone" placeholder=" " required>
+                            <label for="phone">Mobile Number</label>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <select id="student-type" required>
+                                <option value="" disabled selected>Current Academic Status</option>
+                                <option value="11th">Class 11 Student</option>
+                                <option value="12th">Class 12 Student</option>
+                                <option value="full-dropper">Dropper (Gap Year)</option>
+                                <option value="partial-dropper">Partial Dropper (College Student)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select id="target-year" required>
+                                <option value="" disabled selected>Target Exam Year</option>
+                                <option value="2025">IPMAT 2025</option>
+                                <option value="2026">IPMAT 2026</option>
+                                <option value="2027">IPMAT 2027</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group floating">
+                            <input type="text" id="city" placeholder=" " required>
+                            <label for="city">City</label>
+                        </div>
+                        <div class="form-group">
+                            <select id="gender" required>
+                                <option value="" disabled selected>Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group floating">
+                        <input type="text" id="coaching" placeholder=" ">
+                        <label for="coaching">Current Coaching Institute (Optional)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <button type="submit" class="submit-btn" id="submit-btn">
+                    <span class="btn-text">SAVE & CONTINUE</span>
+                    <span class="btn-glare"></span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="create-profile.js"></script>
+</body>
+</html>
