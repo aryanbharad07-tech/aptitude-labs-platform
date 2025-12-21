@@ -111,7 +111,7 @@ profileForm.addEventListener('submit', async (e) => {
 
         photoURL: profilePicPreview.src,
         profileComplete: true,
-        totalXP: 0,
+        league: { lifetimeXP: 0 },
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 

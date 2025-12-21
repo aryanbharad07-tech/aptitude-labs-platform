@@ -357,28 +357,73 @@ function startTimer() {
 }
 
 // --- SUBMIT ---
-function submitExam(auto = false) {
+async function submitExam(auto = false) {
     if (!auto && !confirm("Are you sure you want to Submit?")) return;
-    
-    // Calculate Score locally for immediate feedback (optional)
-    let score = 0, correct = 0, wrong = 0;
-    
+
+    clearInterval(timerInterval);
+
+    let score = 0, correct = 0, wrong = 0, attempted = 0;
+
     allQuestions.forEach(q => {
         const u = userAnswers[q.id];
-        if(u && (u.status === 'answered' || u.status === 'ans-marked')) {
-            if(u.answer === q.correct) { score += 4; correct++; }
-            else if(q.type !== 'SA') { score -= 1; wrong++; } // No neg for SA
+        if (u && (u.status === 'answered' || u.status === 'ans-marked')) {
+            attempted++;
+            if (u.answer === q.correct) { score += 4; correct++; }
+            else if (q.type !== 'SA') { score -= 1; wrong++; }
         }
     });
 
-    db.collection("testResults").add({
-        mockId: activeMockId,
-        studentName: auth.currentUser.email,
-        score: score, correct: correct, wrong: wrong,
-        totalMarks: allQuestions.length * 4,
-        timestamp: new Date(),
-        answers: userAnswers
-    }).then(() => {
-        window.location.href = "solutions.html";
-    });
+    const xpGained = Math.round(score * 0.5 + attempted * 1.5);
+    const user = auth.currentUser;
+
+    if (user) {
+        const userRef = db.collection("users").doc(user.uid);
+        const mockResultRef = db.collection("mocks").doc(`${user.uid}_${activeMockId}`);
+        const increment = firebase.firestore.FieldValue.increment(xpGained);
+
+        try {
+            const batch = db.batch();
+
+            // Correctly and atomically increment the user's XP
+            batch.update(userRef, { 'league.lifetimeXP': increment });
+
+            // Set the mock result
+            batch.set(mockResultRef, {
+                mockId: activeMockId,
+                studentName: user.email,
+                score: score, correct: correct, wrong: wrong, attempted: attempted,
+                totalMarks: allQuestions.length * 4, xpGained: xpGained,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                answers: userAnswers
+            });
+
+            await batch.commit();
+
+            localStorage.setItem("activeMockId", activeMockId);
+            window.location.href = "analysis.html";
+
+        } catch (err) {
+             // If the update fails (e.g., user doc or league doesn't exist), try a safe merge
+            console.warn("Atomic update failed, falling back to safe merge. Error:", err);
+            try {
+                const batch_fallback = db.batch();
+                batch_fallback.set(userRef, { league: { lifetimeXP: increment } }, { merge: true });
+                batch_fallback.set(mockResultRef, {
+                    mockId: activeMockId, studentName: user.email, score: score,
+                    correct: correct, wrong: wrong, attempted: attempted,
+                    totalMarks: allQuestions.length * 4, xpGained: xpGained,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    answers: userAnswers
+                });
+                await batch_fallback.commit();
+                localStorage.setItem("activeMockId", activeMockId);
+                window.location.href = "analysis.html";
+            } catch (fallback_err) {
+                console.error("Fallback batch write failed: ", fallback_err);
+                alert("Failed to save results. Please check connection and try again.");
+            }
+        }
+    } else {
+        alert("No user logged in. Results cannot be saved.");
+    }
 }

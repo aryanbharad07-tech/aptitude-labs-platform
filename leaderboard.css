@@ -1,0 +1,75 @@
+.leaderboard-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: var(--bg-card);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+}
+
+.leaderboard-header h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.leaderboard-header p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
+
+#leaderboard-list .leaderboard-entry {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    background: var(--bg-deep);
+    border: 1px solid transparent;
+    transition: background 0.3s, border-color 0.3s;
+}
+
+#leaderboard-list .leaderboard-entry:hover {
+    background: rgba(var(--accent-neon-rgb), 0.05);
+    border-color: rgba(var(--accent-neon-rgb), 0.2);
+}
+
+.leaderboard-entry .rank {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-secondary);
+    width: 50px;
+}
+
+.leaderboard-entry .user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 1rem;
+}
+
+.leaderboard-entry .user-info {
+    flex-grow: 1;
+}
+
+.leaderboard-entry .user-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.leaderboard-entry .user-xp {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--accent-neon);
+    font-family: 'Rajdhani', sans-serif;
+}
+
+/* Top 3 ranks styling */
+.leaderboard-entry.rank-1 .rank { color: #FFD700; }
+.leaderboard-entry.rank-2 .rank { color: #C0C0C0; }
+.leaderboard-entry.rank-3 .rank { color: #CD7F32; }

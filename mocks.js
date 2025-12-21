@@ -2,7 +2,7 @@
 const SERIES_CONFIG = {
     "INDORE": { count: 20, prefix: "INDORE", isLocked: true, maxMarks: 360, baseXP: 500 },
     "ROHTAK": { count: 20, prefix: "ROHTAK", isLocked: true, maxMarks: 480, baseXP: 600 },
-    "JIPMAT": { count: 20, prefix: "JIPMAT", isLocked: true, maxMarks: 400, baseXP: 550 },
+    "JIPMAT": { count: 20, prefix: "JIPMAT", isLocked: true, maxMarks: 550, baseXP: 550 },
     "IIMKBMSAT": { count: 5, prefix: "BMSAT", isLocked: true, maxMarks: 400, baseXP: 500 }
 };
 
@@ -11,11 +11,29 @@ let hideCompleted = false; // Filter State
 // --- 2. CORE FUNCTIONS ---
 
 function handleMockAction(mockId, isAttempted) {
-    const config = SERIES_CONFIG[mockId.split('-')[0]];
-    if (mockId === 'TEST-MOCK-01') return selectMock(mockId);
-    if (isAttempted) return; // In real app, go to analysis
-    if (config && config.isLocked) { alert('Series Locked.'); return; }
-    selectMock(mockId);
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        alert("You must be logged in to start a mock exam.");
+        return;
+    }
+
+    const db = firebase.firestore();
+    const mockRef = db.collection("mocks").doc(`${user.uid}_${mockId}`);
+
+    mockRef.get().then((doc) => {
+        if (doc.exists) {
+            alert("You have already submitted this mock exam.");
+        } else {
+            const config = SERIES_CONFIG[mockId.split('-')[0]];
+            if (mockId === 'TEST-MOCK-01') return selectMock(mockId);
+            if (isAttempted) return; // In real app, go to analysis
+            if (config && config.isLocked) { alert('Series Locked.'); return; }
+            selectMock(mockId);
+        }
+    }).catch((error) => {
+        console.error("Error checking mock submission:", error);
+        alert("Could not verify mock submission status. Please try again.");
+    });
 }
 
 function selectMock(mockId) {

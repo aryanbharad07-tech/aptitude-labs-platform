@@ -1,12 +1,12 @@
 /* gamification.js */
 const LEAGUE_CONFIG = {
-    1: { name: "ROOKIE", theme: "theme-rookie", image: "assets/rookie.png", xpBoost: 5, perks: "Daily Bonus", color: "#D97706" },
-    2: { name: "SCHOLAR", theme: "theme-scholar", image: "assets/scholar.png", xpBoost: 10, perks: "Access Library", color: "#059669" },
-    3: { name: "ACHIEVER", theme: "theme-achiever", image: "assets/achiever.png", xpBoost: 15, perks: "Weekly Challenges", color: "#B45309" },
-    4: { name: "PRODIGY", theme: "theme-prodigy", image: "assets/prodigy.png", xpBoost: 20, perks: "Mentor Access", color: "#6D28D9" },
-    5: { name: "ELITE", theme: "theme-elite", image: "assets/elite.png", xpBoost: 25, perks: "VIP Events", color: "#065F46" },
-    6: { name: "MASTER", theme: "theme-master", image: "assets/master.png", xpBoost: 30, perks: "Elite Rewards", color: "#1E40AF" },
-    7: { name: "LEGEND", theme: "theme-legend", image: "assets/legend.png", xpBoost: 50, perks: "Hall of Fame", color: "#312E81" }
+    1: { name: "ROOKIE", theme: "theme-rookie", image: "assets/ROOKIE.png", xpBoost: 5, perks: "Daily Bonus", color: "#D97706" },
+    2: { name: "SCHOLAR", theme: "theme-scholar", image: "assets/SCHOLAR.png", xpBoost: 10, perks: "Access Library", color: "#059669" },
+    3: { name: "ACHIEVER", theme: "theme-achiever", image: "assets/ACHIEVER.png", xpBoost: 15, perks: "Weekly Challenges", color: "#B45309" },
+    4: { name: "PRODIGY", theme: "theme-prodigy", image: "assets/PRODIGY.png", xpBoost: 20, perks: "Mentor Access", color: "#6D28D9" },
+    5: { name: "ELITE", theme: "theme-elite", image: "assets/ELITE.png", xpBoost: 25, perks: "VIP Events", color: "#065F46" },
+    6: { name: "MASTER", theme: "theme-master", image: "assets/MASTER.png", xpBoost: 30, perks: "Elite Rewards", color: "#1E40AF" },
+    7: { name: "LEGEND", theme: "theme-legend", image: "assets/LEGEND.png", xpBoost: 50, perks: "Hall of Fame", color: "#312E81" }
 };
 
 async function initGamification(user, username) {

@@ -14,31 +14,39 @@ const LEAGUES = [
 ];
 
 window.onload = function() {
-    auth.onAuthStateChanged(async user => {
+    auth.onAuthStateChanged(user => {
         if(user) {
-            // --- SECURITY: PROFILE CHECK ---
-            // Ensure user has completed profile setup
-            const userDoc = await db.collection('users').doc(user.uid).get();
-            if (!userDoc.exists || !userDoc.data().profileComplete) {
-                window.location.href = "create-profile.html";
-                return;
-            }
-            // -------------------------------
+            const userDocRef = db.collection('users').doc(user.uid);
 
-            const userData = userDoc.data();
-            // Use username from profile or fallback to email
-            const displayName = userData.username || userData.displayName || user.email.split('@')[0];
-
-            document.getElementById('display-name').innerText = displayName.toUpperCase();
-            document.getElementById('user-rank-display').innerText = `@${displayName}`;
-
-            // Listen for XP changes
-            db.collection('users').doc(user.uid).onSnapshot(doc => {
-                if(doc.exists) {
-                    const xp = doc.data().totalXP || 0;
-                    updateGamification(xp);
-                    document.getElementById('user-rank-xp').innerText = `${xp.toLocaleString()} XP`;
+            userDocRef.onSnapshot(async doc => {
+                if (!doc.exists || !doc.data().profileComplete) {
+                    window.location.href = "create-profile.html";
+                    return;
                 }
+
+                let userData = doc.data();
+
+                // Safe data migration for users with old 'totalXP' structure
+                if (userData.totalXP !== undefined && userData.league === undefined) {
+                    await userDocRef.update({
+                        'league.lifetimeXP': userData.totalXP,
+                        'totalXP': firebase.firestore.FieldValue.delete()
+                    });
+                    // The onSnapshot listener will automatically pick up this change and re-render
+                    return; // Exit this snapshot handler to avoid rendering with old data
+                }
+
+                const displayName = userData.username || userData.displayName || user.email.split('@')[0];
+
+                document.getElementById('display-name').innerText = displayName.toUpperCase();
+                document.getElementById('user-rank-display').innerText = `@${displayName}`;
+
+                const xp = (userData.league && userData.league.lifetimeXP) ? userData.league.lifetimeXP : 0;
+                const streak = userData.streak || 0;
+
+                updateGamification(xp);
+                document.getElementById('user-rank-xp').innerText = `${xp.toLocaleString()} XP`;
+                document.getElementById('streak-count').innerText = streak;
             });
 
             fetchLeaderboard();
@@ -50,21 +58,17 @@ window.onload = function() {
 };
 
 function fetchLeaderboard() {
-    db.collection('users').orderBy('totalXP', 'desc').limit(3).onSnapshot(snapshot => {
+    db.collection('users').orderBy('league.lifetimeXP', 'desc').limit(3).onSnapshot(snapshot => {
         const docs = snapshot.docs;
         const ranks = ['1', '2', '3'];
 
         ranks.forEach((r, i) => {
             if (docs[i]) {
                 const d = docs[i].data();
-                // Use username primarily, fallback to displayName
                 const name = d.username || d.displayName || "User";
                 document.getElementById(`rank-${r}-name`).innerText = name;
-                document.getElementById(`rank-${r}-score`).innerText = (d.totalXP || 0).toLocaleString();
-
-                // If the data has a photoURL, we could update avatar here too
-                // const img = document.querySelector(`.rank-${r} .avatar`);
-                // if(d.photoURL) img.src = d.photoURL;
+                const xp = (d.league && d.league.lifetimeXP) ? d.league.lifetimeXP : 0;
+                document.getElementById(`rank-${r}-score`).innerText = xp.toLocaleString();
             } else {
                 document.getElementById(`rank-${r}-name`).innerText = "--";
                 document.getElementById(`rank-${r}-score`).innerText = "0";
@@ -74,8 +78,6 @@ function fetchLeaderboard() {
 }
 
 function updateGamification(xp) {
-    document.getElementById('total-xp').innerText = xp.toLocaleString();
-
     let currentLeagueIndex = 0;
     for(let i=0; i<LEAGUES.length; i++) {
         if(xp < LEAGUES[i].limit) {

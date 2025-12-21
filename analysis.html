@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aptitude Labs | Mock Analysis</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="analysis.css"> 
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+</head>
+<body>
+
+    <nav class="top-nav">
+        <div class="brand">
+            <span class="material-icons-round brand-icon">change_history</span>
+            APTITUDE LABS
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="mocks.html">Mocks</a> 
+            <a href="#">Practice</a>
+            <a href="#">Leaderboard</a>
+            <a href="analysis.html" class="active">Analysis</a>
+            <a href="#">Mentor</a>
+            <a href="pricing.html">Pricing</a>
+        </div>
+        <div class="flex align-center gap-2 text-gray-400">
+            <span class="material-icons-round" style="cursor:pointer; font-size:24px;">settings</span>
+            <span class="material-icons-round" onclick="logoutUser()" style="cursor:pointer; font-size:24px; margin-left:15px; color:#ef4444;">logout</span>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="header-row">
+            <div class="page-title-group">
+                <div class="page-title">Mock Analysis</div>
+                <div class="page-subtitle">Detailed breakdown of your performance</div>
+            </div>
+        </div>
+
+        <div class="analysis-grid">
+            </div>
+
+    </div>
+    
+    <script src="analysis.js"></script>
+
+</body>
+</html>
