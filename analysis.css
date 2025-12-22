@@ -1,45 +1,20 @@
-.analysis-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-    padding: 20px;
+/* analysis.css */
+
+/* --- CANVAS CONTAINER --- */
+#bg-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -999;
+    background: #050a14; /* Match fog color so no white flashes */
 }
 
-.analysis-card {
-    background-color: #1a1a1a;
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* Force Transparency on Layout so we see the ocean */
+html, body, .main-container {
+    background: transparent !important;
 }
+.dashboard-grid { z-index: 10; position: relative; }
 
-.analysis-card h3 {
-    font-size: 1.2rem;
-    color: #a0aec0;
-    margin-bottom: 10px;
-}
-
-.analysis-card .score, .analysis-card .count, .analysis-card .xp {
-    font-size: 2.5rem;
-    font-weight: bold;
-}
-
-.score-card .score {
-    color: #48bb78;
-}
-
-.correct-card .count {
-    color: #48bb78;
-}
-
-.incorrect-card .count {
-    color: #f56565;
-}
-
-.attempted-card .count {
-    color: #4299e1;
-}
-
-.xp-card .xp {
-    color: #f6ad55;
-}
+/* ... (Keep your existing Premium CSS for Cards/Nav from the previous turn) ... */
