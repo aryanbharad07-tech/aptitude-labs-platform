@@ -3,205 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analysis | Aptitude Labs</title>
-
+    <title>Performance Command | Aptitude Labs</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
     <link rel="stylesheet" href="dashboard.css">
-    <link rel="stylesheet" href="analysis.css">
-
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <link rel="stylesheet" href="navbar.css"> <link rel="stylesheet" href="analysis.css"> <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
 </head>
 <body>
 
-<div id="bg-canvas"></div>
-
-<nav class="top-nav">
-    <div class="brand">
-        <span class="material-icons-round brand-icon">change_history</span>
-        APTITUDE LABS
-    </div>
-    <div class="nav-links">
-        <a href="dashboard.html">Dashboard</a>
-        <a href="mocks.html">Mocks</a>
-        <a href="practice.html">Practice</a>
-        <a href="leaderboard.html">Leaderboard</a>
-        <a href="analysis.html" class="active">Analysis</a>
-        <a href="mentor.html">Mentor</a>
-        <a href="pricing.html">Pricing</a>
-    </div>
-    <div class="flex align-center gap-2 text-gray-400">
-        <span class="material-icons-round" style="cursor:pointer; font-size:24px;">settings</span>
-        <span class="material-icons-round" onclick="logoutUser()" style="cursor:pointer; font-size:24px; margin-left:15px; color:#ef4444;">logout</span>
-    </div>
-</nav>
-
-<div class="main-container">
-
-    <div class="header-section">
-        <div class="header-left">
-            <a href="mocks.html" class="back-link">
-                <span class="material-icons-round">arrow_back</span> Back to Mocks
-            </a>
-            <h1 id="mock-title">All India Open Mock 04</h1>
-            <div class="meta-row">
-                <span class="meta-tag">CAT 2025</span>
-                <span class="meta-tag">Full Length</span>
-                <span class="meta-date">Attempted: Oct 24, 2025</span>
+    <div class="analysis-wrapper">
+        
+        <header class="page-header">
+            <div class="ph-left">
+                <a href="mocks.html" class="back-btn">
+                    <span class="material-icons-round">arrow_back</span> Back to Mocks
+                </a>
+                <h1 id="mock-title">Loading Intelligence...</h1>
+                <div class="ph-meta">
+                    <span class="tag" id="meta-exam">--</span>
+                    <span class="dot-sep">&bull;</span>
+                    <span class="date" id="meta-date">--</span>
+                </div>
             </div>
+            <div class="ph-right">
+                <button class="btn-glow" onclick="openShareModal()">
+                    <span class="material-icons-round">ios_share</span> Share Report
+                </button>
+            </div>
+        </header>
+
+        <div class="bento-grid">
+            
+            <div class="glass-card kpi-main">
+                <div class="kpi-icon-box blue">
+                    <span class="material-icons-round">emoji_events</span>
+                </div>
+                <div class="kpi-data">
+                    <span class="lbl">TOTAL SCORE</span>
+                    <span class="val" id="disp-score">--</span>
+                </div>
+                <div class="kpi-rank-badge">
+                    <span class="lbl">AIR</span>
+                    <span class="val" id="disp-rank">#--</span>
+                </div>
+            </div>
+
+            <div class="glass-card kpi-stat">
+                <div class="kpi-chart-ring" style="--p:0;" id="pct-ring">
+                    <div class="ring-val" id="disp-pct">--</div>
+                </div>
+                <span class="lbl">PERCENTILE</span>
+            </div>
+
+            <div class="glass-card kpi-stat">
+                <div class="kpi-chart-ring color-green" style="--p:0;" id="acc-ring">
+                    <div class="ring-val" id="disp-acc">--%</div>
+                </div>
+                <span class="lbl">ACCURACY</span>
+            </div>
+
+            <div class="glass-card chart-section">
+                <div class="card-head">
+                    <h3><span class="material-icons-round">insights</span> Deep Dive</h3>
+                    <div class="legend">
+                        <span class="leg-item"><span class="dot user"></span> You</span>
+                        <span class="leg-item"><span class="dot topper"></span> Topper</span>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
+
+            <div class="glass-card radar-section">
+                <div class="card-head">
+                    <h3><span class="material-icons-round">radar</span> Proficiency</h3>
+                </div>
+                <div class="radar-wrapper">
+                    <canvas id="radarChart"></canvas>
+                </div>
+                <div class="weak-areas-list" id="weakness-container"></div>
+            </div>
+
+            <div class="glass-card map-section">
+                <div class="card-head">
+                    <h3><span class="material-icons-round">apps</span> Question Map</h3>
+                    <div class="legend">
+                        <span class="leg-tag c">Correct</span>
+                        <span class="leg-tag w">Wrong</span>
+                        <span class="leg-tag s">Skipped</span>
+                    </div>
+                </div>
+                <div class="honeycomb-grid" id="q-palette">
+                    </div>
+            </div>
+
+            <div class="glass-card time-section">
+                <div class="card-head">
+                    <h3><span class="material-icons-round">timer</span> Velocity</h3>
+                </div>
+                <div class="time-row">
+                    <div class="time-lbl">Avg Time (Correct)</div>
+                    <div class="time-val green" id="time-correct">--s</div>
+                </div>
+                <div class="time-row">
+                    <div class="time-lbl">Avg Time (Wrong)</div>
+                    <div class="time-val red" id="time-wrong">--s</div>
+                </div>
+                <div class="time-row">
+                    <div class="time-lbl">Wasted Effort</div>
+                    <div class="time-val red" id="time-wasted">--m</div>
+                </div>
+            </div>
+
         </div>
-
-        <div class="header-right">
-            <button class="share-btn-header" onclick="openShareModal()">
-                <span class="material-icons-round">ios_share</span> Share Report
-            </button>
-            <div class="rank-badge">
-                <div class="rb-label">ALL INDIA RANK</div>
-                <div class="rb-val" id="disp-rank">#--</div>
-            </div>
-        </div>
     </div>
 
-    <div class="dashboard-grid">
-
-        <div class="col-main">
-            <div class="kpi-row">
-                <div class="card kpi-card">
-                    <div class="kpi-icon blue"><span class="material-icons-round">score</span></div>
-                    <div class="kpi-content">
-                        <span class="kpi-val" id="disp-score">--</span>
-                        <span class="kpi-label">TOTAL SCORE</span>
-                    </div>
-                </div>
-                <div class="card kpi-card">
-                    <div class="kpi-icon gold"><span class="material-icons-round">emoji_events</span></div>
-                    <div class="kpi-content">
-                        <span class="kpi-val" id="disp-pct">--</span>
-                        <span class="kpi-label">PERCENTILE</span>
-                    </div>
-                </div>
-                <div class="card kpi-card">
-                    <div class="kpi-icon green"><span class="material-icons-round">check_circle</span></div>
-                    <div class="kpi-content">
-                        <span class="kpi-val" id="disp-acc">--%</span>
-                        <span class="kpi-label">ACCURACY</span>
-                    </div>
-                </div>
+    <div id="solution-drawer" class="drawer-overlay hidden">
+        <div class="drawer">
+            <div class="drawer-header">
+                <h3 id="sol-title">Question 1</h3>
+                <button class="close-icon" onclick="closeSolution()">&times;</button>
             </div>
-
-            <div class="card content-card">
-                <div class="card-header">
-                    <h3>Performance Breakdown</h3>
-                    <div class="tabs-nav-mini">
-                        <span class="mini-tab active" onclick="switchTab('chart-view')">Sectional</span>
-                        <span class="mini-tab" onclick="switchTab('time-view')">Time</span>
-                    </div>
+            <div class="drawer-content">
+                <div class="sol-meta-bar">
+                    <span class="badge" id="sol-topic">Topic</span>
+                    <span class="badge" id="sol-time">0s</span>
+                    <span class="badge status" id="sol-status">Status</span>
                 </div>
-                <div id="chart-view" class="tab-pane active">
-                    <div class="chart-container"><canvas id="mainChart"></canvas></div>
+                <div class="sol-body-text">
+                    <p><strong>Solution Explanation:</strong></p>
+                    <p>This area will display the detailed solution fetched from the database.</p>
+                    <div class="mock-formula">$$ x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} $$</div>
+                    <p>The correct option is derived from the formula above.</p>
                 </div>
-                <div id="time-view" class="tab-pane">
-                    <div class="chart-container"><canvas id="scatterChart"></canvas></div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header small">Sectional Details</div>
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
-                        <tr><th>SECTION</th><th>SCORE</th><th>ATTEMPTS</th><th>ACCURACY</th><th>TIME</th></tr>
-                        </thead>
-                        <tbody id="section-body"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header small">
-                    <span>Solutions Feed</span>
-                    <div class="filter-bar">
-                        <span class="f-pill active" onclick="filterSol('all')">All</span>
-                        <span class="f-pill" onclick="filterSol('wrong')">Wrong</span>
-                    </div>
-                </div>
-                <div class="solution-list" id="solution-container"></div>
-            </div>
-        </div>
-
-        <div class="sidebar">
-            <div class="card usp-card">
-                <div class="card-header" style="color:var(--gold); margin-bottom:10px;">
-                    <h3><span class="material-icons-round" style="font-size:18px; vertical-align:middle;">auto_fix_high</span> Dream Simulator</h3>
-                </div>
-                <p class="usp-desc">Visualize your rank without silly mistakes.</p>
-                <div class="toggle-row">
-                    <span>Remove Negatives</span>
-                    <label class="switch">
-                        <input type="checkbox" id="sim-negatives" onchange="runSimulation()">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-                <div id="sim-result-box" class="sim-box hidden">
-                    <div class="sim-row">
-                        <span>POTENTIAL RANK</span>
-                        <span class="sim-val" id="sim-new-rank">#--</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header small">Question Map</div>
-                <div class="palette-grid" id="q-palette"></div>
-                <div class="palette-legend">
-                    <span><span class="dot c"></span> Correct</span>
-                    <span><span class="dot w"></span> Wrong</span>
-                    <span><span class="dot s"></span> Skip</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header small" style="color:var(--red)">Focus Areas</div>
-                <div class="weak-list" id="weakness-container"></div>
             </div>
         </div>
     </div>
-</div>
 
-<div id="share-modal" class="modal-overlay hidden">
-    <div class="modal-card">
-        <div class="modal-header">
-            <h3>Share Result</h3>
-            <span class="close-btn" onclick="closeShareModal()">&times;</span>
-        </div>
-        <div id="insta-card" class="share-card-clean">
-            <div class="share-logo">APTITUDE LABS</div>
-            <div class="share-rank-box">
-                <div class="lbl">ALL INDIA RANK</div>
-                <div class="val" id="share-rank">#42</div>
+    <div id="share-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-head">
+                <h3>Share Success</h3>
+                <span class="close-icon" onclick="closeShareModal()">&times;</span>
             </div>
-            <div class="share-grid">
-                <div class="s-item"><span class="v" id="share-score">--</span><span class="l">SCORE</span></div>
-                <div class="s-item"><span class="v" id="share-pct">--</span><span class="l">%ILE</span></div>
+            <div id="insta-card" class="share-card-visual">
+                <div class="sc-logo">APTITUDE LABS</div>
+                <div class="sc-rank">
+                    <div class="lbl">AIR</div>
+                    <div class="val" id="share-rank">#--</div>
+                </div>
+                <div class="sc-stats">
+                    <div class="stat">
+                        <span class="v" id="share-score">--</span>
+                        <span class="l">SCORE</span>
+                    </div>
+                    <div class="stat">
+                        <span class="v" id="share-pct">--</span>
+                        <span class="l">%ILE</span>
+                    </div>
+                </div>
+                <div class="sc-footer">ANALYSIS 2026</div>
             </div>
-            <div class="share-footer">MOCK 04 ANALYSIS</div>
+            <button class="btn-glow full" onclick="downloadStory()">Download Image</button>
         </div>
-        <button class="btn-primary full" onclick="downloadStory()">Download Image</button>
     </div>
-</div>
 
-<script>
-    function logoutUser() { window.location.href = 'login.html'; }
-</script>
-<script src="analysis-3d.js"></script> <script src="analysis-charts.js"></script>
-<script src="analysis.js"></script>
-</body>
+    <script src="analysis-charts.js"></script>
+    <script src="navbar.js"></script> <script src="analysis.js"></script> </body>
 </html>

@@ -1,0 +1,47 @@
+/* navbar.css - Exact replica of required dashboard styles */
+
+/* #css.01: Theme Variables */
+:root {
+    --bg-titanium: #0f111a;
+    --glass-panel: rgba(30, 35, 45, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --text-primary: #F3F4F6;
+    --text-secondary: #9CA3AF;
+    --accent-neon: #38bdf8; /* Electric Blue */
+    --accent-glow: 0 0 10px rgba(56, 189, 248, 0.4);
+    --accent-violet: #a78bfa;
+    --danger: #f87171;
+    --success: #34d399;
+}
+
+/* #css.02: Reset & Base Styles - CRITICAL FOR 100% MATCH */
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+a { text-decoration: none; color: inherit; }
+button { font-family: 'Inter', sans-serif; }
+
+/* #css.03: Utility Classes */
+.flex { display: flex; }
+.justify-between { justify-content: space-between; }
+.align-center { align-items: center; }
+
+/* #css.04: Top Navigation (#page01.02) */
+.top-nav {
+    background: rgba(15, 17, 26, 0.85); /* Dark Glass */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    height: 64px; padding: 0 30px;
+    border-bottom: 1px solid var(--glass-border);
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+}
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.2rem; color: var(--text-primary); }
+.brand-icon { color: var(--accent-neon); text-shadow: var(--accent-glow); font-size: 24px; }
+
+.nav-links { display: flex; gap: 24px; color: var(--text-secondary); font-weight: 500; font-size: 0.95rem; }
+.nav-links a { padding: 20px 0; border-bottom: 2px solid transparent; transition: 0.3s; }
+.nav-links a:hover, .nav-links a.active { 
+    color: var(--accent-neon); 
+    border-bottom-color: var(--accent-neon); 
+    text-shadow: var(--accent-glow);
+}
