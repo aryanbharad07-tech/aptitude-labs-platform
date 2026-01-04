@@ -1,4 +1,4 @@
-/* analysis.js - Pro Version */
+/* analysis.js - Standardized Version */
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Init Chart Defaults
@@ -7,7 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Auth Listener
     firebase.auth().onAuthStateChanged(user => {
         if (user) {
-            updateNavbarProfile(user);
+            // Standard navbar doesn't support custom profile updates here,
+            // so we skip updateNavbarProfile() to avoid errors.
             loadAnalysisData(user.uid);
         } else {
             window.location.href = 'login.html';
@@ -16,27 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const db = firebase.firestore();
-
-// --- Navbar Logic ---
-function updateNavbarProfile(user) {
-    const name = user.displayName || user.email.split('@')[0];
-    document.getElementById('nav-avatar').src = `https://ui-avatars.com/api/?name=${name}&background=38bdf8&color=fff`;
-    document.getElementById('dd-username').innerText = name;
-    
-    // Fetch Gamification
-    db.collection('users').doc(user.uid).onSnapshot(doc => {
-        if(doc.exists) {
-            const d = doc.data();
-            const xp = (d.league && d.league.lifetimeXP) ? d.league.lifetimeXP : (d.totalXP || 0);
-            document.getElementById('nav-streak').innerText = d.streak || 0;
-            document.getElementById('nav-xp').innerText = `${xp} XP`;
-        }
-    });
-}
-
-function toggleNotifs() {
-    alert("No new notifications yet!"); // Placeholder for notification logic
-}
 
 // --- Data Fetching ---
 async function loadAnalysisData(uid) {
@@ -58,7 +38,7 @@ async function loadAnalysisData(uid) {
     }
 }
 
-// --- Render Logic (Same as before but refined) ---
+// --- Render Logic ---
 function renderDashboard(data) {
     // Header & KPI
     document.getElementById('mock-title').innerText = data.mockName;
@@ -172,8 +152,9 @@ function openSolution(idx) {
 function closeSolution() { document.getElementById('solution-drawer').classList.add('hidden'); }
 function openShareModal() { document.getElementById('share-modal').classList.remove('hidden'); }
 function closeShareModal() { document.getElementById('share-modal').classList.add('hidden'); }
+
+// Standard navbar.js handles logout, so we don't strictly need it here, but keeping it safe if called directly
 function logoutUser() { firebase.auth().signOut().then(() => window.location.href = 'login.html'); }
-function openSettings() { alert("Settings Panel Coming Soon!"); }
 
 async function seedProData() {
     const user = firebase.auth().currentUser;

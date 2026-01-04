@@ -1,4 +1,4 @@
-/* analysis.css - The "Ultra Cool" Version */
+/* analysis.css - Cleaned for Uniformity */
 
 :root {
     --bg-deep: #050a14;
@@ -26,106 +26,7 @@ body {
     margin: 0; overflow-x: hidden;
 }
 
-/* --- 1. THE COOL NAVBAR --- */
-.top-nav {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 0 40px; height: 80px;
-    background: var(--nav-bg);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--glass-border);
-    position: sticky; top: 0; z-index: 100;
-    transition: 0.3s;
-}
-
-/* Brand */
-.brand { display: flex; align-items: center; gap: 12px; cursor: pointer; }
-.brand-logo-box {
-    width: 40px; height: 40px; background: rgba(56, 189, 248, 0.1);
-    border-radius: 10px; display: flex; align-items: center; justify-content: center;
-    border: 1px solid rgba(56, 189, 248, 0.3);
-    transition: 0.3s;
-}
-.brand:hover .brand-logo-box { transform: rotate(15deg) scale(1.1); background: var(--neon-blue); box-shadow: 0 0 20px var(--neon-blue); }
-.brand:hover .brand-icon { color: #000; }
-.brand-icon { color: var(--neon-blue); font-size: 24px; transition: 0.3s; }
-.brand-text { font-family: var(--font-head); font-weight: 700; font-size: 1.4rem; letter-spacing: 1px; color: #fff; }
-.highlight { color: var(--neon-blue); }
-
-/* Links */
-.nav-links { display: flex; gap: 8px; height: 100%; align-items: center; }
-.nav-item {
-    display: flex; align-items: center; gap: 8px;
-    padding: 10px 16px; border-radius: 12px;
-    color: var(--text-muted); font-weight: 500; font-size: 0.9rem;
-    transition: 0.3s; position: relative; overflow: hidden;
-}
-.nav-item .material-icons-round { font-size: 20px; }
-.nav-item:hover { color: #fff; background: rgba(255,255,255,0.05); }
-.nav-item.active { background: rgba(56, 189, 248, 0.1); color: var(--neon-blue); border: 1px solid rgba(56, 189, 248, 0.2); }
-
-/* Nav Actions */
-.nav-actions { display: flex; align-items: center; gap: 16px; }
-
-/* Pills (Streak/XP) */
-.stat-pill {
-    display: flex; align-items: center; gap: 8px;
-    padding: 8px 16px; border-radius: 50px;
-    background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border);
-    font-size: 0.85rem; font-weight: 600; cursor: default;
-    transition: 0.3s;
-}
-.stat-pill:hover { border-color: rgba(255,255,255,0.3); transform: translateY(-2px); }
-
-/* Fire Animation */
-.streak-pill { color: #f59e0b; }
-.fire-anim { animation: breathe 2s infinite ease-in-out; }
-@keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 1; text-shadow: 0 0 10px #f59e0b; } }
-
-.xp-pill { color: var(--neon-purple); }
-.bolt-anim { text-shadow: 0 0 5px var(--neon-purple); }
-
-/* Notification Bell */
-.icon-btn {
-    width: 40px; height: 40px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    background: rgba(255,255,255,0.05); color: var(--text-muted);
-    cursor: pointer; transition: 0.2s; position: relative;
-}
-.icon-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
-.notif-dot { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; background: var(--neon-red); border-radius: 50%; border: 2px solid var(--bg-deep); }
-.bell-shake:hover { animation: shake 0.5s ease-in-out both; }
-@keyframes shake { 0% { transform: rotate(0); } 25% { transform: rotate(15deg); } 50% { transform: rotate(-15deg); } 75% { transform: rotate(10deg); } 100% { transform: rotate(0); } }
-
-/* Profile Ring */
-.profile-menu-container { position: relative; cursor: pointer; }
-.profile-trigger { padding: 2px; }
-.avatar-ring {
-    width: 42px; height: 42px; border-radius: 50%;
-    background: conic-gradient(var(--neon-blue), var(--neon-purple), var(--neon-blue));
-    padding: 2px; /* Border thickness */
-    animation: spin 4s linear infinite;
-}
-.nav-avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #000; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-.dropdown-menu {
-    position: absolute; top: 60px; right: 0; width: 200px;
-    background: #1e293b; border: 1px solid var(--glass-border);
-    border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    display: none; flex-direction: column; overflow: hidden; padding: 5px;
-    animation: fadeIn 0.2s ease;
-}
-.profile-menu-container:hover .dropdown-menu { display: flex; }
-.dd-header { padding: 15px; border-bottom: 1px solid var(--glass-border); margin-bottom: 5px; }
-.dd-header span { display: block; }
-#dd-username { font-weight: 700; color: #fff; }
-.dd-role { font-size: 0.75rem; color: var(--neon-blue); }
-.dropdown-menu a {
-    padding: 12px; font-size: 0.9rem; color: var(--text-muted); display: flex; align-items: center; gap: 10px;
-    border-radius: 8px; transition: 0.2s; text-decoration: none;
-}
-.dropdown-menu a:hover { background: rgba(255,255,255,0.05); color: #fff; }
-.dropdown-menu a.danger:hover { background: rgba(248, 113, 113, 0.1); color: var(--neon-red); }
+/* Note: Navbar styles removed to inherit from dashboard.css (64px height) */
 
 /* --- 2. BENTO GRID LAYOUT --- */
 .analysis-wrapper { max-width: 1400px; margin: 40px auto; padding: 0 20px; }
@@ -224,7 +125,6 @@ body {
 @media (max-width: 1024px) {
     .bento-grid { grid-template-columns: 1fr; }
     .kpi-main, .chart-section, .radar-section, .map-section, .time-section { grid-column: span 1; }
-    .top-nav { padding: 0 20px; } .nav-links { display: none; } /* Hide links on mobile for now */
 }
 
 /* Utils */

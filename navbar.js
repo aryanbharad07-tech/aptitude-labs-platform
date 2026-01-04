@@ -1,7 +1,5 @@
 // navbar.js
-
 document.addEventListener("DOMContentLoaded", function() {
-    // 1. Define the Navbar HTML (Exact copy from dashboard.html)
     const navbarHTML = `
     <nav class="top-nav">
         <div class="brand">
@@ -23,32 +21,16 @@ document.addEventListener("DOMContentLoaded", function() {
         </div>
     </nav>
     `;
-
-    // 2. Inject Navbar
     document.body.insertAdjacentHTML('afterbegin', navbarHTML);
 
-    // 3. Set Active Link Logic
     const currentPage = window.location.pathname.split("/").pop() || 'index.html';
     const links = document.querySelectorAll('.nav-links a');
-    
     links.forEach(link => {
-        if (link.getAttribute('href') === currentPage) {
-            link.classList.add('active');
-        }
+        if (link.getAttribute('href') === currentPage) link.classList.add('active');
     });
 });
 
-// 4. Global Logout Function (Exact copy from dashboard.html head)
 function logoutUser() {
-    console.log("Attempting Logout...");
-    // Try Firebase Logout safely
-    try {
-        if (typeof firebase !== 'undefined' && firebase.auth()) {
-            firebase.auth().signOut();
-        }
-    } catch (error) {
-        console.warn("Firebase logout warning (ignoring to force redirect):", error);
-    }
-    // FORCE REDIRECT
+    try { if (typeof firebase !== 'undefined' && firebase.auth()) firebase.auth().signOut(); } catch (e) {}
     window.location.href = 'login.html';
 }

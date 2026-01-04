@@ -10,26 +10,6 @@
 </head>
 <body>
 
-<nav class="top-nav">
-    <div class="brand">
-        <span class="material-icons-round brand-icon">change_history</span>
-        APTITUDE LABS
-    </div>
-    <div class="nav-links">
-        <a href="dashboard.html">Dashboard</a>
-        <a href="mocks.html">Mocks</a> 
-        <a href="practice.html" class="active">Practice</a>
-        <a href="leaderboard.html">Leaderboard</a>
-        <a href="analysis.html">Analysis</a>
-        <a href="mentor.html">Mentor</a>
-        <a href="pricing.html">Pricing</a>
-    </div>
-    <div class="flex align-center gap-2 text-gray-400">
-        <span class="material-icons-round" style="cursor:pointer; font-size:24px;">settings</span>
-        <span class="material-icons-round" onclick="logoutUser()" style="cursor:pointer; font-size:24px; margin-left:15px; color:#ef4444;">logout</span>
-    </div>
-</nav>
-
 <div class="coming-soon-container">
     <h1>Coming Soon</h1>
     <p>This page is under construction. We're working hard to bring you an amazing experience!</p>
@@ -41,11 +21,7 @@
 .coming-soon-container p { font-size: 1.1rem; color: var(--text-muted); }
 </style>
 
-<script>
-    function logoutUser() {
-        window.location.href = 'login.html';
-    }
-</script>
+<script src="navbar.js"></script>
 
 </body>
 </html>
