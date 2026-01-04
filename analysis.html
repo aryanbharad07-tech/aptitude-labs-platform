@@ -3,185 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Performance Command | Aptitude Labs</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+    <title>Analysis | Aptitude Labs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-
     <link rel="stylesheet" href="dashboard.css">
-    <link rel="stylesheet" href="analysis.css">
-    
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
-</head>
+    </head>
 <body>
 
-    <div class="analysis-wrapper">
-        
-        <header class="page-header">
-            <div class="ph-left">
-                <a href="mocks.html" class="back-btn">
-                    <span class="material-icons-round">arrow_back</span> Back to Mocks
-                </a>
-                <h1 id="mock-title">Loading Intelligence...</h1>
-                <div class="ph-meta">
-                    <span class="tag" id="meta-exam">--</span>
-                    <span class="dot-sep">&bull;</span>
-                    <span class="date" id="meta-date">--</span>
-                </div>
-            </div>
-            <div class="ph-right">
-                <button class="btn-glow" onclick="openShareModal()">
-                    <span class="material-icons-round">ios_share</span> Share Report
-                </button>
-            </div>
-        </header>
+<div class="coming-soon-container">
+    <h1>Coming Soon</h1>
+    <p>This page is under construction. We're working hard to bring you an amazing experience!</p>
+</div>
 
-        <div class="bento-grid">
-            
-            <div class="glass-card kpi-main">
-                <div class="kpi-icon-box blue">
-                    <span class="material-icons-round">emoji_events</span>
-                </div>
-                <div class="kpi-data">
-                    <span class="lbl">TOTAL SCORE</span>
-                    <span class="val" id="disp-score">--</span>
-                </div>
-                <div class="kpi-rank-badge">
-                    <span class="lbl">AIR</span>
-                    <span class="val" id="disp-rank">#--</span>
-                </div>
-            </div>
+<style>
+.coming-soon-container { text-align: center; margin-top: 150px; color: var(--text-primary); }
+.coming-soon-container h1 { font-size: 3rem; font-weight: 800; margin-bottom: 10px; }
+.coming-soon-container p { font-size: 1.1rem; color: var(--text-muted); }
+</style>
 
-            <div class="glass-card kpi-stat">
-                <div class="kpi-chart-ring" style="--p:0;" id="pct-ring">
-                    <div class="ring-val" id="disp-pct">--</div>
-                </div>
-                <span class="lbl">PERCENTILE</span>
-            </div>
+<script src="navbar.js"></script>
 
-            <div class="glass-card kpi-stat">
-                <div class="kpi-chart-ring color-green" style="--p:0;" id="acc-ring">
-                    <div class="ring-val" id="disp-acc">--%</div>
-                </div>
-                <span class="lbl">ACCURACY</span>
-            </div>
-
-            <div class="glass-card chart-section">
-                <div class="card-head">
-                    <h3><span class="material-icons-round">insights</span> Deep Dive</h3>
-                    <div class="legend">
-                        <span class="leg-item"><span class="dot user"></span> You</span>
-                        <span class="leg-item"><span class="dot topper"></span> Topper</span>
-                    </div>
-                </div>
-                <div class="chart-wrapper">
-                    <canvas id="mainChart"></canvas>
-                </div>
-            </div>
-
-            <div class="glass-card radar-section">
-                <div class="card-head">
-                    <h3><span class="material-icons-round">radar</span> Proficiency</h3>
-                </div>
-                <div class="radar-wrapper">
-                    <canvas id="radarChart"></canvas>
-                </div>
-                <div class="weak-areas-list" id="weakness-container"></div>
-            </div>
-
-            <div class="glass-card map-section">
-                <div class="card-head">
-                    <h3><span class="material-icons-round">apps</span> Question Map</h3>
-                    <div class="legend">
-                        <span class="leg-tag c">Correct</span>
-                        <span class="leg-tag w">Wrong</span>
-                        <span class="leg-tag s">Skipped</span>
-                    </div>
-                </div>
-                <div class="honeycomb-grid" id="q-palette">
-                    </div>
-            </div>
-
-            <div class="glass-card time-section">
-                <div class="card-head">
-                    <h3><span class="material-icons-round">timer</span> Velocity</h3>
-                </div>
-                <div class="time-row">
-                    <div class="time-lbl">Avg Time (Correct)</div>
-                    <div class="time-val green" id="time-correct">--s</div>
-                </div>
-                <div class="time-row">
-                    <div class="time-lbl">Avg Time (Wrong)</div>
-                    <div class="time-val red" id="time-wrong">--s</div>
-                </div>
-                <div class="time-row">
-                    <div class="time-lbl">Wasted Effort</div>
-                    <div class="time-val red" id="time-wasted">--m</div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <div id="solution-drawer" class="drawer-overlay hidden">
-        <div class="drawer">
-            <div class="drawer-header">
-                <h3 id="sol-title">Question 1</h3>
-                <button class="close-icon" onclick="closeSolution()">&times;</button>
-            </div>
-            <div class="drawer-content">
-                <div class="sol-meta-bar">
-                    <span class="badge" id="sol-topic">Topic</span>
-                    <span class="badge" id="sol-time">0s</span>
-                    <span class="badge status" id="sol-status">Status</span>
-                </div>
-                <div class="sol-body-text">
-                    <p><strong>Solution Explanation:</strong></p>
-                    <p>This area will display the detailed solution fetched from the database.</p>
-                    <div class="mock-formula">$$ x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} $$</div>
-                    <p>The correct option is derived from the formula above.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="share-modal" class="modal-overlay hidden">
-        <div class="modal-card">
-            <div class="modal-head">
-                <h3>Share Success</h3>
-                <span class="close-icon" onclick="closeShareModal()">&times;</span>
-            </div>
-            <div id="insta-card" class="share-card-visual">
-                <div class="sc-logo">APTITUDE LABS</div>
-                <div class="sc-rank">
-                    <div class="lbl">AIR</div>
-                    <div class="val" id="share-rank">#--</div>
-                </div>
-                <div class="sc-stats">
-                    <div class="stat">
-                        <span class="v" id="share-score">--</span>
-                        <span class="l">SCORE</span>
-                    </div>
-                    <div class="stat">
-                        <span class="v" id="share-pct">--</span>
-                        <span class="l">%ILE</span>
-                    </div>
-                </div>
-                <div class="sc-footer">ANALYSIS 2026</div>
-            </div>
-            <button class="btn-glow full" onclick="downloadStory()">Download Image</button>
-        </div>
-    </div>
-
-    <script src="analysis-charts.js"></script>
-    <script src="analysis.js"></script>
-    <script src="navbar.js"></script>
-    
 </body>
 </html>

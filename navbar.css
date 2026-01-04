@@ -10,21 +10,19 @@
     --accent-glow: 0 0 10px rgba(56, 189, 248, 0.4);
 }
 
-/* Reset to ensure sizing consistency */
+/* Reset */
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-
-/* Utility Classes */
-.flex { display: flex; }
-.align-center { align-items: center; }
 
 /* Navbar Container */
 .top-nav {
-    /* FIXED: Solid Background color (No transparency) to ensure 100% visual match on all pages */
-    background-color: #0f111a; 
+    background: rgba(15, 17, 26, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     
-    /* FIXED: Exact dimensions from Dashboard */
-    height: 64px; 
-    padding: 0 30px;
+    /* UPDATED: Shrunk Height */
+    height: 50px; 
+    padding: 0 25px; /* Slightly tighter side padding */
+    width: 100%;
     
     border-bottom: 1px solid var(--glass-border);
     display: flex; 
@@ -32,22 +30,22 @@
     justify-content: space-between;
     position: sticky; 
     top: 0; 
-    z-index: 1000; /* Increased z-index to stay on top */
+    z-index: 1000;
 }
 
-/* Brand Logo */
+/* Brand */
 .brand { 
     display: flex; 
     align-items: center; 
     gap: 8px; 
     font-weight: 800; 
-    font-size: 1.2rem; 
+    font-size: 1.1rem; /* Slightly smaller to match thinner bar */
     color: var(--text-primary); 
 }
 .brand-icon { 
     color: var(--accent-neon); 
     text-shadow: var(--accent-glow); 
-    font-size: 24px; 
+    font-size: 22px; /* Adjusted icon size */
 }
 
 /* Navigation Links */
@@ -56,17 +54,66 @@
     gap: 24px; 
     color: var(--text-secondary); 
     font-weight: 500; 
-    font-size: 0.95rem; 
+    font-size: 0.9rem; 
+    height: 100%; /* Full height for alignment */
+    align-items: center;
 }
 .nav-links a { 
-    padding: 20px 0; 
+    /* UPDATED: Reduced padding for 50px height */
+    padding: 14px 0; 
     border-bottom: 2px solid transparent; 
     transition: 0.3s; 
     text-decoration: none; 
     color: inherit;
+    display: flex;
+    align-items: center;
+    height: 100%;
 }
 .nav-links a:hover, .nav-links a.active { 
     color: var(--accent-neon); 
     border-bottom-color: var(--accent-neon); 
     text-shadow: var(--accent-glow);
+}
+
+/* --- FORCE LARGE PROFILE ICON (Scaled for 50px) --- */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.static-profile-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    
+    /* UPDATED: Maximized for 50px bar */
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 50%;
+    
+    /* Glass Effect */
+    background: rgba(56, 189, 248, 0.1); 
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+/* Icon Sizing - Big relative to button */
+.static-profile-btn .material-icons-round {
+    font-size: 30px !important; 
+    color: var(--accent-neon);
+    filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.5));
+    display: block;
+    line-height: 1 !important;
+}
+
+/* Hover Effect */
+.static-profile-btn:hover {
+    background: rgba(56, 189, 248, 0.25);
+    border-color: var(--accent-neon);
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    transform: scale(1.05);
 }

@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", function() {
             <span class="material-icons-round brand-icon">change_history</span>
             APTITUDE LABS
         </div>
+
         <div class="nav-links">
             <a href="dashboard.html">Dashboard</a>
             <a href="mocks.html">Mocks</a> 
@@ -15,14 +16,17 @@ document.addEventListener("DOMContentLoaded", function() {
             <a href="mentor.html">Mentor</a>
             <a href="pricing.html">Pricing</a>
         </div>
-        <div class="flex align-center gap-2 text-gray-400">
-            <span class="material-icons-round" style="cursor:pointer; font-size:24px;">settings</span>
-            <span class="material-icons-round" onclick="logoutUser()" style="cursor:pointer; font-size:24px; margin-left:15px; color:#ef4444;">logout</span>
+        
+        <div class="nav-actions">
+            <a href="profile.html" class="static-profile-btn" title="Go to Profile">
+                <span class="material-icons-round">account_circle</span>
+            </a>
         </div>
     </nav>
     `;
     document.body.insertAdjacentHTML('afterbegin', navbarHTML);
 
+    // Set Active Link
     const currentPage = window.location.pathname.split("/").pop() || 'index.html';
     const links = document.querySelectorAll('.nav-links a');
     links.forEach(link => {
