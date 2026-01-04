@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const navbarHTML = `
     <nav class="top-nav">
         <div class="brand">
-            <span class="material-icons-round brand-icon">change_history</span>
+            <img src="assets/logo.png" alt="Logo" class="brand-logo" height="36">
             APTITUDE LABS
         </div>
 
