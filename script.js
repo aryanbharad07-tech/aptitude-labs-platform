@@ -44,6 +44,10 @@ let userAnswers = {};
 let activeMockId = "";
 let currentQIdx = 0;
 
+// [ADDED] Time Tracking State (Required for Velocity Curve)
+let qStartTime = Date.now();
+let timeTracker = {}; 
+
 // --- INITIALIZATION ---
 window.onload = function() {
     auth.onAuthStateChanged((user) => {
@@ -90,7 +94,7 @@ async function fetchQuestions() {
             return; 
         }
 
-        // Process & Sort by Question Number (CRITICAL FIX)
+        // Process & Sort by Question Number
         allQuestions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         allQuestions.sort((a, b) => (a.qNumber || 0) - (b.qNumber || 0));
 
@@ -104,16 +108,31 @@ async function fetchQuestions() {
     }
 }
 
+// [ADDED] Helper to log time per question (Invisible)
+function logTime() {
+    const now = Date.now();
+    const duration = Math.round((now - qStartTime) / 1000);
+    // If a valid question is active, record time
+    if(sectionQuestions[currentQIdx]) {
+        const qid = sectionQuestions[currentQIdx].id;
+        if(!timeTracker[qid]) timeTracker[qid] = 0;
+        timeTracker[qid] += duration;
+    }
+    qStartTime = now; // Reset start time
+}
+
 // --- CORE ENGINE ---
 function loadSection(index) {
+    // [ADDED] Save time before switching section
+    logTime();
+
     activeSectionIndex = index;
     const secName = currentConfig.sections[index];
 
     // Filter questions for this section
-    // Fix: Strict matching to avoid mixing "QA" and "QA (MCQ)"
     sectionQuestions = allQuestions.filter(q => q.section === secName);
     
-    // If no questions found for exact name, try loose match (fallback)
+    // Fallback loose match
     if(sectionQuestions.length === 0) {
         sectionQuestions = allQuestions.filter(q => q.section.startsWith(secName.split(' ')[0]));
     }
@@ -151,10 +170,16 @@ function renderTabs() {
 
 // --- RENDERING QUESTIONS ---
 function loadQuestionUI(idx) {
+    // [ADDED] Save time before leaving current question
+    logTime();
+
     currentQIdx = idx;
     if(!sectionQuestions[idx]) return;
     const q = sectionQuestions[idx];
     
+    // [ADDED] Reset timer for new question
+    qStartTime = Date.now();
+
     // Header Info
     document.getElementById('q-number-display').innerText = idx + 1;
     document.getElementById('q-type-label').innerText = q.type;
@@ -218,17 +243,12 @@ function loadQuestionUI(idx) {
     }
     
     updatePaletteVisuals();
-    
-    // Mark as visited (Purple if empty, Green/Red if answered later)
-    if (!userAnswers[q.id]) {
-        // Just visited, not answered yet
-        // We don't save 'not-answered' to DB yet, just local state for palette color
-    }
 }
 
 // --- ANSWER SAVING ---
 function saveAns(qId, val) {
     if(val && val.trim() !== "") {
+        // [MODIFIED] Ensure object is extensible
         userAnswers[qId] = { answer: val, status: 'answered' };
     } else {
         delete userAnswers[qId]; // Remove if cleared
@@ -238,7 +258,6 @@ function saveAns(qId, val) {
 
 // --- NAVIGATION ---
 function saveAndNext() {
-    // Logic handles in saveAns, just move
     if (currentQIdx < sectionQuestions.length - 1) {
         loadQuestionUI(currentQIdx + 1);
     }
@@ -279,7 +298,6 @@ function renderPalette() {
 }
 
 function updatePaletteVisuals() {
-    // Update Counts
     let counts = { answered:0, notAnswered:0, marked:0, ansMarked:0, notVisited:0 };
 
     sectionQuestions.forEach((q, i) => {
@@ -288,33 +306,28 @@ function updatePaletteVisuals() {
         
         if (!btn) return;
 
-        // Reset
         btn.className = 'p-btn';
         
-        // Active Question Border
         if (i === currentQIdx) btn.style.border = "2px solid #000";
         else btn.style.border = "1px solid #ccc";
 
-        // Status Colors
         if (!data) {
-            btn.classList.add('not-answered'); // Default Red for unseen/unanswered in TCS
+            btn.classList.add('not-answered'); 
             counts.notAnswered++;
         } else if (data.status === 'answered') {
-            btn.classList.add('answered'); // Green
+            btn.classList.add('answered'); 
             counts.answered++;
         } else if (data.status === 'marked') {
-            btn.classList.add('marked'); // Purple
+            btn.classList.add('marked'); 
             counts.marked++;
         } else if (data.status === 'ans-marked') {
-            btn.classList.add('ans-marked'); // Purple + Green Dot
+            btn.classList.add('ans-marked');
             counts.ansMarked++;
         }
     });
 
-    // Update Legend Counts (Optional if elements exist)
     try {
         document.querySelector('.circle.answered').innerText = counts.answered;
-        // ... update others ...
     } catch(e) {}
 }
 
@@ -361,15 +374,29 @@ async function submitExam(auto = false) {
     if (!auto && !confirm("Are you sure you want to Submit?")) return;
 
     clearInterval(timerInterval);
+    
+    // [ADDED] Final time capture
+    logTime();
 
     let score = 0, correct = 0, wrong = 0, attempted = 0;
 
+    // [ADDED] Merge Time Data into User Answers
     allQuestions.forEach(q => {
         const u = userAnswers[q.id];
+        const t = timeTracker[q.id] || 0; // The captured time
+
         if (u && (u.status === 'answered' || u.status === 'ans-marked')) {
             attempted++;
             if (u.answer === q.correct) { score += 4; correct++; }
             else if (q.type !== 'SA') { score -= 1; wrong++; }
+            
+            // SAVE TIME TO DB
+            userAnswers[q.id].timeTaken = t;
+        } else {
+            // Save time for visited/skipped questions too (for analytics)
+            if (t > 0) {
+                userAnswers[q.id] = { answer: null, status: 'skipped', timeTaken: t };
+            }
         }
     });
 
@@ -378,16 +405,22 @@ async function submitExam(auto = false) {
 
     if (user) {
         const userRef = db.collection("users").doc(user.uid);
+        // Saving to 'mocks' collection as required by Analysis Page
         const mockResultRef = db.collection("mocks").doc(`${user.uid}_${activeMockId}`);
         const increment = firebase.firestore.FieldValue.increment(xpGained);
 
         try {
             const batch = db.batch();
 
-            // Correctly and atomically increment the user's XP
-            batch.update(userRef, { 'league.lifetimeXP': increment });
+            // [FIXED] Update BOTH lifetime and current XP
+            batch.set(userRef, { 
+                league: { 
+                    lifetimeXP: increment, 
+                    currentXP: increment 
+                } 
+            }, { merge: true });
 
-            // Set the mock result
+            // Save Analytics Data
             batch.set(mockResultRef, {
                 mockId: activeMockId,
                 studentName: user.email,
@@ -403,9 +436,9 @@ async function submitExam(auto = false) {
             window.location.href = "analysis.html";
 
         } catch (err) {
-             // If the update fails (e.g., user doc or league doesn't exist), try a safe merge
-            console.warn("Atomic update failed, falling back to safe merge. Error:", err);
+            console.warn("Atomic update failed, falling back...", err);
             try {
+                // Fallback safe write
                 const batch_fallback = db.batch();
                 batch_fallback.set(userRef, { league: { lifetimeXP: increment } }, { merge: true });
                 batch_fallback.set(mockResultRef, {
@@ -416,11 +449,9 @@ async function submitExam(auto = false) {
                     answers: userAnswers
                 });
                 await batch_fallback.commit();
-                localStorage.setItem("activeMockId", activeMockId);
                 window.location.href = "analysis.html";
             } catch (fallback_err) {
-                console.error("Fallback batch write failed: ", fallback_err);
-                alert("Failed to save results. Please check connection and try again.");
+                alert("Failed to save results. Check internet.");
             }
         }
     } else {

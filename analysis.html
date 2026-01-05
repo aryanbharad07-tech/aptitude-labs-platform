@@ -3,25 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analysis | Aptitude Labs</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    <title>Aptitude Labs | Deep Analysis</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-    <link rel="stylesheet" href="dashboard.css">
-    </head>
+    
+    <link rel="stylesheet" href="dashboard.css"> <link rel="stylesheet" href="analysis.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+</head>
 <body>
 
-<div class="coming-soon-container">
-    <h1>Coming Soon</h1>
-    <p>This page is under construction. We're working hard to bring you an amazing experience!</p>
-</div>
+    <div id="nav-placeholder"></div>
 
-<style>
-.coming-soon-container { text-align: center; margin-top: 150px; color: var(--text-primary); }
-.coming-soon-container h1 { font-size: 3rem; font-weight: 800; margin-bottom: 10px; }
-.coming-soon-container p { font-size: 1.1rem; color: var(--text-muted); }
-</style>
+    <div class="analysis-container">
+        
+        <div class="control-header">
+            <div class="ch-left">
+                <span class="ch-label">SELECTED ASSESSMENT</span>
+                <div class="mock-dropdown-box">
+                    <span class="material-icons-round icon-sub">dns</span>
+                    <select id="mock-selector">
+                        <option value="" disabled selected>Loading History...</option>
+                    </select>
+                    <span class="material-icons-round icon-sub arrow">expand_more</span>
+                </div>
+            </div>
+            <div class="ch-right">
+                <button class="btn-action" onclick="window.print()">
+                    <span class="material-icons-round">print</span> PRINT REPORT
+                </button>
+            </div>
+        </div>
 
-<script src="navbar.js"></script>
+        <div class="hero-panel">
+            <div class="hero-module score-mod">
+                <div class="mod-label">AGGREGATE SCORE</div>
+                <div class="score-display">
+                    <span class="score-val neon-blue" id="score-val">0</span>
+                    <span class="score-total">/ <span id="total-marks">0</span></span>
+                </div>
+                <div class="rank-badge" id="percentile-val">-- %ile</div>
+            </div>
+
+            <div class="hero-divider"></div>
+
+            <div class="hero-module sec-mod">
+                <div class="mod-label">SECTIONAL BREAKDOWN</div>
+                <div class="sec-pills-row" id="hero-sections">
+                    </div>
+            </div>
+
+            <div class="hero-divider"></div>
+
+            <div class="hero-module xp-mod">
+                <div class="mod-label">XP EARNED</div>
+                <div class="xp-display">
+                    <span class="material-icons-round xp-icon">bolt</span>
+                    <span class="xp-value" id="xp-val">+0</span>
+                </div>
+                <div class="xp-sub">Level Progress</div>
+            </div>
+        </div>
+
+        <div class="analytics-grid">
+            
+            <div class="col-left">
+                
+                <div class="card-row">
+                    <div class="card stat-card">
+                        <div class="card-head">POTENTIAL SCORE</div>
+                        <div class="stat-val neon-green" id="potential-val">0</div>
+                        <div class="stat-sub">Lost <span id="silly-count" style="color:#fff">0</span> to silly errors</div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="card-head">ACCURACY</div>
+                        <div class="chart-mini">
+                            <canvas id="accuracyDoughnut"></canvas>
+                            <div class="chart-center" id="acc-val">0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-head">
+                        <span class="material-icons-round icon-orange">timer</span>
+                        TIME ALLOCATION
+                    </div>
+                    <div class="chart-box-sm">
+                        <canvas id="timeDistChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card ai-card">
+                    <div class="card-head">
+                        <span class="material-icons-round icon-purple">psychology</span>
+                        AI PERFORMANCE DIAGNOSIS
+                    </div>
+                    <div class="ai-feed" id="ai-insights">
+                        <div class="loading">Processing telemetry...</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-right">
+                
+                <div class="card">
+                    <div class="card-head">
+                        <span class="material-icons-round icon-blue">hub</span>
+                        PERFORMANCE DNA
+                    </div>
+                    <div class="chart-box">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-head">
+                        <span class="material-icons-round icon-green">speed</span>
+                        VELOCITY CURVE (VS TOPPER)
+                    </div>
+                    <div class="chart-box">
+                        <canvas id="fatigueChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-head">
+                        <span class="material-icons-round icon-blue">category</span>
+                        TOPIC HEATMAP
+                    </div>
+                    <div class="topic-grid" id="topic-heatmap"></div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="card map-card">
+            <div class="card-head spread">
+                <div class="head-left"><span class="material-icons-round">grid_view</span> QUESTION MAP</div>
+                <div class="toggle-group">
+                    <button class="tg-btn active" data-mode="status">RESULT</button>
+                    <button class="tg-btn" data-mode="time">HEATMAP</button>
+                </div>
+            </div>
+            <div class="grid-wrapper" id="q-grid"></div>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead><tr><th>Q#</th><th>SECTION</th><th>TOPIC</th><th>DIFF</th><th>TIME</th><th>STATUS</th></tr></thead>
+                    <tbody id="analysis-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="sol-modal" class="modal-overlay hidden">
+        </div>
+
+    <script src="navbar.js"></script>
+    <script src="analysis-core.js"></script>
+    <script src="analysis-charts.js"></script>
+    <script src="analysis-ui.js"></script>
 
 </body>
 </html>
